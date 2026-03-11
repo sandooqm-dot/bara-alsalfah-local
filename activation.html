@@ -51,7 +51,6 @@
       align-items:center;
     }
 
-    /* اللوجو: فوق بالمنتصف وكبير */
     .topLogo{
       width:min(180px, 55vw);
       height:auto;
@@ -112,6 +111,10 @@
       text-align:right;
     }
 
+    .group + .group{
+      margin-top:14px;
+    }
+
     .input{
       width:100%;
       height:56px;
@@ -125,6 +128,7 @@
       text-align:left;
       direction:ltr;
     }
+
     .input:focus{
       border-color: rgba(17,17,17,.45);
       box-shadow: 0 0 0 4px rgba(17,17,17,.12);
@@ -132,7 +136,7 @@
 
     .btn{
       width:100%;
-      margin-top:12px;
+      margin-top:14px;
       height:58px;
       border:4px solid var(--black);
       border-radius:18px;
@@ -145,6 +149,7 @@
       -webkit-tap-highlight-color:transparent;
       transition:transform .05s ease;
     }
+
     .btn:active{transform:translateY(1px)}
     .btn[disabled]{opacity:.75; cursor:not-allowed}
 
@@ -156,7 +161,9 @@
       display:none;
       text-align:center;
       font-size:16px;
+      line-height:1.7;
     }
+
     .msg.ok{display:block; background:rgba(22,163,74,.12); border:2px solid rgba(22,163,74,.35); color:#0b3d1d}
     .msg.err{display:block; background:rgba(220,38,38,.10); border:2px solid rgba(220,38,38,.35); color:#7a1212}
 
@@ -166,6 +173,7 @@
       font-weight:900;
       color:rgba(17,17,17,.75);
       text-align:center;
+      line-height:1.8;
     }
 
     .foot{
@@ -187,15 +195,40 @@
 
     <section class="card" aria-label="تفعيل اللعبة">
       <div class="inner">
-        <div class="label">أدخل كود اللعبة</div>
-        <input id="code" class="input" inputmode="text" autocomplete="off" autocapitalize="characters"
-               placeholder="مثال: SNDQ-XXXX-XXXX-XXXX" />
+        <div class="group">
+          <div class="label">أدخل الإيميل</div>
+          <input
+            id="email"
+            class="input"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="name@example.com"
+          />
+        </div>
+
+        <div class="group">
+          <div class="label">أدخل كود اللعبة</div>
+          <input
+            id="code"
+            class="input"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="characters"
+            placeholder="مثال: SNDQ-XXXX-XXXX-XXXX"
+          />
+        </div>
 
         <button id="btn" class="btn" type="button">تفعيل</button>
 
         <div id="msg" class="msg"></div>
 
-        <div class="note">بعد التفعيل سيتم ربط الكود بهذا الجهاز.</div>
+        <div class="note">
+          بعد التفعيل سيتم ربط الكود بهذا الجهاز<br>
+          وسيتم حفظ الإيميل لهذا التفعيل.
+        </div>
       </div>
     </section>
 
@@ -208,13 +241,14 @@
      ***********************/
     const ACTIVATION_API = "https://script.google.com/macros/s/AKfycbwDxN4zps9dwADEcjCNw-RbnlYnGYvoNbwQh1R-6MHXFx8AVA1EVEuA6m4miuyctQm3Eg/exec";
 
-    // معرف خاص لهذه اللعبة
     const GAME_KEY = "bara_alsalfah";
 
     const LS_ACTIVE = `SNDQ_ACTIVE_${GAME_KEY}`;
     const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
+    const LS_EMAIL  = `SNDQ_EMAIL_${GAME_KEY}`;
     const LS_DEVICE = `SNDQ_DEVICEKEY`;
 
+    const emailEl = document.getElementById("email");
     const codeEl = document.getElementById("code");
     const btn = document.getElementById("btn");
     const msg = document.getElementById("msg");
@@ -233,8 +267,18 @@
         .replace(/[—–]/g, "-");
     }
 
+    function normalizeEmail(v){
+      return (v || "")
+        .trim()
+        .toLowerCase();
+    }
+
     function isValidCodeFormat(code){
       return /^SNDQ-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code);
+    }
+
+    function isValidEmail(email){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
     function getDeviceKey(){
@@ -242,32 +286,49 @@
       if(k && k.length >= 16) return k;
 
       const bytes = new Uint8Array(16);
-      (crypto && crypto.getRandomValues) ? crypto.getRandomValues(bytes) : bytes.forEach((_,i)=>bytes[i]=Math.floor(Math.random()*256));
+      if (window.crypto && crypto.getRandomValues) {
+        crypto.getRandomValues(bytes);
+      } else {
+        for (let i = 0; i < bytes.length; i++) {
+          bytes[i] = Math.floor(Math.random() * 256);
+        }
+      }
+
       k = Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('');
       localStorage.setItem(LS_DEVICE, k);
       return k;
     }
 
     function isActivated(){
-      return localStorage.getItem(LS_ACTIVE) === "1" && !!localStorage.getItem(LS_CODE);
+      return (
+        localStorage.getItem(LS_ACTIVE) === "1" &&
+        !!localStorage.getItem(LS_CODE) &&
+        !!localStorage.getItem(LS_EMAIL)
+      );
     }
 
-    function setActivated(code){
+    function setActivated(code, email){
       localStorage.setItem(LS_ACTIVE, "1");
       localStorage.setItem(LS_CODE, code);
+      localStorage.setItem(LS_EMAIL, email);
     }
 
-    // لو مفعل من قبل: رجّعه للصفحة الرئيسية مباشرة
     function getNext(){
       const u = new URL(location.href);
       return u.searchParams.get("next") || "index.html";
     }
+
+    const savedEmail = normalizeEmail(localStorage.getItem(LS_EMAIL) || "");
+    if(savedEmail){
+      emailEl.value = savedEmail;
+    }
+
     if(isActivated()){
       location.replace(getNext());
     }
 
     /***********************
-     * JSONP (لتفادي CORS)
+     * JSONP
      ***********************/
     function jsonp(url){
       return new Promise((resolve, reject) => {
@@ -310,29 +371,45 @@
     }
 
     async function activateNow(){
+      const email = normalizeEmail(emailEl.value);
       const code = normalizeCode(codeEl.value);
+
+      emailEl.value = email;
       codeEl.value = code;
+
+      if(!email){
+        showMsg("اكتب الإيميل أولاً.", "err");
+        return;
+      }
+
+      if(!isValidEmail(email)){
+        showMsg("صيغة الإيميل غير صحيحة.", "err");
+        return;
+      }
 
       if(!code){
         showMsg("اكتب الكود أولاً.", "err");
         return;
       }
+
       if(!isValidCodeFormat(code)){
         showMsg("صيغة الكود غير صحيحة. مثال: SNDQ-XXXX-XXXX-XXXX", "err");
         return;
       }
 
       btn.disabled = true;
-      showMsg("جاري التحقق من الكود…", "ok");
+      showMsg("جاري التحقق من الإيميل والكود…", "ok");
 
       const deviceKey = getDeviceKey();
 
       try{
-        const url = `${ACTIVATION_API}?code=${encodeURIComponent(code)}&device=${encodeURIComponent(deviceKey)}`;
+        const url =
+          `${ACTIVATION_API}?code=${encodeURIComponent(code)}&device=${encodeURIComponent(deviceKey)}&email=${encodeURIComponent(email)}`;
+
         const res = await jsonp(url);
 
         if(res && res.ok){
-          setActivated(code);
+          setActivated(code, email);
           showMsg("تم التفعيل بنجاح ✅ سيتم فتح اللعبة الآن…", "ok");
           setTimeout(() => {
             location.replace(getNext());
@@ -351,15 +428,24 @@
     }
 
     btn.addEventListener("click", activateNow);
+
     codeEl.addEventListener("keydown", (e) => {
       if(e.key === "Enter") activateNow();
     });
 
+    emailEl.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") activateNow();
+    });
+
     window.addEventListener("load", () => {
-      setTimeout(() => codeEl.focus(), 80);
+      setTimeout(() => {
+        if(emailEl.value.trim()){
+          codeEl.focus();
+        } else {
+          emailEl.focus();
+        }
+      }, 80);
     });
   </script>
 </body>
 </html>
-
-<!-- اسم النسخة: activation.html برا السالفة – صفحة تفعيل مستقلة – إصدار 2 -->
