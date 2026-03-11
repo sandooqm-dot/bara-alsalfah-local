@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>لعبة برا السالفة - اللعب الفردي</title>
+
+  <style>
+    :root{
+      --bg:#e9e4d6;
+      --frame:#3f5a2a;
+      --card:#6a8450;
+      --card2:#d8cfb1;
+      --text:#1b1b1b;
+      --white:#ffffff;
+
+      --yellow:#f2c21b;
+      --yellowText:#111;
+
+      --purple:#7a44a3;
+      --vote:#7b1f1f;   /* أحمر داكن */
+      --shadow: 0 10px 0 rgba(0,0,0,.25);
+
+      --containerMax: 520px;
+      --radiusBig: 26px;
+      --radiusMid: 18px;
+
+      --boxPad: 22px;
+      --boxMinH: 260px;
+
+      --titleSize: 18px;
+      --headerSize: 26px;
+      --bigWordSize: 54px;
+      --playerNameSize: 36px;
+      --askLineSize: 36px;
+      --subTextSize: 22px;
+      --subTextSizeSmall: 22px;
+
+      --btnH: 62px;
+      --btnRadius: 26px;
+
+      --homeSize: 60px;
+      --homeGap: 12px;
+
+      --bottomGap: 34px;
+
+      --pickBlue:#8fd6ff;
+      --good:#2ecc71;
+      --bad:#e74c3c;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      color:var(--text);
+    }
+
+    .wrap{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:18px 14px 160px;
+    }
+    .frame{
+      width:min(var(--containerMax), 100%);
+      border:10px solid var(--frame);
+      border-radius: var(--radiusBig);
+      background:transparent;
+      padding:18px 16px 24px;
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .brandTitle{
+      font-size:var(--titleSize);
+      font-weight:700;
+      color:#2f3f22;
+      opacity:.95;
+    }
+    .logo{
+      width:86px;height:86px;
+      object-fit:contain;
+    }
+
+    .badgeTitle{
+      margin:14px auto 16px;
+      width:fit-content;
+      max-width:100%;
+      padding:14px 26px;
+      border-radius: 22px;
+      background: rgba(216,207,177,.9);
+      color:#395427;
+      font-weight:900;
+      font-size: var(--headerSize);
+      line-height:1;
+      text-align:center;
+      display:none;
+    }
+    .badgeTitle.show{ display:block; }
+
+    .playerNameBox{
+      margin: 10px auto 16px;
+      width:100%;
+      border-radius: 22px;
+      background: rgba(216,207,177,.55);
+      padding: 18px 16px;
+      font-weight:900;
+      font-size: var(--playerNameSize);
+      color:#3a5227;
+      text-align:center;
+    }
+
+    .bigCard{
+      background:var(--card);
+      color:var(--white);
+      border-radius: var(--radiusBig);
+      padding: var(--boxPad);
+      min-height: var(--boxMinH);
+      box-shadow: 0 0 0 8px rgba(216,207,177,.75) inset;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      position:relative;
+    }
+
+    .innerCream{
+      width:100%;
+      border-radius: var(--radiusBig);
+      background: rgba(216,207,177,.55);
+      padding: 16px 18px;
+      margin: 0 auto 12px;
+      color:#2f3f22;
+      font-weight:900;
+      text-align:center;
+    }
+
+    .msgText{
+      font-size: var(--subTextSize);
+      font-weight:800;
+      line-height:1.6;
+      padding: 0 10px;
+    }
+
+    .topicWord{
+      font-size: var(--bigWordSize);
+      font-weight:1000;
+      letter-spacing:.5px;
+    }
+
+    .askLine{
+      font-size: var(--askLineSize);
+      font-weight:1000;
+      line-height:1.2;
+      margin-bottom: 18px;
+    }
+    .askLine .who{ color: var(--yellow); }
+    .askLine .mid{ color: #fff; margin:0 10px; }
+    .askHelpBox{
+      width:100%;
+      max-width: 420px;
+      margin: 0 auto;
+      border-radius: 22px;
+      background: rgba(0,0,0,.08);
+      padding: 18px 18px;
+      font-size: var(--subTextSizeSmall);
+      font-weight:900;
+      line-height:1.6;
+    }
+
+    .ctaArea{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      margin-top: 14px;
+    }
+    .ctaArea.hidden{ display:none; }
+
+    .cta{
+      height: var(--btnH);
+      border-radius: var(--btnRadius);
+      background: var(--yellow);
+      color: var(--yellowText);
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      font-size: 28px;
+      font-weight:1000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width: 86%;
+      max-width: 420px;
+      margin: 0 auto;
+      cursor:pointer;
+      user-select:none;
+      text-align:center;
+      padding: 0 14px;
+    }
+    .cta:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      filter: grayscale(.15);
+    }
+
+    @media (max-width: 420px){
+      .cta{ width: 88%; }
+    }
+    @media (max-width: 360px){
+      .cta{ width: 90%; font-size: 26px; }
+      .logo{ width:80px;height:80px; }
+    }
+
+    .cta.vote{
+      background: var(--vote);
+      color:#fff;
+      max-width: 360px;
+    }
+
+    .cta.compact{
+      height: 56px;
+      border-radius: 22px;
+      max-width: 360px;
+      width: 78%;
+      font-size: 26px;
+    }
+
+    .spacerBottom{ height: 18px; }
+
+    .bottomBar{
+      position:fixed;
+      left:0; right:0;
+      bottom: calc(var(--bottomGap) + env(safe-area-inset-bottom));
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+      z-index:9999;
+    }
+    .bottomInner{
+      width:min(var(--containerMax), calc(100% - 28px));
+      position:relative;
+      pointer-events:none;
+    }
+
+    .homeBtn{
+      position:absolute;
+      left: var(--homeGap);
+      bottom:0;
+      width: var(--homeSize);
+      height: var(--homeSize);
+      border-radius: 50%;
+      background: #bfe7ff;
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:auto;
+      cursor:pointer;
+    }
+    .homeBtn svg{ width:34px;height:34px; }
+    @media (max-width: 360px){
+      .homeBtn{ width:56px;height:56px; }
+      .homeBtn svg{ width:30px;height:30px; }
+    }
+
+    .optionList{
+      width:100%;
+      max-width: 420px;
+      margin: 10px auto 0;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .optBtn{
+      width:100%;
+      height: 64px;
+      border-radius: 22px;
+      background:#fff;
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      font-size: 30px;
+      font-weight:1000;
+      color:#111;
+      cursor:pointer;
+      user-select:none;
+    }
+    .optBtn.selected{ background: var(--pickBlue); }
+    .optBtn.good{ background: var(--good); color:#fff; }
+    .optBtn.bad{ background: var(--bad); color:#fff; }
+
+    .resultRow{
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin: 14px auto 0;
+      max-width: 420px;
+      justify-content:center;
+    }
+    .scoreBubble{
+      width:74px;
+      height:74px;
+      border-radius:50%;
+      background:#fff;
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 34px;
+      font-weight:1000;
+      color:#111;
+      flex:0 0 auto;
+    }
+    .namePill{
+      flex:1;
+      height: 74px;
+      border-radius: 28px;
+      background:#fff;
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 34px;
+      font-weight:1000;
+      color:#111;
+      padding: 0 14px;
+    }
+
+    .endBtns{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      align-items:center;
+      margin-top: 16px;
+    }
+    .endBtn{
+      width: 88%;
+      max-width: 420px;
+      height: 74px;
+      border-radius: 28px;
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      font-size: 34px;
+      font-weight:1000;
+      cursor:pointer;
+      user-select:none;
+    }
+    .endBtn.blue{ background:#8fd6ff; color:#111; }
+    .endBtn.yellow{ background: var(--yellow); color: var(--yellowText); }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="frame" id="frame">
+      <div class="topbar">
+        <div class="brandTitle">لعبة برا السالفة</div>
+        <img class="logo" src="logo.PNG" alt="logo" />
+      </div>
+
+      <div class="badgeTitle" id="pageTitle"></div>
+
+      <div id="content"></div>
+
+      <div class="ctaArea" id="ctaArea">
+        <button class="cta compact" id="ctaBtn">التالي</button>
+      </div>
+
+      <div class="spacerBottom"></div>
+    </div>
+  </div>
+
+  <div class="bottomBar">
+    <div class="bottomInner">
+      <button class="homeBtn" id="homeBtn" aria-label="الرئيسية" title="الرئيسية">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 11.5L12 4l9 7.5" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.5 10.5V20h11V10.5" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+<script>
+function getSessionJSON(key){
+  try{
+    const v = sessionStorage.getItem(key);
+    return v ? JSON.parse(v) : null;
+  }catch(e){ return null; }
+}
+function setSessionJSON(key, val){
+  sessionStorage.setItem(key, JSON.stringify(val));
+}
+function getLocalJSON(key){
+  try{
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : null;
+  }catch(e){ return null; }
+}
+
+function normalizePlayersArray(arr){
+  if(!Array.isArray(arr)) return [];
+  const out = [];
+  for(const item of arr){
+    if(typeof item === "string"){
+      const n = item.trim();
+      if(n) out.push(n);
+    }else if(item && typeof item === "object"){
+      const n = String(item.name || item.player || item.value || "").trim();
+      if(n) out.push(n);
+    }
+  }
+  return [...new Set(out)];
+}
+
+function looksLikePlayersList(list){
+  if(!Array.isArray(list)) return false;
+  if(list.length < 2 || list.length > 30) return false;
+  let ok = 0;
+  for(const n of list){
+    if(typeof n === "string" && n.trim() && n.length <= 30) ok++;
+  }
+  return ok >= Math.min(2, list.length);
+}
+
+function collectCandidates(){
+  const candidates = [];
+  const ignore = new Set(["singleState","bara_single_scores"]);
+
+  for(let i=0; i<sessionStorage.length; i++){
+    const key = sessionStorage.key(i);
+    if(!key || ignore.has(key)) continue;
+    const raw = getSessionJSON(key);
+    const norm = normalizePlayersArray(raw);
+    if(looksLikePlayersList(norm)){
+      candidates.push({ store:"session", key, list:norm });
+    }
+  }
+
+  for(let i=0; i<localStorage.length; i++){
+    const key = localStorage.key(i);
+    if(!key) continue;
+    const raw = getLocalJSON(key);
+    const norm = normalizePlayersArray(raw);
+    if(looksLikePlayersList(norm)){
+      candidates.push({ store:"local", key, list:norm });
+    }
+  }
+
+  return candidates;
+}
+
+function readPlayers(){
+  const known = [];
+  const knownKeys = ["bara_players", "players", "baraPlayers"];
+  for(const k of knownKeys){
+    const a = normalizePlayersArray(getSessionJSON(k));
+    if(looksLikePlayersList(a)) known.push({store:"session", key:k, list:a});
+  }
+
+  const all = collectCandidates();
+  const pool = [...known, ...all];
+  if(!pool.length) return [];
+
+  pool.sort((a,b) => (b.list.length - a.list.length));
+  const best = pool[0].list.slice();
+
+  setSessionJSON("bara_players", best);
+  setSessionJSON("players", best);
+  setSessionJSON("baraPlayers", best);
+
+  return best;
+}
+
+function readCategoryKey(){
+  const k1 = (sessionStorage.getItem("bara_category_id") || "").trim();
+  if (k1) return k1;
+  const k2 = (sessionStorage.getItem("categoryKey") || "").trim();
+  if (k2) return k2;
+  const k3 = (sessionStorage.getItem("bara_selectedCategory") || "").trim();
+  if (k3) return k3;
+  return "zoo";
+}
+
+const players = readPlayers();
+const categoryKey = readCategoryKey();
+
+if(!players.length){
+  location.href = "single.html";
+}
+
+function loadCategoryWords(key){
+  return new Promise((resolve) => {
+    if (window.BARA_WORDS && Array.isArray(window.BARA_WORDS[key]) && window.BARA_WORDS[key].length){
+      resolve(window.BARA_WORDS[key]);
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = `data/${encodeURIComponent(key)}.js?v=${Date.now()}`;
+    s.onload = () => {
+      if (window.BARA_WORDS && Array.isArray(window.BARA_WORDS[key]) && window.BARA_WORDS[key].length){
+        resolve(window.BARA_WORDS[key]);
+      }else{
+        resolve([]);
+      }
+    };
+    s.onerror = () => resolve([]);
+    document.head.appendChild(s);
+  });
+}
+
+function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function shuffle(a){
+  const arr = a.slice();
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function uniq(arr){
+  const s = new Set();
+  const out = [];
+  for(const x of arr){
+    if(!s.has(x)){
+      s.add(x);
+      out.push(x);
+    }
+  }
+  return out;
+}
+
+const SCORE_KEY = "bara_single_scores";
+function loadScores(){
+  const data = getSessionJSON(SCORE_KEY);
+  if(!data || !Array.isArray(data.players) || !Array.isArray(data.scores)) return null;
+  return data;
+}
+function initScores(){
+  return { players: players.slice(), scores: players.map(()=>0) };
+}
+function ensureScores(){
+  const data = loadScores();
+  if(!data) {
+    const s = initScores();
+    setSessionJSON(SCORE_KEY, s);
+    return s;
+  }
+  if(data.players.length === players.length && data.players.every((p,i)=>p===players[i])){
+    return data;
+  }
+  const out = initScores();
+  for(let i=0;i<players.length;i++){
+    const idx = data.players.indexOf(players[i]);
+    if(idx !== -1){
+      out.scores[i] = Number(data.scores[idx] || 0);
+    }
+  }
+  setSessionJSON(SCORE_KEY, out);
+  return out;
+}
+
+let state = getSessionJSON("singleState");
+let categoryWordsList = [];
+
+async function ensureState(){
+  if(!state){
+    state = {
+      screen: 0,
+      revealIndex: 0,
+      askIndex: 0,
+      pairings: [],
+      outsiderIndex: -1,
+      topicWord: "",
+      voteIndex: 0,
+      votes: [],
+      currentPick: -1,
+      revealDone: false,
+      guessOptions: [],
+      guessPicked: "",
+      outsiderGuessedCorrect: false,
+      roundScoresApplied: false,
+      lastRoundScores: []
+    };
+
+    const n = players.length;
+    for(let i=0;i<n;i++){
+      let targetIndex = i;
+      while(targetIndex === i){
+        targetIndex = Math.floor(Math.random()*n);
+      }
+      state.pairings.push({ asker: players[i], target: players[targetIndex] });
+    }
+
+    state.outsiderIndex = Math.floor(Math.random() * players.length);
+    state.topicWord = (categoryWordsList && categoryWordsList.length) ? pickRandom(categoryWordsList) : "سالفة";
+
+    setSessionJSON("singleState", state);
+    return;
+  }
+
+  if(typeof state.outsiderIndex !== "number" || state.outsiderIndex < 0 || state.outsiderIndex >= players.length){
+    state.outsiderIndex = Math.floor(Math.random() * players.length);
+  }
+  if(!state.topicWord || typeof state.topicWord !== "string"){
+    state.topicWord = (categoryWordsList && categoryWordsList.length) ? pickRandom(categoryWordsList) : "سالفة";
+  }
+  if(!Array.isArray(state.pairings) || !state.pairings.length){
+    state.pairings = [];
+    const n = players.length;
+    for(let i=0;i<n;i++){
+      let targetIndex = i;
+      while(targetIndex === i){
+        targetIndex = Math.floor(Math.random()*n);
+      }
+      state.pairings.push({ asker: players[i], target: players[targetIndex] });
+    }
+  }
+  if(!Array.isArray(state.votes) || state.votes.length !== players.length){
+    state.votes = players.map(()=>-1);
+  }
+  if(typeof state.voteIndex !== "number") state.voteIndex = 0;
+  if(typeof state.currentPick !== "number") state.currentPick = -1;
+
+  setSessionJSON("singleState", state);
+}
+
+const pageTitle = document.getElementById("pageTitle");
+const content = document.getElementById("content");
+const ctaBtn = document.getElementById("ctaBtn");
+const ctaArea = document.getElementById("ctaArea");
+const homeBtn = document.getElementById("homeBtn");
+
+function setPageTitle(text){
+  const t = (text || "").trim();
+  if(!t){
+    pageTitle.textContent = "";
+    pageTitle.classList.remove("show");
+    return;
+  }
+  pageTitle.textContent = t;
+  pageTitle.classList.add("show");
+}
+
+homeBtn.addEventListener("click", () => {
+  sessionStorage.removeItem("bara_players");
+  sessionStorage.removeItem("players");
+  sessionStorage.removeItem("baraPlayers");
+
+  sessionStorage.removeItem("bara_category_id");
+  sessionStorage.removeItem("categoryKey");
+  sessionStorage.removeItem("bara_selectedCategory");
+
+  sessionStorage.removeItem("singleState");
+  sessionStorage.removeItem(SCORE_KEY);
+  location.href = "index.html";
+});
+
+ctaBtn.addEventListener("click", () => next());
+
+(async function boot(){
+  setPageTitle("");
+  content.innerHTML = `
+    <div class="bigCard" style="min-height:260px;">
+      <div class="msgText">جاري تجهيز الجولة...</div>
+    </div>
+  `;
+  categoryWordsList = await loadCategoryWords(categoryKey);
+  await ensureState();
+  render();
+})();
+
+function buildGuessOptions(){
+  const correct = state.topicWord || "سالفة";
+  const words = Array.isArray(categoryWordsList) ? categoryWordsList.slice() : [];
+  const pool = uniq(words.filter(w => (w || "").trim() && w !== correct));
+  const pick = shuffle(pool).slice(0, 6);
+  const options = shuffle([correct, ...pick]);
+  state.guessOptions = options;
+  state.guessPicked = "";
+  state.outsiderGuessedCorrect = false;
+}
+
+function render(){
+  ctaArea.classList.remove("hidden");
+  ctaBtn.disabled = false;
+
+  ctaBtn.classList.add("compact");
+  ctaBtn.classList.remove("vote");
+  ctaBtn.textContent = "التالي";
+
+  const s = state.screen;
+
+  if(s === 0){
+    const p = players[state.revealIndex];
+    setPageTitle("");
+    content.innerHTML = `
+      <div class="playerNameBox">${escapeHtml(p)}</div>
+      <div class="bigCard" style="min-height:260px;">
+        <div class="msgText">
+          اعطو الجوال لـ <span style="color:var(--yellow); font-weight:1000;">${escapeHtml(p)}</span><br/>
+          اضغط التالي حتى تعرف أنت برا السالفة أو داخلها<br/>
+          ولا تخلي أحد غيرك يشوف الشاشة!
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(s === 1){
+    const isOut = (state.revealIndex === state.outsiderIndex);
+    setPageTitle("");
+    if(isOut){
+      content.innerHTML = `
+        <div class="bigCard">
+          <div>
+            <div class="innerCream" style="font-size:40px; font-weight:1000;">السالفة هي :</div>
+            <div class="topicWord" style="margin-top:20px;">أنت برا السالفة 👀</div>
+          </div>
+        </div>
+      `;
+    }else{
+      content.innerHTML = `
+        <div class="bigCard">
+          <div>
+            <div class="innerCream" style="font-size:40px; font-weight:1000;">السالفة هي :</div>
+            <div class="topicWord" style="margin-top:20px;">${escapeHtml(state.topicWord)}</div>
+          </div>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  if(s === 2){
+    setPageTitle("وقت الاسئلة");
+    content.innerHTML = `
+      <div class="bigCard" style="min-height:280px;">
+        <div class="msgText">
+          كل شخص راح يسأل شخص ثاني سؤال متعلق بالسالفة<br/>
+          اضغط التالي حتى تعرفون مين يسأل مين
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(s === 3){
+    setPageTitle("وقت الاسئلة");
+    const pair = state.pairings[state.askIndex];
+    content.innerHTML = `
+      <div class="bigCard" style="min-height:320px;">
+        <div style="width:100%;">
+          <div class="askLine">
+            <span class="who">${escapeHtml(pair.asker)}</span>
+            <span class="mid">يسأل</span>
+            <span class="who">${escapeHtml(pair.target)}</span>
+          </div>
+
+          <div class="msgText" style="margin-bottom:12px;">
+            سؤال متعلق بالسالفة!
+          </div>
+
+          <div class="askHelpBox">
+            اختر سؤالك بعناية حتى اللي برا السالفة ما يعرف عن إيش تتكلمون
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(s === 4){
+    setPageTitle("ما تأكدت صح ؟");
+    ctaBtn.textContent = "تصويت";
+    ctaBtn.classList.add("vote");
+    ctaBtn.classList.add("compact");
+
+    content.innerHTML = `
+      <div class="bigCard" style="min-height:320px;">
+        <div class="msgText">
+          الحين يقدر أي أحد يسأل شخص يشك إنه هو اللي برا السالفة<br/><br/>
+          <div style="font-size:22px; font-weight:1000; opacity:.95;">
+            بعد الانتهاء من الأسئلة اضغط <span style="color:var(--yellow);">تصويت</span>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(s === 5){
+    setPageTitle("");
+    const voter = players[state.voteIndex];
+
+    /* ✅ التعديل المطلوب: آخر لاعب أيضًا زرّه "تصويت" أحمر */
+    ctaBtn.textContent = "تصويت";
+    ctaBtn.classList.add("vote");
+    ctaBtn.classList.add("compact");
+
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = `
+      <div class="playerNameBox">${escapeHtml(voter)}</div>
+      <div class="bigCard" style="min-height:420px;">
+        <div style="width:100%;">
+          <div class="msgText" style="font-size:34px; font-weight:1000; line-height:1.35;">
+            اختر الشخص الي تشك انه برا السالفة!
+          </div>
+          <div id="voteList"></div>
+        </div>
+      </div>
+    `;
+
+    content.innerHTML = "";
+    content.appendChild(wrapper);
+
+    const listHost = wrapper.querySelector("#voteList");
+
+    const choices = players
+      .map((name, idx) => ({name, idx}))
+      .filter(x => x.idx !== state.voteIndex);
+
+    const currentTarget = state.currentPick;
+    let selectedChoicePos = -1;
+    if(typeof currentTarget === "number" && currentTarget >= 0){
+      selectedChoicePos = choices.findIndex(c => c.idx === currentTarget);
+    }
+
+    const list = document.createElement("div");
+    list.className = "optionList";
+
+    choices.forEach((c, pos) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "optBtn";
+      b.textContent = c.name;
+      if(pos === selectedChoicePos) b.classList.add("selected");
+      b.addEventListener("click", () => {
+        state.currentPick = c.idx;
+        saveOnly();
+        render();
+      });
+      list.appendChild(b);
+    });
+
+    listHost.appendChild(list);
+    return;
+  }
+
+  /* ✅ التعديل المطلوب: صفحة "لحظة الحقيقة!" قبل الكشف */
+  if(s === 10){
+    setPageTitle("لحظة الحقيقة!");
+    ctaBtn.textContent = "التالي";
+    ctaBtn.classList.remove("vote");
+    ctaBtn.classList.add("compact");
+
+    content.innerHTML = `
+      <div class="bigCard" style="min-height:420px;">
+        <div class="msgText" style="font-size:44px; font-weight:1000; line-height:1.35;">
+          اضغط <span style="color:var(--yellow);">التالي</span><br/>
+          عشان تعرف مين اللاعب<br/>
+          الي برا السالفة 👀
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if(s === 6){
+    setPageTitle("");
+    ctaBtn.textContent = "التالي";
+    ctaBtn.classList.remove("vote");
+    ctaBtn.disabled = true;
+
+    content.innerHTML = `
+      <div class="bigCard" style="min-height:420px;">
+        <div style="width:100%;">
+          <div class="msgText" style="font-size:34px; font-weight:1000; margin-bottom:10px;">
+            الي برا السالفة هو :
+          </div>
+          <div id="revealName" class="topicWord" style="font-size:64px; margin-top:30px;">...</div>
+        </div>
+      </div>
+    `;
+
+    if(!state.revealDone){
+      state.revealDone = true;
+      saveOnly();
+
+      const el = document.getElementById("revealName");
+      const seq = shuffle(players.slice());
+      let i = 0;
+      const start = Date.now();
+      const timer = setInterval(() => {
+        el.textContent = seq[i % seq.length];
+        i++;
+        if(Date.now() - start >= 2000){
+          clearInterval(timer);
+          el.textContent = players[state.outsiderIndex];
+          ctaBtn.disabled = false;
+        }
+      }, 70);
+    }else{
+      const el = document.getElementById("revealName");
+      if(el) el.textContent = players[state.outsiderIndex];
+      ctaBtn.disabled = false;
+    }
+    return;
+  }
+
+  if(s === 7){
+    setPageTitle("");
+    ctaBtn.textContent = "التالي";
+    ctaBtn.classList.remove("vote");
+
+    if(!Array.isArray(state.guessOptions) || state.guessOptions.length < 2){
+      buildGuessOptions();
+      saveOnly();
+    }
+
+    ctaBtn.disabled = !state.guessPicked;
+
+    const outsiderName = players[state.outsiderIndex];
+
+    content.innerHTML = `
+      <div class="playerNameBox">${escapeHtml(outsiderName)}</div>
+      <div class="bigCard" style="min-height:520px;">
+        <div style="width:100%;">
+          <div class="msgText" style="font-size:34px; font-weight:1000; margin-bottom:8px;">
+            ايش هي السالفة ؟
+          </div>
+          <div id="guessList"></div>
+        </div>
+      </div>
+    `;
+
+    const host = document.getElementById("guessList");
+    const list = document.createElement("div");
+    list.className = "optionList";
+
+    state.guessOptions.forEach((w) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "optBtn";
+      b.textContent = w;
+
+      if(state.guessPicked){
+        if(w === state.topicWord) b.classList.add("good");
+        else b.classList.add("bad");
+      }
+
+      b.addEventListener("click", () => {
+        if(state.guessPicked) return;
+        state.guessPicked = w;
+        state.outsiderGuessedCorrect = (w === state.topicWord);
+        saveOnly();
+        render();
+      });
+
+      list.appendChild(b);
+    });
+
+    host.appendChild(list);
+    return;
+  }
+
+  if(s === 8){
+    setPageTitle("النتائج");
+    ctaBtn.textContent = "التالي";
+    ctaBtn.classList.remove("vote");
+
+    if(!state.roundScoresApplied){
+      const n = players.length;
+      if(!Array.isArray(state.votes) || state.votes.length !== n){
+        state.votes = players.map(()=>-1);
+      }
+
+      const votedOutsider = [];
+      for(let i=0;i<n;i++){
+        if(state.votes[i] === state.outsiderIndex) votedOutsider.push(i);
+      }
+
+      const roundScores = players.map(()=>0);
+      for(const i of votedOutsider){
+        roundScores[i] = 100;
+      }
+
+      if(votedOutsider.length === 0){
+        roundScores[state.outsiderIndex] = 100;
+      }else{
+        roundScores[state.outsiderIndex] = state.outsiderGuessedCorrect ? 100 : 0;
+      }
+
+      state.lastRoundScores = roundScores.slice();
+      state.roundScoresApplied = true;
+
+      const totals = ensureScores();
+      for(let i=0;i<n;i++){
+        totals.scores[i] = Number(totals.scores[i] || 0) + Number(roundScores[i] || 0);
+      }
+      setSessionJSON(SCORE_KEY, totals);
+
+      saveOnly();
+    }
+
+    const totals = ensureScores();
+    const rows = players.map((name, i) => ({
+      name,
+      score: Number(totals.scores[i] || 0)
+    }));
+
+    const sorted = rows.slice().sort((a,b)=>b.score - a.score);
+
+    let html = `
+      <div class="bigCard" style="min-height:520px;">
+        <div style="width:100%;">
+    `;
+
+    for(const r of sorted){
+      html += `
+        <div class="resultRow">
+          <div class="scoreBubble">${r.score}</div>
+          <div class="namePill">${escapeHtml(r.name)}</div>
+        </div>
+      `;
+    }
+
+    html += `
+        </div>
+      </div>
+    `;
+
+    content.innerHTML = html;
+    return;
+  }
+
+  if(s === 9){
+    setPageTitle("نهاية الجولة");
+    ctaArea.classList.add("hidden");
+
+    content.innerHTML = `
+      <div class="bigCard" style="min-height:520px;">
+        <div class="msgText" style="font-size:34px; font-weight:1000; line-height:1.45;">
+          تقدرون تكملون لعب أو تغيرون لاعب أو ترجعون للشاشة اختيار الأسئلة
+          <br/><br/>
+          <div style="font-size:22px; font-weight:900; opacity:.95;">
+            أرهب شعور لما تكون برا السالفة وتنسأل أول سؤال ومع ذلك مع ما يكشفونك !!
+          </div>
+        </div>
+      </div>
+
+      <div class="endBtns">
+        <button class="endBtn blue" id="changePlayersBtn">تغيير اللاعبين</button>
+        <button class="endBtn yellow" id="continueBtn">كمل لعب</button>
+      </div>
+    `;
+
+    document.getElementById("changePlayersBtn").addEventListener("click", () => {
+      setSessionJSON("bara_players", players);
+      setSessionJSON("players", players);
+      setSessionJSON("baraPlayers", players);
+
+      sessionStorage.removeItem("singleState");
+      location.href = "single.html";
+    });
+
+    document.getElementById("continueBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("singleState");
+      location.href = "categories.html";
+    });
+
+    return;
+  }
+}
+
+function next(){
+  const s = state.screen;
+
+  if(s === 0){ state.screen = 1; saveAndRender(); return; }
+
+  if(s === 1){
+    state.revealIndex++;
+    if(state.revealIndex >= players.length){ state.screen = 2; }
+    else{ state.screen = 0; }
+    saveAndRender();
+    return;
+  }
+
+  if(s === 2){ state.screen = 3; state.askIndex = 0; saveAndRender(); return; }
+
+  if(s === 3){
+    state.askIndex++;
+    if(state.askIndex >= state.pairings.length){ state.screen = 4; }
+    saveAndRender();
+    return;
+  }
+
+  if(s === 4){
+    state.screen = 5;
+    state.voteIndex = 0;
+    state.votes = players.map(()=>-1);
+    state.currentPick = -1;
+    state.revealDone = false;
+    state.guessOptions = [];
+    state.guessPicked = "";
+    state.outsiderGuessedCorrect = false;
+    state.roundScoresApplied = false;
+    state.lastRoundScores = [];
+    saveAndRender();
+    return;
+  }
+
+  if(s === 5){
+    if(state.currentPick === -1){ alert("اختر لاعب قبل المتابعة"); return; }
+    state.votes[state.voteIndex] = state.currentPick;
+
+    const isLast = (state.voteIndex === players.length - 1);
+    if(!isLast){
+      state.voteIndex++;
+      state.currentPick = -1;
+      saveAndRender();
+      return;
+    }
+
+    /* ✅ التعديل المطلوب: بعد آخر تصويت نروح لصفحة "لحظة الحقيقة!" */
+    state.screen = 10;
+    state.currentPick = -1;
+    saveAndRender();
+    return;
+  }
+
+  /* ✅ التعديل المطلوب: بعد "لحظة الحقيقة!" نفتح الكشف مباشرة */
+  if(s === 10){ state.screen = 6; saveAndRender(); return; }
+
+  if(s === 6){ state.screen = 7; saveAndRender(); return; }
+
+  if(s === 7){
+    if(!state.guessPicked){ alert("اختر كلمة قبل المتابعة"); return; }
+    state.screen = 8;
+    saveAndRender();
+    return;
+  }
+
+  if(s === 8){ state.screen = 9; saveAndRender(); return; }
+  if(s === 9){ return; }
+}
+
+function saveOnly(){ setSessionJSON("singleState", state); }
+function saveAndRender(){ saveOnly(); render(); }
+
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+</script>
+
+</body>
+</html>
+
+<!-- single_game.html برا السالفة – إصدار 8 (إضافة صفحة لحظة الحقيقة قبل الكشف + آخر تصويت زر تصويت) -->

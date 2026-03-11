@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>اختر نوع السالفة</title>
+
+  <style>
+    :root{
+      --beige:#e8e2d4;
+      --green:#6f8250;
+      --green-dark:#3e4f23;
+      --black:#111;
+      --yellow:#f6c61a;
+      --blue:#d7efff;
+      --card:#e8e2d4;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--beige);
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      color:#111;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    .page{
+      width:min(520px, 100%);
+      min-height:100vh;
+      padding:18px 14px 22px;
+      position:relative;
+    }
+
+    .frame{
+      border:10px solid var(--green-dark);
+      border-radius:26px;
+      background:var(--beige);
+      padding:14px 14px 18px;
+      min-height:calc(100vh - 40px);
+      box-shadow:0 6px 18px rgba(0,0,0,.12);
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .gameName{
+      margin:0;
+      font-weight:800;
+      color:var(--green-dark);
+      font-size:18px;
+      line-height:1.1;
+      text-align:right;
+      padding-top:6px;
+    }
+
+    .logo{
+      width:86px;
+      height:auto;
+      object-fit:contain;
+    }
+
+    .title{
+      text-align:center;
+      margin:8px 0 14px;
+      font-weight:900;
+      color:var(--green-dark);
+      font-size:clamp(30px, 4.8vw, 44px);
+      letter-spacing:.2px;
+    }
+
+    .gridWrap{
+      background:var(--green);
+      border-radius:18px;
+      padding:16px 14px;
+      margin:0 auto 16px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
+    }
+
+    .cat{
+      background:var(--card);
+      border:6px solid #000;
+      border-radius:18px;
+      padding:10px 10px 12px;
+      box-shadow:0 6px 0 rgba(0,0,0,.25);
+      cursor:pointer;
+      user-select:none;
+      transition:transform .08s ease, background .12s ease, box-shadow .12s ease;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:140px;
+      position:relative;
+      overflow:hidden;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .cat:active{ transform:scale(.99); }
+
+    .cat.active{
+      background:var(--blue);
+      box-shadow:0 6px 0 rgba(0,0,0,.25), 0 0 0 6px rgba(0,0,0,.25) inset;
+    }
+
+    .catTitle{
+      font-size:clamp(22px, 4.2vw, 34px);
+      font-weight:900;
+      color:#000;
+      text-align:center;
+      margin:2px 0 8px;
+      line-height:1.05;
+    }
+
+    .catImageWrap{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex:1;
+      padding-bottom:2px;
+    }
+
+    .cat img{
+      display:block;
+      object-fit:contain;
+      filter: drop-shadow(0 2px 0 rgba(0,0,0,.15));
+    }
+
+    .primaryBtn{
+      width:min(300px, 70%);
+      margin:14px auto 0;
+      background:var(--yellow);
+      border:6px solid #000;
+      border-radius:999px;
+      font-size:clamp(24px, 4.4vw, 34px);
+      font-weight:900;
+      padding:12px 16px;
+      cursor:pointer;
+      box-shadow:0 10px 0 rgba(0,0,0,.25);
+      display:block;
+      position:sticky;
+      bottom:18px;
+      color:#000;
+    }
+    .primaryBtn:active{ transform:translateY(1px); box-shadow:0 9px 0 rgba(0,0,0,.25); }
+    .primaryBtn[disabled]{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .homeBtn{
+      position:absolute;
+      left:18px;
+      bottom:18px;
+      width:72px;
+      height:72px;
+      border-radius:50%;
+      border:6px solid #000;
+      background:#a9dbff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:0 8px 0 rgba(0,0,0,.25);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .homeBtn:active{ transform:translateY(1px); box-shadow:0 7px 0 rgba(0,0,0,.25); }
+
+    .homeBtn svg{
+      width:44px;
+      height:44px;
+      fill:#111;
+    }
+
+    @media (max-width:360px){
+      .grid{ gap:12px; }
+      .cat{ min-height:128px; border-width:5px; }
+      .homeBtn{ width:66px; height:66px; }
+      .homeBtn svg{ width:40px; height:40px; }
+      .primaryBtn{ width:min(290px, 74%); }
+      .logo{ width:78px; }
+      .gameName{ font-size:18px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="frame">
+
+      <div class="topbar">
+        <h3 class="gameName">لعبة برا السالفة</h3>
+        <img class="logo" src="logo.PNG" alt="logo">
+      </div>
+
+      <div class="title">اختر نوع السالفة</div>
+
+      <div class="gridWrap">
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <button class="primaryBtn" id="startBtn" disabled>ابدأ اللعب</button>
+
+      <button class="homeBtn" id="homeBtn" aria-label="الرئيسية" title="الرئيسية">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    // ✅ كسر الكاش (مهم)
+    import { updateRoomFields, ensureRoom, roomRef, db } from "./data/firebase.js?v=6";
+
+    import {
+      runTransaction,
+      serverTimestamp,
+      increment
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const IMAGE_SIZES = {
+      eat:  { file: "eat.PNG",  w: 190, h: 120  },
+      zoo:  { file: "zoo.PNG",  w: 260, h: 130  },
+      play: { file: "play.PNG", w: 185, h: 98  },
+      car:  { file: "car.PNG",  w: 390, h: 130  },
+      frot: { file: "frot.PNG", w: 190, h: 130  },
+      cola: { file: "cola.PNG", w: 190, h: 130  },
+    };
+
+    const CATEGORIES = [
+      { key:"eat",  label:"مأكولات" },
+      { key:"zoo",  label:"حيوانات" },
+      { key:"play", label:"لاعبين" },
+      { key:"car",  label:"سيارات" },
+      { key:"frot", label:"فواكة وخضار" },
+      { key:"cola", label:"مشروبات" },
+    ];
+
+    const KEY_PLAYERS = "players";
+    const KEY_CATEGORY = "categoryKey";
+
+    const ALT_PLAYER_KEYS = ["bara_players","bara_players_list","baraPlayers","bara_players_names","bara_players_v1"];
+    const ALT_CAT_KEYS = ["bara_category_id","bara_selectedCategory","bara_category","bara_category_key"];
+
+    const grid = document.getElementById("grid");
+    const startBtn = document.getElementById("startBtn");
+    const homeBtn = document.getElementById("homeBtn");
+
+    let selectedKey = null;
+    let selectedLabel = "";
+
+    function safeJSONParse(v){ try { return JSON.parse(v); } catch(e){ return null; } }
+    function clean(x){ return String(x || "").trim(); }
+
+    function getPlayersFromSession(){
+      const v1 = sessionStorage.getItem(KEY_PLAYERS);
+      const p1 = safeJSONParse(v1);
+      if (Array.isArray(p1) && p1.length) return p1;
+
+      for (const k of ALT_PLAYER_KEYS){
+        const v = sessionStorage.getItem(k);
+        const p = safeJSONParse(v);
+        if (Array.isArray(p) && p.length) return p;
+      }
+      return [];
+    }
+
+    function normalizePlayersToExpectedKeys(){
+      const players = getPlayersFromSession()
+        .map(x => String(x || "").trim())
+        .filter(Boolean);
+
+      if(players.length){
+        sessionStorage.setItem(KEY_PLAYERS, JSON.stringify(players));
+        sessionStorage.setItem("bara_players", JSON.stringify(players));
+        sessionStorage.setItem("bara_players_list", JSON.stringify(players));
+      }
+      return players;
+    }
+
+    // ✅ نمط الأجهزة المتعددة (المقدم)
+    const MULTI_ROOM_KEY = "bara_roomId_multi_v4";
+    const multiRoomId = String(sessionStorage.getItem(MULTI_ROOM_KEY) || "").trim();
+    const isMultiHost = !!multiRoomId;
+
+    function setCategoryEverywhere(key, label){
+      selectedKey = key;
+      selectedLabel = String(label || "");
+
+      sessionStorage.setItem(KEY_CATEGORY, key);
+      sessionStorage.setItem("bara_category_id", key);
+      sessionStorage.setItem("bara_category_label", selectedLabel);
+      sessionStorage.setItem("bara_selectedCategory", key);
+      sessionStorage.setItem("bara_step", "category");
+
+      startBtn.disabled = false;
+    }
+
+    function buildGrid(){
+      grid.innerHTML = "";
+      CATEGORIES.forEach(cat => {
+        const size = IMAGE_SIZES[cat.key] || { file: "", w: 170, h: 95 };
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "cat";
+        btn.setAttribute("data-key", cat.key);
+        btn.setAttribute("data-label", cat.label);
+
+        btn.innerHTML = `
+          <div class="catTitle">${cat.label}</div>
+          <div class="catImageWrap">
+            <img src="${size.file}" alt="" style="width:${size.w}px; height:${size.h}px;">
+          </div>
+        `;
+
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".cat").forEach(x => x.classList.remove("active"));
+          btn.classList.add("active");
+          setCategoryEverywhere(cat.key, cat.label);
+        });
+
+        grid.appendChild(btn);
+      });
+    }
+
+    function clearAllGameState(){
+      const ssKeys = [];
+      for(let i=0;i<sessionStorage.length;i++){
+        const k = sessionStorage.key(i);
+        if(k) ssKeys.push(k);
+      }
+      ssKeys.forEach(k => { if(k.startsWith("bara_")) sessionStorage.removeItem(k); });
+
+      sessionStorage.removeItem(KEY_PLAYERS);
+      sessionStorage.removeItem(KEY_CATEGORY);
+      sessionStorage.removeItem("singleState");
+
+      const lsKeys = [];
+      for(let i=0;i<localStorage.length;i++){
+        const k = localStorage.key(i);
+        if(k) lsKeys.push(k);
+      }
+      lsKeys.forEach(k => { if(k.startsWith("bara_")) localStorage.removeItem(k); });
+    }
+
+    homeBtn.addEventListener("click", () => {
+      clearAllGameState();
+      window.location.href = "index.html";
+    });
+
+    (function init(){
+      buildGrid();
+
+      // جهاز واحد فقط: لازم أسماء
+      if(!isMultiHost){
+        const players = normalizePlayersToExpectedKeys();
+        if(players.length < 3){
+          alert("الأسماء غير موجودة. ارجع للصفحة السابقة وأدخل الأسماء ثم جرّب مرة ثانية.");
+          window.location.href = "single.html";
+          return;
+        }
+      }
+
+      let saved = (sessionStorage.getItem(KEY_CATEGORY) || "").trim();
+      if(!saved){
+        for (const k of ALT_CAT_KEYS){
+          const v = (sessionStorage.getItem(k) || "").trim();
+          if(v){ saved = v; break; }
+        }
+      }
+
+      if(saved){
+        const btn = Array.from(document.querySelectorAll(".cat"))
+          .find(b => b.getAttribute("data-key") === saved);
+
+        if(btn){
+          btn.classList.add("active");
+          setCategoryEverywhere(saved, btn.getAttribute("data-label") || "");
+        }
+      }
+    })();
+
+    function explainErr(e){
+      const code = (e && e.code) ? String(e.code) : "";
+      const msg  = (e && e.message) ? String(e.message) : String(e || "");
+      return (code ? (code + " - ") : "") + (msg || "Unknown error");
+    }
+
+    // =========================
+    // ✅ تحميل كلمات الكتاغوري كاملة + اختيار سالفة عشوائية بدون تكرار
+    // =========================
+    async function loadCategoryWords(key){
+      const k = clean(key);
+      if(!k) return [];
+
+      try{
+        await import(`./data/${encodeURIComponent(k)}.js?v=${Date.now()}`);
+      }catch(e){
+        try{ await import(`./data/${k}.js?v=${Date.now()}`); }catch(_e){}
+      }
+
+      const poolRaw = window.BARA_WORDS && window.BARA_WORDS[k] ? window.BARA_WORDS[k] : [];
+      const arr = Array.isArray(poolRaw) ? poolRaw : [];
+
+      const seen = new Set();
+      const out = [];
+      for(const w of arr){
+        const s = clean(w);
+        if(!s) continue;
+        if(seen.has(s)) continue;
+        seen.add(s);
+        out.push(s);
+      }
+      return out;
+    }
+
+    function pickRandom(arr){
+      if(!Array.isArray(arr) || !arr.length) return "";
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function uniqueNamesFromRoomPlayers(d){
+      const players = Array.isArray(d?.players) ? d.players : [];
+      const names = players.map(p => clean(p?.name)).filter(Boolean);
+      const seen = new Set();
+      const uniq = [];
+      for(const n of names){
+        if(seen.has(n)) continue;
+        seen.add(n);
+        uniq.push(n);
+      }
+      return uniq;
+    }
+
+    async function setRoomCategoryAndStory(roomId, catKey, catLabel, words){
+      const ref = roomRef(roomId);
+
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if(!snap.exists()) return;
+
+        const d = snap.data() || {};
+
+        const usedMap = (d.usedStoryWords && typeof d.usedStoryWords === "object") ? d.usedStoryWords : {};
+        const usedArrRaw = Array.isArray(usedMap[catKey]) ? usedMap[catKey] : [];
+        const usedArr = usedArrRaw.map(clean).filter(Boolean);
+
+        let candidates = words.filter(w => !usedArr.includes(w));
+
+        if(candidates.length === 0){
+          usedMap[catKey] = [];
+          candidates = words.slice();
+        }
+
+        const storyWord = pickRandom(candidates) || pickRandom(words) || "";
+
+        usedMap[catKey] = Array.from(new Set([...(Array.isArray(usedMap[catKey]) ? usedMap[catKey] : []), storyWord]))
+          .map(clean)
+          .filter(Boolean);
+
+        // =========================
+        // ✅ (المهم للمشاكل)
+        // 1) برا السالفة عشوائي كل جولة
+        // 2) تصفير مربعات فهمت/الانتظار
+        // 3) تصفير بيانات الجولة السابقة
+        // =========================
+        const names = uniqueNamesFromRoomPlayers(d);
+        const outName = pickRandom(names) || "";
+
+        const newRoundId = String(Date.now());
+
+        tx.update(ref, {
+          updatedAt: serverTimestamp(),
+          tick: increment(1),
+
+          categoryKey: catKey,
+          categoryLabel: catLabel,
+
+          // كلمات الكتاغوري كاملة
+          categoryWords: words,
+
+          // سالفة الجولة
+          storyWord: storyWord,
+
+          // ✅ برا السالفة عشوائي + جولة جديدة
+          outName: outName,
+          roundId: newRoundId,
+
+          // ✅ تصفير بيانات الجولة السابقة
+          votesBy: {},
+          guessBy: {},
+          guessOptions: [],
+          correctWord: "",
+          guessRoundId: "",
+          revealTs: 0,
+          scoresAppliedFor: "",
+
+          // ✅ تصفير مربعات "فهمت/الانتظار"
+          readyBy: {},
+          understoodBy: {},
+
+          // نفس سلوكك السابق
+          phase: "ready",
+          phaseAt: Date.now(),
+
+          // منع تكرار السوالف
+          usedStoryWords: usedMap
+        });
+      });
+    }
+
+    startBtn.addEventListener("click", async () => {
+      if(!selectedKey){
+        alert("اختر نوع السالفة أولاً.");
+        return;
+      }
+
+      // ✅ الأجهزة المتعددة (المقدم)
+      if(isMultiHost){
+        if(!multiRoomId){
+          alert("ما تم العثور على رقم الغرفة في هذا الجهاز. ارجع لصفحة المقدم وجرب مرة ثانية.");
+          return;
+        }
+
+        try{
+          startBtn.disabled = true;
+
+          await ensureRoom(multiRoomId);
+
+          const words = await loadCategoryWords(selectedKey);
+
+          if(!words.length){
+            startBtn.disabled = false;
+            alert("ما قدرت أقرأ كلمات هذا الكتاغوري من ملف الداتا.\nتأكد إن ملف data موجود واسم الكتاغوري صحيح.");
+            return;
+          }
+
+          await setRoomCategoryAndStory(multiRoomId, selectedKey, selectedLabel, words);
+
+          window.location.href = "ready.html?room=" + encodeURIComponent(multiRoomId);
+
+        }catch(e){
+          startBtn.disabled = false;
+          alert("صار خطأ في الاتصال:\n" + explainErr(e));
+        }
+        return;
+      }
+
+      // ✅ جهاز واحد (كما هو)
+      const players = normalizePlayersToExpectedKeys();
+      if(players.length < 3){
+        alert("الأسماء غير موجودة. ارجع وأدخل الأسماء.");
+        window.location.href = "single.html";
+        return;
+      }
+
+      sessionStorage.setItem(KEY_CATEGORY, selectedKey);
+      window.location.href = "single_game.html";
+    });
+  </script>
+</body>
+</html>
+
+<!-- categories.html برا السالفة – إصدار 8 (Fix: random outName each round + reset vote/guess + reset ready/understood) -->

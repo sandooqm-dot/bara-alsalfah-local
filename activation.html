@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>تفعيل اللعبة</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --beige:#e9e1cf;
+      --olive:#6f7a52;
+      --olive-dark:#3f4e2c;
+      --cream:#f1e9d7;
+      --yellow:#f3c515;
+      --black:#111;
+
+      --ok:#16a34a;
+      --bad:#dc2626;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      background:var(--beige);
+      font-family:"Baloo Bhaijaan 2", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      display:flex;
+      justify-content:center;
+      align-items:stretch;
+      padding:env(safe-area-inset-top) 10px env(safe-area-inset-bottom);
+      color:#111;
+    }
+
+    .page{
+      width:min(560px, 100%);
+      min-height:calc(100vh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+      margin:auto;
+      border:6px solid var(--olive-dark);
+      border-radius:22px;
+      background:var(--beige);
+      padding:22px 18px 26px;
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    /* اللوجو: فوق بالمنتصف وكبير */
+    .topLogo{
+      width:min(180px, 55vw);
+      height:auto;
+      margin-top:10px;
+      margin-bottom:14px;
+      object-fit:contain;
+      pointer-events:none;
+      user-select:none;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.25));
+    }
+
+    .title{
+      width:100%;
+      text-align:center;
+      background:var(--cream);
+      border:4px solid var(--black);
+      border-radius:18px;
+      padding:14px 12px;
+      font-weight:900;
+      font-size:clamp(26px, 5.5vw, 40px);
+      margin:0 0 14px;
+      box-shadow:0 10px 0 rgba(0,0,0,.18);
+    }
+
+    .card{
+      width:100%;
+      background:var(--olive);
+      border-radius:20px;
+      padding:16px 16px 18px;
+      box-shadow:0 18px 0 rgba(0,0,0,.10);
+      position:relative;
+    }
+
+    .card::after{
+      content:"";
+      position:absolute;
+      left:16px;
+      right:16px;
+      bottom:-22px;
+      height:28px;
+      background:rgba(0,0,0,.18);
+      border-radius:999px;
+      opacity:.22;
+    }
+
+    .inner{
+      background:rgba(241,233,215,.96);
+      border:4px solid var(--black);
+      border-radius:18px;
+      padding:14px;
+      color:#111;
+    }
+
+    .label{
+      font-weight:900;
+      font-size:18px;
+      margin:0 0 8px;
+      text-align:right;
+    }
+
+    .input{
+      width:100%;
+      height:56px;
+      border-radius:14px;
+      border:2px solid rgba(17,17,17,.25);
+      background:#fff;
+      padding:0 14px;
+      font-size:18px;
+      font-weight:800;
+      outline:none;
+      text-align:left;
+      direction:ltr;
+    }
+    .input:focus{
+      border-color: rgba(17,17,17,.45);
+      box-shadow: 0 0 0 4px rgba(17,17,17,.12);
+    }
+
+    .btn{
+      width:100%;
+      margin-top:12px;
+      height:58px;
+      border:4px solid var(--black);
+      border-radius:18px;
+      background:var(--yellow);
+      color:#111;
+      font-weight:900;
+      font-size:24px;
+      cursor:pointer;
+      box-shadow:0 12px 0 rgba(0,0,0,.22);
+      -webkit-tap-highlight-color:transparent;
+      transition:transform .05s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn[disabled]{opacity:.75; cursor:not-allowed}
+
+    .msg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:900;
+      display:none;
+      text-align:center;
+      font-size:16px;
+    }
+    .msg.ok{display:block; background:rgba(22,163,74,.12); border:2px solid rgba(22,163,74,.35); color:#0b3d1d}
+    .msg.err{display:block; background:rgba(220,38,38,.10); border:2px solid rgba(220,38,38,.35); color:#7a1212}
+
+    .note{
+      margin:10px 0 0;
+      font-size:13px;
+      font-weight:900;
+      color:rgba(17,17,17,.75);
+      text-align:center;
+    }
+
+    .foot{
+      margin-top:auto;
+      padding-top:16px;
+      font-size:12px;
+      font-weight:900;
+      color:rgba(17,17,17,.55);
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <img class="topLogo" src="logo.PNG" alt="شعار صندوق المسابقات">
+
+    <div class="title">تفعيل اللعبة</div>
+
+    <section class="card" aria-label="تفعيل اللعبة">
+      <div class="inner">
+        <div class="label">أدخل كود اللعبة</div>
+        <input id="code" class="input" inputmode="text" autocomplete="off" autocapitalize="characters"
+               placeholder="مثال: SNDQ-XXXX-XXXX-XXXX" />
+
+        <button id="btn" class="btn" type="button">تفعيل</button>
+
+        <div id="msg" class="msg"></div>
+
+        <div class="note">بعد التفعيل سيتم ربط الكود بهذا الجهاز.</div>
+      </div>
+    </section>
+
+    <div class="foot">© صندوق المسابقات</div>
+  </main>
+
+  <script>
+    /***********************
+     * إعدادات التفعيل
+     ***********************/
+    const ACTIVATION_API = "https://script.google.com/macros/s/AKfycbwDxN4zps9dwADEcjCNw-RbnlYnGYvoNbwQh1R-6MHXFx8AVA1EVEuA6m4miuyctQm3Eg/exec";
+
+    // معرف خاص لهذه اللعبة
+    const GAME_KEY = "bara_alsalfah";
+
+    const LS_ACTIVE = `SNDQ_ACTIVE_${GAME_KEY}`;
+    const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
+    const LS_DEVICE = `SNDQ_DEVICEKEY`;
+
+    const codeEl = document.getElementById("code");
+    const btn = document.getElementById("btn");
+    const msg = document.getElementById("msg");
+
+    function showMsg(text, type){
+      msg.className = "msg " + (type === "ok" ? "ok" : "err");
+      msg.textContent = text;
+      msg.style.display = "block";
+    }
+
+    function normalizeCode(v){
+      return (v || "")
+        .trim()
+        .toUpperCase()
+        .replace(/\s+/g, "")
+        .replace(/[—–]/g, "-");
+    }
+
+    function isValidCodeFormat(code){
+      return /^SNDQ-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code);
+    }
+
+    function getDeviceKey(){
+      let k = localStorage.getItem(LS_DEVICE);
+      if(k && k.length >= 16) return k;
+
+      const bytes = new Uint8Array(16);
+      (crypto && crypto.getRandomValues) ? crypto.getRandomValues(bytes) : bytes.forEach((_,i)=>bytes[i]=Math.floor(Math.random()*256));
+      k = Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('');
+      localStorage.setItem(LS_DEVICE, k);
+      return k;
+    }
+
+    function isActivated(){
+      return localStorage.getItem(LS_ACTIVE) === "1" && !!localStorage.getItem(LS_CODE);
+    }
+
+    function setActivated(code){
+      localStorage.setItem(LS_ACTIVE, "1");
+      localStorage.setItem(LS_CODE, code);
+    }
+
+    // لو مفعل من قبل: رجّعه للصفحة الرئيسية مباشرة
+    function getNext(){
+      const u = new URL(location.href);
+      return u.searchParams.get("next") || "index.html";
+    }
+    if(isActivated()){
+      location.replace(getNext());
+    }
+
+    /***********************
+     * JSONP (لتفادي CORS)
+     ***********************/
+    function jsonp(url){
+      return new Promise((resolve, reject) => {
+        const cbName = "cb_" + Math.random().toString(36).slice(2);
+        const script = document.createElement("script");
+        const sep = url.includes("?") ? "&" : "?";
+        const full = url + sep + "cb=" + encodeURIComponent(cbName);
+
+        let done = false;
+        const timer = setTimeout(() => {
+          if(done) return;
+          done = true;
+          cleanup();
+          reject(new Error("timeout"));
+        }, 12000);
+
+        function cleanup(){
+          clearTimeout(timer);
+          try{ delete window[cbName]; }catch(e){}
+          if(script && script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        window[cbName] = (data) => {
+          if(done) return;
+          done = true;
+          cleanup();
+          resolve(data);
+        };
+
+        script.onerror = () => {
+          if(done) return;
+          done = true;
+          cleanup();
+          reject(new Error("network"));
+        };
+
+        script.src = full;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function activateNow(){
+      const code = normalizeCode(codeEl.value);
+      codeEl.value = code;
+
+      if(!code){
+        showMsg("اكتب الكود أولاً.", "err");
+        return;
+      }
+      if(!isValidCodeFormat(code)){
+        showMsg("صيغة الكود غير صحيحة. مثال: SNDQ-XXXX-XXXX-XXXX", "err");
+        return;
+      }
+
+      btn.disabled = true;
+      showMsg("جاري التحقق من الكود…", "ok");
+
+      const deviceKey = getDeviceKey();
+
+      try{
+        const url = `${ACTIVATION_API}?code=${encodeURIComponent(code)}&device=${encodeURIComponent(deviceKey)}`;
+        const res = await jsonp(url);
+
+        if(res && res.ok){
+          setActivated(code);
+          showMsg("تم التفعيل بنجاح ✅ سيتم فتح اللعبة الآن…", "ok");
+          setTimeout(() => {
+            location.replace(getNext());
+          }, 650);
+          return;
+        }
+
+        const m = (res && res.msg) ? String(res.msg) : "الكود غير صحيح أو مستخدم.";
+        showMsg(m, "err");
+        btn.disabled = false;
+
+      }catch(e){
+        showMsg("صار خطأ بالاتصال. جرّب مرة ثانية.", "err");
+        btn.disabled = false;
+      }
+    }
+
+    btn.addEventListener("click", activateNow);
+    codeEl.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") activateNow();
+    });
+
+    window.addEventListener("load", () => {
+      setTimeout(() => codeEl.focus(), 80);
+    });
+  </script>
+</body>
+</html>
+
+<!-- اسم النسخة: activation.html برا السالفة – صفحة تفعيل مستقلة – إصدار 2 -->

@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover" />
+  <title>لعبة برا السالفة - وقت الأسئلة (أجهزة متعددة)</title>
+
+  <style>
+    :root{
+      --bg:#e9e4d6;
+      --frame:#3f5a2a;
+      --card:#6a8450;
+      --card2:#d8cfb1;
+      --text:#1b1b1b;
+      --white:#ffffff;
+
+      --yellow:#f2c21b;
+      --yellowText:#111;
+
+      --shadow: 0 10px 0 rgba(0,0,0,.25);
+
+      --containerMax: 520px;
+      --radiusBig: 26px;
+      --radiusMid: 18px;
+
+      --boxPad: 22px;
+      --boxMinH: 260px;
+
+      --titleSize: 18px;
+      --headerSize: 26px;
+      --askLineSize: 36px;
+      --subTextSize: 22px;
+      --subTextSizeSmall: 22px;
+
+      --btnH: 62px;
+      --btnRadius: 26px;
+
+      --homeSize: 60px;
+      --homeGap: 12px;
+
+      --bottomGap: 34px;
+
+      --blue:#bfe3ff;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      color:var(--text);
+    }
+
+    .wrap{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:18px 14px 180px;
+    }
+    .frame{
+      width:min(var(--containerMax), 100%);
+      border:10px solid var(--frame);
+      border-radius: var(--radiusBig);
+      background:transparent;
+      padding:18px 16px 24px;
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .brandTitle{
+      font-size:var(--titleSize);
+      font-weight:700;
+      color:#2f3f22;
+      opacity:.95;
+    }
+    .logo{
+      width:86px;height:86px;
+      object-fit:contain;
+    }
+
+    .badgeTitle{
+      margin:14px auto 16px;
+      width:fit-content;
+      max-width:100%;
+      padding:14px 26px;
+      border-radius: 22px;
+      background: rgba(216,207,177,.9);
+      color:#395427;
+      font-weight:900;
+      font-size: var(--headerSize);
+      line-height:1;
+      text-align:center;
+      display:none;
+    }
+    .badgeTitle.show{ display:block; }
+
+    .bigCard{
+      background:var(--card);
+      color:var(--white);
+      border-radius: var(--radiusBig);
+      padding: var(--boxPad);
+      min-height: var(--boxMinH);
+      box-shadow: 0 0 0 8px rgba(216,207,177,.75) inset;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      position:relative;
+    }
+
+    .msgText{
+      font-size: var(--subTextSize);
+      font-weight:800;
+      line-height:1.6;
+      padding: 0 10px;
+    }
+
+    .askLine{
+      font-size: var(--askLineSize);
+      font-weight:1000;
+      line-height:1.2;
+      margin-bottom: 18px;
+    }
+    .askLine .who{ color: var(--yellow); }
+    .askLine .mid{ color: #fff; margin:0 10px; }
+
+    .askHelpBox{
+      width:100%;
+      max-width: 420px;
+      margin: 0 auto;
+      border-radius: 22px;
+      background: rgba(0,0,0,.08);
+      padding: 18px 18px;
+      font-size: var(--subTextSizeSmall);
+      font-weight:900;
+      line-height:1.6;
+    }
+
+    .ctaArea{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      margin-top: 14px;
+    }
+    .ctaArea.hidden{ display:none; }
+
+    .cta{
+      height: var(--btnH);
+      border-radius: var(--btnRadius);
+      background: var(--yellow);
+      color: var(--yellowText);
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      font-size: 28px;
+      font-weight:1000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width: 86%;
+      max-width: 420px;
+      margin: 0 auto;
+      cursor:pointer;
+      user-select:none;
+      text-align:center;
+      padding: 0 14px;
+    }
+    .cta:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      filter: grayscale(.15);
+    }
+    .cta.compact{
+      height: 56px;
+      border-radius: 22px;
+      max-width: 360px;
+      width: 78%;
+      font-size: 26px;
+    }
+
+    .spacerBottom{ height: 18px; }
+
+    .bottomBar{
+      position:fixed;
+      left:0; right:0;
+      bottom: calc(var(--bottomGap) + env(safe-area-inset-bottom));
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+      z-index:9999;
+    }
+    .bottomInner{
+      width:min(var(--containerMax), calc(100% - 28px));
+      position:relative;
+      pointer-events:none;
+    }
+    .homeBtn{
+      position:absolute;
+      left: var(--homeGap);
+      bottom:0;
+      width: var(--homeSize);
+      height: var(--homeSize);
+      border-radius: 50%;
+      background: #bfe7ff;
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:auto;
+      cursor:pointer;
+    }
+    .homeBtn svg{ width:34px;height:34px; }
+
+    .buyArea{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      margin-top: 14px;
+    }
+    .buyArea.hidden{ display:none; }
+    .buyBtn{
+      width: min(360px, 82%);
+      border: 4px solid #000;
+      border-radius: 22px;
+      padding: 14px 18px;
+      font-size: 28px;
+      font-weight: 1000;
+      box-shadow: 0 8px 0 rgba(0,0,0,0.18);
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      text-align:center;
+      background: var(--blue);
+      color:#111;
+    }
+    .buyBtn:active{ transform: translateY(1px); box-shadow: 0 7px 0 rgba(0,0,0,0.18); }
+
+    .err{
+      width:100%;
+      max-width: 420px;
+      margin: 10px auto 0;
+      color:#b00020;
+      font-weight:900;
+      text-align:center;
+      display:none;
+      line-height:1.4;
+    }
+
+    @media (max-width: 420px){
+      .cta{ width: 88%; }
+    }
+    @media (max-width: 360px){
+      .cta{ width: 90%; font-size: 26px; }
+      .logo{ width:80px;height:80px; }
+      .homeBtn{ width:56px;height:56px; }
+      .homeBtn svg{ width:30px;height:30px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="frame">
+      <div class="topbar">
+        <div class="brandTitle">لعبة برا السالفة</div>
+        <img class="logo" src="logo.PNG" alt="logo" />
+      </div>
+
+      <div class="badgeTitle show" id="pageTitle">وقت الاسئلة</div>
+
+      <div id="content"></div>
+
+      <div class="ctaArea" id="ctaArea">
+        <button class="cta compact" id="ctaBtn">التالي</button>
+      </div>
+
+      <div class="buyArea" id="buyArea">
+        <button class="buyBtn" id="buyBtn">لشراء اللعبة اضغط هنا</button>
+      </div>
+
+      <div class="err" id="err"></div>
+      <div class="spacerBottom"></div>
+    </div>
+  </div>
+
+  <div class="bottomBar" id="bottomBar">
+    <div class="bottomInner">
+      <button class="homeBtn" id="homeBtn" aria-label="الرئيسية" title="الرئيسية">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 11.5L12 4l9 7.5" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.5 10.5V20h11V10.5" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { ensureRoom, listenRoom, roomRef } from "./data/firebase.js";
+    import { db } from "./data/firebase.js";
+    import {
+      runTransaction,
+      updateDoc,
+      serverTimestamp,
+      increment
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const pageTitle = document.getElementById("pageTitle");
+    const content   = document.getElementById("content");
+    const ctaArea   = document.getElementById("ctaArea");
+    const ctaBtn    = document.getElementById("ctaBtn");
+    const buyArea   = document.getElementById("buyArea");
+    const buyBtn    = document.getElementById("buyBtn");
+    const homeBtn   = document.getElementById("homeBtn");
+    const bottomBar = document.getElementById("bottomBar");
+    const errBox    = document.getElementById("err");
+
+    function showErr(msg){
+      errBox.textContent = msg;
+      errBox.style.display = "block";
+    }
+    function hideErr(){
+      errBox.textContent = "";
+      errBox.style.display = "none";
+    }
+    function cleanName(x){ return String(x || "").trim(); }
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    // -------- room from URL --------
+    const params = new URLSearchParams(location.search);
+    const roomId = cleanName(params.get("room"));
+
+    // -------- اسم الجهاز (لاستخدامه في كشف المقدم بشكل أدق) --------
+    const POSSIBLE_PLAYER_KEYS = [
+      "bara_playerName_multi_v4",
+      "bara_playerName_multi_v3",
+      "bara_playerName_multi_v2",
+      "bara_playerName_multi_v1",
+      "bara_playerName_multi"
+    ];
+    const POSSIBLE_HOST_KEYS = [
+      "bara_hostName_multi_v4",
+      "bara_hostName_multi_v3",
+      "bara_hostName_multi_v2",
+      "bara_hostName_multi_v1"
+    ];
+    function getMyName(){
+      for(const k of POSSIBLE_PLAYER_KEYS){
+        const v = cleanName(sessionStorage.getItem(k));
+        if(v) return v;
+      }
+      for(const k of POSSIBLE_HOST_KEYS){
+        const v = cleanName(localStorage.getItem(k));
+        if(v) return v;
+      }
+      return "";
+    }
+    const myName = getMyName();
+
+    // -------- تحديد المقدم (محسّن) --------
+    const HOST_ROOM_KEYS = ["bara_roomId_multi_v4","bara_roomId_multi_v3","bara_roomId_multi_v2","bara_roomId_multi_v1"];
+    function getHostRoomId(){
+      for(const k of HOST_ROOM_KEYS){
+        const v = cleanName(sessionStorage.getItem(k));
+        if(v) return v;
+      }
+      return "";
+    }
+    function isHostByName(){
+      if(!myName) return false;
+      for(const k of POSSIBLE_HOST_KEYS){
+        const v = cleanName(localStorage.getItem(k));
+        if(v && v === myName) return true;
+      }
+      return false;
+    }
+
+    const hostRoomId = getHostRoomId();
+    const isHost = (!!roomId && ((!!hostRoomId && hostRoomId === roomId) || isHostByName()));
+
+    // ✅ زر المنزل للمقدم فقط (إخفاء كامل الشريط عند اللاعبين)
+    if(!isHost){
+      if(homeBtn) homeBtn.style.display = "none";
+      if(bottomBar) bottomBar.style.display = "none";
+    }
+
+    // ✅ تثبيت roomId للمقدم (يحمي من ضياع تحديد المقدم بين الصفحات)
+    if(isHost && roomId){
+      sessionStorage.setItem("bara_roomId_multi_v4", roomId);
+    }
+
+    // زر شراء للاعبين فقط + زر التالي للمقدم فقط
+    buyArea.classList.toggle("hidden", isHost);
+    ctaArea.classList.toggle("hidden", !isHost);
+
+    buyBtn.addEventListener("click", () => {
+      window.open("https://sandooq-m.com", "_blank", "noopener,noreferrer");
+    });
+
+    function clearMultiState(){
+      for(const k of HOST_ROOM_KEYS) sessionStorage.removeItem(k);
+      sessionStorage.removeItem("bara_roomTs_multi_v4");
+      sessionStorage.removeItem("bara_hostAdded_multi_v4");
+      localStorage.removeItem("bara_hostName_multi_v4");
+    }
+    homeBtn.addEventListener("click", () => {
+      if(isHost) clearMultiState();
+      window.location.href = "index.html";
+    });
+
+    function goRoundPage(){
+      // ✅ replace عشان ما يعلق بالرجوع
+      window.location.replace("multi_round.html?room=" + encodeURIComponent(roomId));
+    }
+
+    function renderIntro(){
+      pageTitle.textContent = "وقت الاسئلة";
+      content.innerHTML = `
+        <div class="bigCard" style="min-height:280px;">
+          <div class="msgText">
+            كل شخص راح يسأل شخص ثاني سؤال متعلق بالسالفة<br/>
+            ${isHost ? "اضغط التالي حتى تعرفون مين يسأل مين" : "تابع المقدم على الشاشة"}
+          </div>
+        </div>
+      `;
+      if(isHost){
+        ctaBtn.textContent = "التالي";
+        ctaBtn.classList.add("compact");
+        ctaBtn.disabled = false;
+      }
+    }
+
+    function renderPair(pair){
+      pageTitle.textContent = "وقت الاسئلة";
+      content.innerHTML = `
+        <div class="bigCard" style="min-height:320px;">
+          <div style="width:100%;">
+            <div class="askLine">
+              <span class="who">${escapeHtml(pair.asker)}</span>
+              <span class="mid">يسأل</span>
+              <span class="who">${escapeHtml(pair.target)}</span>
+            </div>
+
+            <div class="msgText" style="margin-bottom:12px;">
+              سؤال متعلق بالسالفة!
+            </div>
+
+            <div class="askHelpBox">
+              اختر سؤالك بعناية حتى اللي برا السالفة ما يعرف عن إيش تتكلمون
+            </div>
+          </div>
+        </div>
+      `;
+      if(isHost){
+        ctaBtn.textContent = "التالي";
+        ctaBtn.classList.add("compact");
+        ctaBtn.disabled = false;
+      }
+    }
+
+    function renderSuspect(){
+      pageTitle.textContent = "ما تأكدت صح ؟";
+      content.innerHTML = `
+        <div class="bigCard" style="min-height:320px;">
+          <div class="msgText">
+            الحين يقدر أي أحد يسأل شخص يشك إنه هو اللي برا السالفة<br/><br/>
+            <div style="font-size:22px; font-weight:1000; opacity:.95;">
+              بعد الانتهاء من الأسئلة اضغط <span style="color:var(--yellow);">التالي</span> للانتقال للتصويت
+            </div>
+          </div>
+        </div>
+      `;
+
+      if(isHost){
+        ctaBtn.textContent = "التالي";
+        ctaBtn.classList.add("compact");
+        ctaBtn.disabled = false;
+      }
+    }
+
+    function buildPairs(names){
+      const n = names.length;
+      const pairs = [];
+      for(let i=0;i<n;i++){
+        let t = i;
+        while(t === i){
+          t = Math.floor(Math.random() * n);
+        }
+        pairs.push({ asker: names[i], target: names[t] });
+      }
+      return pairs;
+    }
+
+    // ✅ تجهيز الجولة/الأسئلة (حتى لو roundId ناقص)
+    async function ensureQuestionsSetupIfHost(data){
+      if(!isHost) return;
+      if(!data) return;
+
+      const ref = roomRef(roomId);
+
+      const hasPairs = Array.isArray(data?.questionPairs) && data.questionPairs.length >= 3;
+      const existingRoundId = cleanName(data?.roundId);
+      const questionsRoundId = cleanName(data?.questionsRoundId);
+
+      // إذا عندنا تجهيز صحيح لنفس الجولة: خلاص
+      if(existingRoundId && hasPairs && questionsRoundId === existingRoundId) return;
+
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if(!snap.exists()) return;
+
+        const d = snap.data() || {};
+
+        let rId = cleanName(d?.roundId);
+
+        // ✅ لو ما فيه roundId (يحصل أحياناً) نسويه هنا عشان ما يعلق المقدم
+        if(!rId){
+          rId = "r_" + Date.now();
+        }
+
+        const qRid = cleanName(d?.questionsRoundId);
+        const okPairs = Array.isArray(d?.questionPairs) && d.questionPairs.length >= 3;
+
+        if(okPairs && qRid === rId) return;
+
+        const players = Array.isArray(d.players) ? d.players : [];
+        const names = players.map(p => cleanName(p?.name)).filter(Boolean);
+
+        if(names.length < 3) return;
+
+        const pairs = buildPairs(names);
+
+        const phase = cleanName(d?.phase);
+        let nextPhase = phase;
+        if(!phase || phase === "ready" || phase === "ready_wait" || phase === "lobby" || phase === "playing"){
+          nextPhase = "questions_intro";
+        }
+
+        tx.update(ref, {
+          updatedAt: serverTimestamp(),
+          tick: increment(1),
+
+          // ✅ تثبيت roundId لو كان ناقص
+          roundId: rId,
+
+          questionsRoundId: rId,
+          questionPairs: pairs,
+          askIndex: 0,
+          phase: nextPhase
+        });
+      });
+    }
+
+    async function setRoom(fields){
+      await updateDoc(roomRef(roomId), {
+        ...fields,
+        updatedAt: serverTimestamp(),
+        tick: increment(1)
+      });
+    }
+
+    ctaBtn.addEventListener("click", async () => {
+      if(!isHost) return;
+      hideErr();
+
+      try{
+        const d = window.__lastRoomData || {};
+        const phase = cleanName(d?.phase) || "questions_intro";
+        const pairs = Array.isArray(d?.questionPairs) ? d.questionPairs : [];
+        const idx = Number(d?.askIndex || 0);
+
+        if(phase === "questions_intro"){
+          await setRoom({ phase: "questions", askIndex: 0 });
+          return;
+        }
+
+        if(phase === "questions"){
+          if(pairs.length && idx < pairs.length - 1){
+            await setRoom({ askIndex: idx + 1 });
+          }else{
+            await setRoom({ phase: "suspect" });
+          }
+          return;
+        }
+
+        if(phase === "suspect"){
+          // ✅ الانتقال للتصويت + تهيئة الجولة الجديدة للتخمين/النتائج
+          await setRoom({
+            phase: "vote",
+            votesBy: {},
+
+            // الكشف/التخمين (تتجهز في multi_round.html)
+            revealTs: null,
+            guessBy: {},
+
+            // ✅ مهم جداً: تصفيرها عشان تتولد 6 كلمات عشوائية جديدة كل جولة
+            guessOptions: [],
+            correctWord: "",
+            guessRoundId: "",
+
+            // حماية من تكرار احتساب النتائج
+            scoresAppliedFor: ""
+          });
+          return;
+        }
+
+      }catch(e){
+        console.warn(e);
+        showErr("صار خطأ في الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+      }
+    });
+
+    function renderByRoom(data){
+      window.__lastRoomData = data || {};
+
+      const phase = cleanName(data?.phase) || "questions_intro";
+      const pairs = Array.isArray(data?.questionPairs) ? data.questionPairs : [];
+      const idx = Number(data?.askIndex || 0);
+
+      // ✅ إذا دخلنا مراحل التصويت/الكشف/التخمين/النتائج/نهاية الجولة → نروح للملف الجديد (كل الأجهزة)
+      if(["vote","reveal","guess","results","round_end"].includes(phase)){
+        goRoundPage();
+        return;
+      }
+
+      if(phase === "questions_intro"){
+        renderIntro();
+        return;
+      }
+
+      if(phase === "questions"){
+        if(pairs.length && pairs[idx]){
+          renderPair(pairs[idx]);
+        }else{
+          // لو ما تجهزت الأزواج للحين
+          content.innerHTML = `
+            <div class="bigCard" style="min-height:280px;">
+              <div class="msgText">جاري تجهيز ترتيب الأسئلة...</div>
+            </div>
+          `;
+          if(isHost) ctaBtn.disabled = true;
+        }
+        return;
+      }
+
+      if(phase === "suspect"){
+        renderSuspect();
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="bigCard" style="min-height:280px;">
+          <div class="msgText">بانتظار المقدم…</div>
+        </div>
+      `;
+      if(isHost) ctaBtn.disabled = true;
+    }
+
+    (async () => {
+      if(!roomId){
+        showErr("الرابط غير صحيح: رمز الغرفة غير موجود.");
+        ctaBtn.disabled = true;
+        return;
+      }
+
+      try{
+        await ensureRoom(roomId);
+        renderIntro();
+
+        listenRoom(roomId, async (data) => {
+          if(!data) return;
+
+          try{ await ensureQuestionsSetupIfHost(data); }catch(e){}
+
+          renderByRoom(data);
+        });
+
+      }catch(e){
+        console.warn(e);
+        showErr("تعذر الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+      }
+    })();
+  </script>
+</body>
+</html>
+
+<!-- multi_questions.html برا السالفة – إصدار 8 (إخفاء زر الرئيسية عن اللاعبين فقط) -->

@@ -1,0 +1,1585 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover" />
+  <title>لعبة برا السالفة - الجولة (أجهزة متعددة)</title>
+
+  <style>
+    :root{
+      --bg:#e9e4d6;
+      --frame:#3f5a2a;
+
+      --card:#6a8450;
+      --card2:#d8cfb1;
+
+      --text:#1b1b1b;
+      --white:#ffffff;
+
+      --yellow:#f2c21b;
+      --yellowText:#111;
+
+      --blue:#bfe3ff;
+      --vote:#7b1f1f;
+
+      --shadow: 0 10px 0 rgba(0,0,0,.25);
+      --shadowSmall: 0 8px 0 rgba(0,0,0,.18);
+
+      --containerMax: 520px;
+      --radiusBig: 26px;
+
+      --boxPad: 22px;
+
+      --titleSize: 18px;
+      --headerSize: 26px;
+
+      --btnH: 62px;
+      --btnRadius: 26px;
+
+      --bottomGap: 34px;
+      --homeSize: 60px;
+      --homeGap: 12px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      color:var(--text);
+    }
+
+    .wrap{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding:18px 14px 190px;
+    }
+    .frame{
+      width:min(var(--containerMax), 100%);
+      border:10px solid var(--frame);
+      border-radius: var(--radiusBig);
+      background:transparent;
+      padding:18px 16px 24px;
+      position:relative;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .brandTitle{
+      font-size:var(--titleSize);
+      font-weight:700;
+      color:#2f3f22;
+      opacity:.95;
+    }
+    .logo{ width:86px;height:86px; object-fit:contain; }
+
+    .badgeTitle{
+      margin:14px auto 16px;
+      width:fit-content;
+      max-width:100%;
+      padding:14px 26px;
+      border-radius: 22px;
+      background: rgba(216,207,177,.9);
+      color:#395427;
+      font-weight:900;
+      font-size: var(--headerSize);
+      line-height:1;
+      text-align:center;
+    }
+
+    .card{
+      background:var(--card);
+      color:var(--white);
+      border-radius: var(--radiusBig);
+      padding: var(--boxPad);
+      min-height: 320px;
+      box-shadow: 0 0 0 8px rgba(216,207,177,.75) inset;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    /* ✅ ستايل خاص لنهاية الجولة */
+    .card.roundEndCard{
+      min-height: 420px;
+      align-items:flex-start;
+      justify-content:center;
+    }
+    .endMain{
+      font-size: 34px;
+      font-weight: 1000;
+      line-height: 1.35;
+      margin-top: 10px;
+      margin-bottom: 26px;
+      padding: 0 6px;
+    }
+    .endSub{
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.55;
+      opacity: .95;
+      padding: 0 6px;
+    }
+
+    .hint{
+      text-align:center;
+      font-weight:900;
+      font-size:20px;
+      line-height:1.6;
+      opacity:.95;
+      padding: 0 6px;
+    }
+
+    .list{
+      margin-top: 14px;
+      background: rgba(0,0,0,.10);
+      border-radius: 18px;
+      padding: 12px 10px;
+      width: 100%;
+      max-width: 440px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    .rowBtn{
+      width:100%;
+      border: 4px solid #000;
+      border-radius: 18px;
+      padding: 14px 14px;
+      font-size: 22px;
+      font-weight: 1000;
+      cursor:pointer;
+      text-align:center;
+      background:#fff;
+      color:#111;
+      margin-bottom: 12px;
+      -webkit-tap-highlight-color:transparent;
+      box-shadow: 0 8px 0 rgba(0,0,0,0.18);
+    }
+    .rowBtn:active{ transform: translateY(1px); box-shadow: 0 7px 0 rgba(0,0,0,0.18); }
+    .rowBtn.selected{ background: var(--blue); }
+    .rowBtn[disabled]{ opacity:.6; cursor:not-allowed; transform:none; }
+
+    .pillName{
+      margin: 2px auto 14px;
+      width: fit-content;
+      max-width: 92%;
+      padding: 14px 30px;
+      border-radius: 22px;
+      background: rgba(216,207,177,.95);
+      color:#395427;
+      font-weight: 1000;
+      font-size: 34px;
+      line-height: 1;
+      text-align:center;
+    }
+
+    .bigName{
+      font-size: 58px;
+      font-weight: 1000;
+      line-height:1.1;
+      margin-top: 10px;
+    }
+
+    .ctaArea{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      margin-top: 14px;
+    }
+    .ctaArea.hidden{ display:none; }
+
+    .cta{
+      height: var(--btnH);
+      border-radius: var(--btnRadius);
+      background: var(--yellow);
+      color: var(--yellowText);
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      font-size: 28px;
+      font-weight:1000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width: 86%;
+      max-width: 420px;
+      margin: 0 auto;
+      cursor:pointer;
+      user-select:none;
+      text-align:center;
+      padding: 0 14px;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .cta:active{ transform: translateY(1px); box-shadow: 0 9px 0 rgba(0,0,0,0.25); }
+    .cta:disabled{
+      opacity:.45;
+      cursor:not-allowed;
+      filter: grayscale(.25);
+      transform:none;
+    }
+
+    .cta.vote{
+      background: var(--vote);
+      color:#fff;
+      max-width: 360px;
+    }
+
+    .buyArea{
+      width:100%;
+      display:flex;
+      justify-content:center;
+      margin-top: 14px;
+    }
+    .buyArea.hidden{ display:none; }
+    .buyBtn{
+      width: min(360px, 82%);
+      border: 4px solid #000;
+      border-radius: 22px;
+      padding: 14px 18px;
+      font-size: 28px;
+      font-weight: 1000;
+      box-shadow: var(--shadowSmall);
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      text-align:center;
+      background: var(--blue);
+      color:#111;
+    }
+    .buyBtn:active{ transform: translateY(1px); box-shadow: 0 7px 0 rgba(0,0,0,0.18); }
+
+    /* ✅ حقوق أسفل */
+    .rights{
+      width:100%;
+      text-align:center;
+      font-weight: 900;
+      color:#2f3f22;
+      opacity:.95;
+      margin-top: 12px;
+      font-size: 16px;
+      display:none;
+    }
+
+    .err{
+      width:100%;
+      max-width: 420px;
+      margin: 10px auto 0;
+      color:#b00020;
+      font-weight:900;
+      text-align:center;
+      display:none;
+      line-height:1.4;
+    }
+
+    .bottomBar{
+      position:fixed;
+      left:0; right:0;
+      bottom: calc(var(--bottomGap) + env(safe-area-inset-bottom));
+      display:flex;
+      justify-content:center;
+      pointer-events:none;
+      z-index:9999;
+    }
+    .bottomInner{
+      width:min(var(--containerMax), calc(100% - 28px));
+      position:relative;
+      pointer-events:none;
+    }
+    .homeBtn{
+      position:absolute;
+      left: var(--homeGap);
+      bottom:0;
+      width: var(--homeSize);
+      height: var(--homeSize);
+      border-radius: 50%;
+      background: #bfe7ff;
+      border:4px solid #000;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:auto;
+      cursor:pointer;
+    }
+    .homeBtn svg{ width:34px;height:34px; }
+
+    /* نتائج */
+    .resultRow{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:12px;
+      width:100%;
+      border: 4px solid rgba(0,0,0,0.25);
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 22px;
+      font-weight: 1000;
+      background: rgba(255,255,255,0.88);
+      color:#111;
+      margin-bottom: 12px;
+    }
+    .scoreBadge{
+      width: 64px;
+      min-width: 64px;
+      height: 54px;
+      border-radius: 999px;
+      border: 4px solid #000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:1000;
+      background:#fff;
+      color:#111;
+    }
+    .resultName{
+      flex:1;
+      text-align:center;
+      border: 4px solid rgba(0,0,0,0.12);
+      border-radius: 999px;
+      padding: 12px 12px;
+      background:#fff;
+    }
+
+    /* خيارات التخمين */
+    .optBtn{
+      width:100%;
+      border: 4px solid #000;
+      border-radius: 18px;
+      padding: 14px 14px;
+      font-size: 24px;
+      font-weight: 1000;
+      cursor:pointer;
+      text-align:center;
+      background:#fff;
+      color:#111;
+      margin-bottom: 12px;
+      -webkit-tap-highlight-color:transparent;
+      box-shadow: 0 8px 0 rgba(0,0,0,0.18);
+    }
+    .optBtn:active{ transform: translateY(1px); box-shadow: 0 7px 0 rgba(0,0,0,0.18); }
+    .optBtn[disabled]{ opacity:.85; cursor:not-allowed; transform:none; }
+    .optBtn.wrong{ background:#b92b2b; color:#fff; }
+    .optBtn.correct{ background:#1f8a3a; color:#fff; }
+
+    /* مودال نتائج التصويت (يظهر فقط لمن صوّت) */
+    .modalBack{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.40);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:10000;
+      padding: 10px;
+    }
+    .modal{
+      width: min(520px, 96vw);
+      border:10px solid var(--frame);
+      border-radius: 26px;
+      background: var(--bg);
+      padding: 16px 14px 16px;
+      box-shadow: 0 14px 0 rgba(0,0,0,.22);
+    }
+    .modalInner{
+      border-radius: 22px;
+      background: var(--card);
+      color:#fff;
+      padding: 20px 16px 18px;
+      box-shadow: 0 0 0 8px rgba(216,207,177,.75) inset;
+      text-align:center;
+      position: relative;
+    }
+    .modalTitle{
+      font-size: 34px;
+      font-weight: 1000;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+
+    .voteListBox{
+      width:100%;
+      max-width: 440px;
+      margin: 0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding-top: 6px;
+    }
+    .voteLine{
+      width:100%;
+      border-radius: 18px;
+      padding: 16px 14px;
+      background: rgba(43,62,26,0.55);
+      box-shadow: 0 8px 0 rgba(0,0,0,0.18);
+      font-size: 24px;
+      font-weight: 1000;
+      line-height: 1.4;
+      color:#fff;
+      text-align:center;
+    }
+    .hl{ color: var(--yellow); }
+
+    .modalActions{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      justify-content:center;
+      align-items:center;
+      margin-top: 16px;
+    }
+    .modalBtn{
+      width: min(360px, 86%);
+      height: 58px;
+      border-radius: 22px;
+      border: 4px solid #000;
+      background: var(--yellow);
+      color:#111;
+      font-size: 26px;
+      font-weight: 1000;
+      cursor:pointer;
+      box-shadow: var(--shadowSmall);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .modalBtn:active{ transform: translateY(1px); box-shadow: 0 7px 0 rgba(0,0,0,0.18); }
+    .modalBtn[disabled]{ opacity:.55; cursor:not-allowed; transform:none; }
+
+    .modalBuy{
+      background: var(--blue);
+      color:#111;
+    }
+    .modalNext{
+      background: var(--yellow);
+      color:#111;
+    }
+
+    .cta.secondary{
+      background: var(--blue);
+      color:#111;
+    }
+
+    @media (max-width: 360px){
+      .logo{ width:80px;height:80px; }
+      .homeBtn{ width:56px;height:56px; }
+      .homeBtn svg{ width:30px;height:30px; }
+      .cta{ font-size: 26px; }
+      .bigName{ font-size: 50px; }
+      .pillName{ font-size: 30px; }
+      .voteLine{ font-size: 22px; }
+      .modalTitle{ font-size: 32px; }
+      .endMain{ font-size: 30px; }
+      .endSub{ font-size: 18px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="frame">
+      <div class="topbar">
+        <div class="brandTitle">لعبة برا السالفة</div>
+        <img class="logo" src="logo.PNG" alt="logo" />
+      </div>
+
+      <div class="badgeTitle" id="pageTitle">جاري التحميل...</div>
+
+      <div class="card" id="card">
+        <div class="hint">جاري التحميل...</div>
+      </div>
+
+      <!-- زر التالي (للمقدم فقط) -->
+      <div class="ctaArea" id="ctaArea">
+        <button class="cta" id="ctaBtn">التالي</button>
+      </div>
+
+      <!-- زر شراء (للاعبين فقط) -->
+      <div class="buyArea" id="buyArea">
+        <button class="buyBtn" id="buyBtn">لشراء اللعبة اضغط هنا</button>
+      </div>
+
+      <!-- ✅ حقوق -->
+      <div class="rights" id="rights">© جميع الحقوق محفوظة لمتجر صندوق المسابقات ©</div>
+
+      <div class="err" id="err"></div>
+    </div>
+  </div>
+
+  <div class="bottomBar">
+    <div class="bottomInner">
+      <button class="homeBtn" id="homeBtn" aria-label="الرئيسية" title="الرئيسية">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 11.5L12 4l9 7.5" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.5 10.5V20h11V10.5" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ مودال نتائج التصويت (يظهر فقط لمن صوّت) -->
+  <div class="modalBack" id="modalBack" aria-hidden="true">
+    <div class="modal">
+      <div class="modalInner">
+        <div class="modalTitle">نتائج التصويت</div>
+
+        <div class="voteListBox" id="modalVotes">
+          <!-- تُملأ تلقائياً -->
+        </div>
+
+        <div class="modalActions">
+          <!-- للمقدم فقط -->
+          <button class="modalBtn modalNext" id="modalNext" style="display:none;" disabled>التالي</button>
+
+          <!-- للاعبين فقط -->
+          <button class="modalBtn modalBuy" id="modalBuy" style="display:none;">لشراء اللعبة اضغط هنا</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { ensureRoom, listenRoom, roomRef } from "./data/firebase.js";
+    import { db } from "./data/firebase.js";
+    import {
+      runTransaction,
+      updateDoc,
+      serverTimestamp,
+      increment,
+      getDocFromServer
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const pageTitle = document.getElementById("pageTitle");
+    const cardEl    = document.getElementById("card");
+    const ctaArea   = document.getElementById("ctaArea");
+    const ctaBtn    = document.getElementById("ctaBtn");
+    const buyArea   = document.getElementById("buyArea");
+    const buyBtn    = document.getElementById("buyBtn");
+    const homeBtn   = document.getElementById("homeBtn");
+    const errBox    = document.getElementById("err");
+    const rightsEl  = document.getElementById("rights");
+
+    const modalBack  = document.getElementById("modalBack");
+    const modalVotes = document.getElementById("modalVotes");
+    const modalNext  = document.getElementById("modalNext");
+    const modalBuy   = document.getElementById("modalBuy");
+
+    function showErr(msg){ errBox.textContent = msg; errBox.style.display = "block"; }
+    function hideErr(){ errBox.textContent = ""; errBox.style.display = "none"; }
+    function clean(x){ return String(x || "").trim(); }
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    const params = new URLSearchParams(location.search);
+    const roomId = clean(params.get("room"));
+
+    // host detect (مثل ملفاتك)
+    const HOST_ROOM_KEY = "bara_roomId_multi_v4";
+    const hostRoomId = clean(sessionStorage.getItem(HOST_ROOM_KEY));
+    const isHost = !!hostRoomId && hostRoomId === roomId;
+
+    // ✅ شرطك: زر الرئيسية للمقدم فقط
+    if(!isHost){
+      homeBtn.style.display = "none";
+    }
+
+    // my name
+    const POSSIBLE_PLAYER_KEYS = [
+      "bara_playerName_multi_v4",
+      "bara_playerName_multi_v3",
+      "bara_playerName_multi_v2",
+      "bara_playerName_multi_v1",
+      "bara_playerName_multi"
+    ];
+    const POSSIBLE_HOST_KEYS = [
+      "bara_hostName_multi_v4",
+      "bara_hostName_multi_v3",
+      "bara_hostName_multi_v2",
+      "bara_hostName_multi_v1"
+    ];
+    function getMyName(){
+      for(const k of POSSIBLE_PLAYER_KEYS){
+        const v = clean(sessionStorage.getItem(k));
+        if(v) return v;
+      }
+      for(const k of POSSIBLE_HOST_KEYS){
+        const v = clean(localStorage.getItem(k));
+        if(v) return v;
+      }
+      return "";
+    }
+    const myName = getMyName();
+
+    // UI
+    buyArea.classList.toggle("hidden", isHost);
+    ctaArea.classList.toggle("hidden", !isHost);
+    ctaBtn.disabled = true;
+
+    // ✅ وضع زر الشراء الافتراضي (للاعبين) + يتحول في نهاية الجولة للمقدم إلى "إضافة لاعبين"
+    let buyBtnMode = "store"; // "store" | "addPlayers"
+    buyBtn.addEventListener("click", () => {
+      if(isHost && buyBtnMode === "addPlayers"){
+        window.location.href = "players.html?room=" + encodeURIComponent(roomId);
+        return;
+      }
+      window.open("https://sandooq-m.com", "_blank", "noopener,noreferrer");
+    });
+
+    function clearMultiState(){
+      sessionStorage.removeItem("bara_roomId_multi_v4");
+      sessionStorage.removeItem("bara_roomTs_multi_v4");
+      sessionStorage.removeItem("bara_hostAdded_multi_v4");
+      localStorage.removeItem("bara_hostName_multi_v4");
+    }
+    homeBtn.addEventListener("click", () => {
+      if(isHost) clearMultiState();
+      window.location.href = "index.html";
+    });
+
+    // ✅ التحكم في ظهور المودال (يظهر فقط لمن صوّت)
+    let voteModalOpenedByMe = false;
+
+    function openVoteModal(){
+      modalBack.style.display = "flex";
+      modalBack.setAttribute("aria-hidden","false");
+
+      // زر داخل المودال حسب النوع
+      if(isHost){
+        modalNext.style.display = "block";
+        modalBuy.style.display = "none";
+      }else{
+        modalNext.style.display = "none";
+        modalBuy.style.display = "block";
+      }
+    }
+    function closeVoteModal(){
+      modalBack.style.display = "none";
+      modalBack.setAttribute("aria-hidden","true");
+    }
+
+    modalBuy.addEventListener("click", () => {
+      window.open("https://sandooq-m.com", "_blank", "noopener,noreferrer");
+    });
+
+    function updateVoteModalList(names, votesBy){
+      const obj = (votesBy && typeof votesBy === "object") ? votesBy : {};
+      const lines = [];
+
+      // ترتيب العرض حسب ترتيب أسماء اللاعبين
+      for(const voter of (names || [])){
+        const target = clean(obj[voter]);
+        if(!target) continue;
+        lines.push(`
+          <div class="voteLine">
+            <span>${escapeHtml(voter)}</span>
+            <span class="hl"> صوّت على </span>
+            <span>${escapeHtml(target)}</span>
+          </div>
+        `);
+      }
+
+      modalVotes.innerHTML = lines.join("") || `<div class="voteLine">بانتظار التصويت...</div>`;
+    }
+
+    function getPlayersNames(data){
+      const players = Array.isArray(data?.players) ? data.players : [];
+      const names = players.map(p => clean(p?.name)).filter(Boolean);
+      const seen = new Set();
+      const unique = [];
+      for(const n of names){
+        if(!seen.has(n)){
+          seen.add(n);
+          unique.push(n);
+        }
+      }
+      return unique;
+    }
+
+    function getOutName(data){
+      return clean(data?.outName)
+        || clean(data?.outPlayer)
+        || clean(data?.outsideName)
+        || clean(data?.baraOut)
+        || clean(data?.outsiderName)
+        || "";
+    }
+
+    function getStoryWord(data){
+      return clean(data?.storyWord)
+        || clean(data?.topicWord)
+        || clean(data?.salfahWord)
+        || clean(data?.word)
+        || "";
+    }
+
+    function getRoundId(data){
+      return clean(data?.roundId) || clean(data?.questionsRoundId) || "round";
+    }
+
+    // نفس قوائم الكلمات (fallback)
+    const WORDS = {
+      eat:  ["كبسة","مفطح","جريش","مندي","مراصيع","بسبوسة","هريس"],
+      zoo:  ["أسد","نمر","زرافة","فيل","ذئب","غزال","قندس"],
+      play: ["حارس","مهاجم","مدرب","حكم","جمهور","كابتن","بديل"],
+      car:  ["كامري","باترول","كورولا","جي كلاس","لاندكروزر","سوناتا","اكسبلورr"],
+      frot: ["تفاح","موز","عنب","رمان","خيار","طماطم","فراولة"],
+      cola: ["ماء","شاي","قهوة","عصير","موهيتو","كولا","لبن"]
+    };
+
+    function buildGuessOptions(data){
+      const story = getStoryWord(data);
+
+      let pool = Array.isArray(data?.categoryWords) ? data.categoryWords : [];
+      if(!Array.isArray(pool) || pool.length < 7){
+        const key = clean(data?.categoryKey);
+        pool = Array.isArray(WORDS[key]) ? WORDS[key] : [];
+      }
+
+      const cleanPool = (pool || []).map(w => clean(w)).filter(Boolean);
+
+      if(!story || cleanPool.length < 7) return null;
+
+      const uniq = Array.from(new Set(cleanPool));
+      const filtered = uniq.filter(w => w !== story);
+
+      const picks = [];
+      const used = new Set();
+      while(picks.length < 6 && used.size < filtered.length){
+        const w = filtered[Math.floor(Math.random()*filtered.length)];
+        if(!w || used.has(w)) continue;
+        used.add(w);
+        picks.push(w);
+      }
+      if(picks.length < 6) return null;
+
+      const opts = picks.concat([story]);
+      for(let i=opts.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+      }
+      return { opts, story };
+    }
+
+    async function setRoom(fields){
+      await updateDoc(roomRef(roomId), {
+        ...fields,
+        updatedAt: serverTimestamp(),
+        tick: increment(1)
+      });
+    }
+
+    // ✅ تجهيز جولة جديدة (Reset للجولة) — للمقدم فقط
+    async function resetRoundForNewGame(){
+      if(!isHost) return;
+      await setRoom({
+        phase: "category",
+        roundId: "",
+        questionsRoundId: "",
+        revealTs: null,
+
+        outsiderName: "",
+        outName: "",
+        outPlayer: "",
+        outsideName: "",
+        baraOut: "",
+
+        storyWord: "",
+        topicWord: "",
+        salfahWord: "",
+        word: "",
+
+        readyList: [],
+        understoodList: [],
+
+        votesBy: {},
+        guessBy: {},
+        guessOptions: [],
+        correctWord: "",
+        guessRoundId: "",
+        scoresAppliedFor: "",
+
+        categoryKey: "",
+        categoryWords: []
+      });
+    }
+
+    // ---------- مزامنة سريعة من السيرفر ----------
+    let fastSyncTimer = null;
+    let fastSyncTries = 0;
+
+    async function syncFromServerOnce(){
+      if(!roomId) return;
+      try{
+        const snap = await getDocFromServer(roomRef(roomId));
+        if(snap.exists()){
+          const data = snap.data();
+          try{ await ensureGuessSetupIfHost(data); }catch(e){}
+          renderByRoom(data);
+        }
+      }catch(e){}
+    }
+
+    function startFastSync(){
+      if(fastSyncTimer) return;
+      fastSyncTries = 0;
+      fastSyncTimer = setInterval(async () => {
+        fastSyncTries++;
+        await syncFromServerOnce();
+        if(fastSyncTries >= 12){
+          stopFastSync();
+        }
+      }, 500);
+    }
+
+    function stopFastSync(){
+      if(fastSyncTimer){
+        clearInterval(fastSyncTimer);
+        fastSyncTimer = null;
+      }
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if(document.visibilityState === "visible"){
+        syncFromServerOnce();
+      }
+    });
+    window.addEventListener("online", () => {
+      syncFromServerOnce();
+    });
+
+    // ---------- التصويت ----------
+    async function voteFor(targetName){
+      if(!roomId) return;
+      if(!myName){
+        showErr("اسمك غير معروف في هذا الجهاز.");
+        return;
+      }
+      hideErr();
+
+      const ref = roomRef(roomId);
+      try{
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(ref);
+          if(!snap.exists()) return;
+
+          const d = snap.data() || {};
+          const phase = clean(d?.phase) || "vote";
+          if(phase !== "vote") return;
+
+          const votesBy = (d.votesBy && typeof d.votesBy === "object") ? d.votesBy : {};
+
+          // ✅ تثبيت التصويت: إذا سبق وصوّت، ما يقدر يغيّر (حتى في الفايربيس)
+          if(clean(votesBy[myName])) return;
+
+          votesBy[myName] = targetName;
+
+          tx.update(ref, {
+            updatedAt: serverTimestamp(),
+            tick: increment(1),
+            votesBy
+          });
+        });
+
+        // ✅ يظهر المودال فقط للي صوّت
+        voteModalOpenedByMe = true;
+        openVoteModal();
+
+      }catch(e){
+        console.warn(e);
+        showErr("صار خطأ في الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+      }
+    }
+
+    function canHostNextVote(names, votesBy){
+      if(!isHost) return false;
+      if(!Array.isArray(names) || names.length < 3) return false;
+      const obj = (votesBy && typeof votesBy === "object") ? votesBy : {};
+      for(const n of names){
+        const v = clean(obj[n]);
+        if(!v) return false;
+      }
+      return true;
+    }
+
+    function renderVote(names, votesBy){
+      pageTitle.textContent = "التصويت";
+
+      const selected = myName ? clean(votesBy?.[myName]) : "";
+      const canVote = !!myName;
+      const locked = !!selected;
+
+      const listNames = (names || []).filter(n => {
+        if(!myName) return true;
+        return n !== myName;
+      });
+
+      const list = listNames.map(n => {
+        const dis = (!canVote || locked) ? " disabled" : "";
+        const sel = (selected === n) ? " selected" : "";
+        return `<button class="rowBtn${sel}" data-name="${escapeHtml(n)}"${dis}>${escapeHtml(n)}</button>`;
+      }).join("");
+
+      cardEl.innerHTML = `
+        <div style="width:100%;">
+          <div class="hint">اختر الشخص اللي تشك إنه برا السالفة</div>
+          <div class="list" id="voteList">${list}</div>
+        </div>
+      `;
+
+      const voteList = document.getElementById("voteList");
+      if(voteList){
+        voteList.addEventListener("click", (e) => {
+          const already = myName ? clean(votesBy?.[myName]) : "";
+          if(already) return;
+
+          const btn = e.target.closest("button.rowBtn");
+          if(!btn || btn.disabled) return;
+          const n = clean(btn.getAttribute("data-name"));
+          if(!n) return;
+          voteFor(n);
+        });
+      }
+
+      if(voteModalOpenedByMe && modalBack.style.display === "flex"){
+        updateVoteModalList(names, votesBy);
+        if(isHost){
+          modalNext.disabled = !canHostNextVote(names, votesBy);
+        }
+      }
+
+      if(isHost){
+        ctaBtn.textContent = "التالي";
+        ctaBtn.classList.remove("vote");
+        ctaBtn.disabled = !canHostNextVote(names, votesBy);
+      }
+    }
+
+    // ---------- الكشف ----------
+    let revealTimer = null;
+    let revealTickTimer = null;
+
+    function clearRevealTimers(){
+      if(revealTimer) clearTimeout(revealTimer);
+      if(revealTickTimer) clearInterval(revealTickTimer);
+      revealTimer = null;
+      revealTickTimer = null;
+    }
+
+    function renderReveal(names, outName, revealTs){
+      pageTitle.textContent = "الكشف";
+
+      const startTs = Number(revealTs || 0);
+      const now = Date.now();
+      const dur = 3000;
+      const remaining = startTs ? Math.max(0, (startTs + dur) - now) : 0;
+
+      cardEl.innerHTML = `
+        <div style="width:100%;">
+          <div class="hint" style="font-size:26px; font-weight:1000;">اللي برا السالفة هو :</div>
+          <div class="bigName" id="revealName">...</div>
+        </div>
+      `;
+
+      const el = document.getElementById("revealName");
+      clearRevealTimers();
+
+      if(!startTs){
+        el.textContent = outName || "غير معروف";
+        return;
+      }
+
+      let idx = 0;
+      const safeNames = (names && names.length) ? names : (outName ? [outName] : ["..."]);
+
+      const runTick = () => {
+        el.textContent = safeNames[idx % safeNames.length] || "...";
+        idx++;
+      };
+
+      runTick();
+      revealTickTimer = setInterval(runTick, 120);
+
+      revealTimer = setTimeout(() => {
+        clearRevealTimers();
+        el.textContent = outName || "غير معروف";
+      }, remaining);
+
+      if(isHost){
+        ctaBtn.textContent = "التالي";
+        ctaBtn.classList.remove("vote");
+        ctaBtn.disabled = false;
+      }
+    }
+
+    // ---------- التخمين ----------
+    async function ensureGuessSetupIfHost(data){
+      if(!isHost) return;
+      const phase = clean(data?.phase);
+      if(phase !== "guess") return;
+
+      const ref = roomRef(roomId);
+
+      const currentRoundId = getRoundId(data);
+      const guessRoundId = clean(data?.guessRoundId) || "";
+      const hasOpts = Array.isArray(data?.guessOptions) && data.guessOptions.length === 7;
+      const story = getStoryWord(data);
+
+      if(hasOpts && guessRoundId && currentRoundId && guessRoundId === currentRoundId && story) return;
+
+      const built = buildGuessOptions(data);
+      if(!built) return;
+
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if(!snap.exists()) return;
+        const d = snap.data() || {};
+
+        const ph = clean(d?.phase);
+        if(ph !== "guess") return;
+
+        const cr = getRoundId(d);
+        const gr = clean(d?.guessRoundId) || "";
+        const ok = Array.isArray(d?.guessOptions) && d.guessOptions.length === 7;
+        const st = getStoryWord(d);
+
+        if(ok && st && cr && gr === cr) return;
+
+        const b = buildGuessOptions(d);
+        if(!b) return;
+
+        tx.update(ref, {
+          updatedAt: serverTimestamp(),
+          tick: increment(1),
+          guessOptions: b.opts,
+          correctWord: b.story,
+          guessBy: {},
+          guessRoundId: cr || String(Date.now())
+        });
+      });
+    }
+
+    async function chooseGuess(word){
+      if(!roomId) return;
+      if(!myName){
+        showErr("اسمك غير معروف في هذا الجهاز.");
+        return;
+      }
+      hideErr();
+
+      const ref = roomRef(roomId);
+      try{
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(ref);
+          if(!snap.exists()) return;
+
+          const d = snap.data() || {};
+          const phase = clean(d?.phase);
+          if(phase !== "guess") return;
+
+          const outName = getOutName(d);
+          if(!outName || myName !== outName) return;
+
+          const guessBy = (d.guessBy && typeof d.guessBy === "object") ? d.guessBy : {};
+          if(clean(guessBy[outName])) return;
+
+          guessBy[outName] = word;
+
+          tx.update(ref, {
+            updatedAt: serverTimestamp(),
+            tick: increment(1),
+            guessBy
+          });
+        });
+      }catch(e){
+        console.warn(e);
+        showErr("صار خطأ في الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+      }
+    }
+
+    function renderGuess(data, names){
+      pageTitle.textContent = "اختيار السالفة";
+
+      const outName = getOutName(data);
+      const opts = Array.isArray(data?.guessOptions) ? data.guessOptions.map(x=>clean(x)).filter(Boolean) : [];
+      const correct = clean(data?.correctWord);
+      const guessBy = (data?.guessBy && typeof data?.guessBy === "object") ? data?.guessBy : {};
+      const chosen = outName ? clean(guessBy?.[outName]) : "";
+
+      if(opts.length !== 7 || !correct){
+        startFastSync();
+
+        cardEl.innerHTML = `
+          <div style="width:100%;">
+            <div class="hint">جاري تجهيز خيارات السالفة...</div>
+          </div>
+        `;
+
+        if(isHost){
+          ctaBtn.textContent = "التالي";
+          ctaBtn.disabled = true;
+        }
+        return;
+      }
+
+      stopFastSync();
+
+      const isOut = !!outName && myName === outName;
+
+      const buttons = opts.map(w => {
+        const isCorrect = (w === correct);
+
+        let cls = "optBtn";
+        if(chosen){
+          if(isCorrect) cls += " correct";
+          else cls += " wrong";
+        }
+
+        const disabled = chosen ? " disabled" : (isOut ? "" : " disabled");
+
+        return `<button class="${cls}" data-word="${escapeHtml(w)}"${disabled}>${escapeHtml(w)}</button>`;
+      }).join("");
+
+      cardEl.innerHTML = `
+        <div style="width:100%; max-width: 460px; margin: 0 auto;">
+          <div class="pillName">${escapeHtml(outName || "برا السالفة")}</div>
+          <div class="hint" style="font-size:24px; font-weight:1000; margin-bottom:10px;">ايش هي السالفة ؟</div>
+          <div class="list" id="guessList" style="background: rgba(0,0,0,.08);">${buttons}</div>
+        </div>
+      `;
+
+      const gl = document.getElementById("guessList");
+      if(gl){
+        gl.addEventListener("click", (e) => {
+          const btn = e.target.closest("button.optBtn");
+          if(!btn || btn.disabled) return;
+          const w = clean(btn.getAttribute("data-word"));
+          if(!w) return;
+          chooseGuess(w);
+        });
+      }
+
+      if(isHost){
+        ctaBtn.textContent = "التالي";
+        ctaBtn.disabled = !chosen;
+      }
+    }
+
+    // ---------- النتائج ----------
+    function computeWinners(data, names){
+      const outName = getOutName(data);
+      const votesBy = (data?.votesBy && typeof data.votesBy === "object") ? data.votesBy : {};
+      const guessBy = (data?.guessBy && typeof data?.guessBy === "object") ? data.guessBy : {};
+      const correct = clean(data?.correctWord);
+
+      let votesAgainstOut = 0;
+      for(const voter of Object.keys(votesBy)){
+        if(clean(votesBy[voter]) === outName) votesAgainstOut++;
+      }
+
+      const outChosen = outName ? clean(guessBy?.[outName]) : "";
+      const outGuessedCorrect = !!outChosen && !!correct && outChosen === correct;
+      const outWins = (!!outName) && (votesAgainstOut === 0 || outGuessedCorrect);
+
+      const winners = new Set();
+
+      if(outWins && outName) winners.add(outName);
+
+      for(const n of names){
+        if(!n || n === outName) continue;
+        if(clean(votesBy?.[n]) === outName) winners.add(n);
+      }
+
+      return { winners, outName };
+    }
+
+    async function applyScoresIfHost(data, names){
+      if(!isHost) return false;
+
+      const phase = clean(data?.phase);
+      if(phase !== "results") return false;
+
+      const ref = roomRef(roomId);
+      const currentRoundId = getRoundId(data);
+      const applied = clean(data?.scoresAppliedFor);
+
+      if(applied === currentRoundId) return false;
+
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if(!snap.exists()) return;
+        const d = snap.data() || {};
+
+        const ph = clean(d?.phase);
+        if(ph !== "results") return;
+
+        const cr = getRoundId(d);
+        const ap = clean(d?.scoresAppliedFor);
+        if(ap === cr) return;
+
+        const players = Array.isArray(d?.players) ? d.players : [];
+        const nm = players.map(p => clean(p?.name)).filter(Boolean);
+        const seen = new Set();
+        const uniq = [];
+        for(const x of nm){ if(!seen.has(x)){ seen.add(x); uniq.push(x); } }
+
+        const { winners } = computeWinners(d, uniq);
+
+        const scoresBy = (d.scoresBy && typeof d.scoresBy === "object") ? d.scoresBy : {};
+        for(const name of uniq){
+          const prev = Number(scoresBy[name] || 0);
+          if(winners.has(name)) scoresBy[name] = prev + 100;
+          else scoresBy[name] = prev + 0;
+        }
+
+        tx.update(ref, {
+          updatedAt: serverTimestamp(),
+          tick: increment(1),
+          scoresBy,
+          scoresAppliedFor: cr
+        });
+      });
+
+      return true;
+    }
+
+    function resultsReady(data, names){
+      const roundId = getRoundId(data);
+      const applied = clean(data?.scoresAppliedFor);
+      const scoresBy = (data?.scoresBy && typeof data.scoresBy === "object") ? data?.scoresBy : null;
+      if(applied !== roundId) return false;
+      if(!scoresBy) return false;
+      for(const n of names){
+        if(!(n in scoresBy)) return false;
+      }
+      return true;
+    }
+
+    function renderResults(data, names){
+      pageTitle.textContent = "النتائج";
+
+      if(!resultsReady(data, names)){
+        startFastSync();
+        cardEl.innerHTML = `
+          <div style="width:100%; max-width: 460px; margin: 0 auto;">
+            <div class="hint" style="font-size:22px; font-weight:1000;">جاري تجهيز النتائج...</div>
+          </div>
+        `;
+        if(isHost){
+          ctaBtn.textContent = "التالي";
+          ctaBtn.disabled = true;
+        }
+        return;
+      }
+
+      stopFastSync();
+
+      const scoresBy = (data?.scoresBy && typeof data.scoresBy === "object") ? data.scoresBy : {};
+      const rows = names
+        .slice()
+        .sort((a,b)=>Number(scoresBy[b]||0)-Number(scoresBy[a]||0))
+        .map(n => {
+          const s = Number(scoresBy[n] || 0);
+          return `
+            <div class="resultRow">
+              <div class="scoreBadge">${s}</div>
+              <div class="resultName">${escapeHtml(n)}</div>
+            </div>
+          `;
+        }).join("");
+
+      cardEl.innerHTML = `
+        <div style="width:100%; max-width: 460px; margin: 0 auto;">
+          <div class="list" style="background: rgba(0,0,0,.08);">${rows || ""}</div>
+        </div>
+      `;
+
+      if(isHost){
+        ctaBtn.textContent = "التالي";
+        ctaBtn.disabled = false;
+      }
+    }
+
+    // ---------- نهاية الجولة ----------
+    function renderRoundEnd(){
+      pageTitle.textContent = "نهاية الجولة";
+
+      cardEl.classList.add("roundEndCard");
+      cardEl.innerHTML = `
+        <div style="width:100%; max-width: 460px; margin: 0 auto;">
+          <div class="endMain">
+            تقدرون تكملون لعب أو تغيّرون لاعب أو ترجعون للشاشة اختيار الأسئلة
+          </div>
+          <div class="endSub">
+            أرهب شعور لما تكون برا السالفة وتتسأل أول سؤال ومع ذلك مع ما يكشفونك!! 👀
+          </div>
+        </div>
+      `;
+
+      stopFastSync();
+
+      rightsEl.style.display = "block";
+
+      if(isHost){
+        // ✅ للمقدم: زر أزرق (إضافة لاعبين) + زر أصفر (كمل لعب)
+        buyBtnMode = "addPlayers";
+        buyBtn.textContent = "إضافة لاعبين";
+        buyArea.classList.remove("hidden");
+
+        ctaBtn.textContent = "كمل لعب";
+        ctaBtn.disabled = false;
+        ctaArea.classList.remove("hidden");
+
+      }else{
+        // ✅ للاعبين: زر شراء فقط
+        buyBtnMode = "store";
+        buyBtn.textContent = "لشراء اللعبة اضغط هنا";
+        buyArea.classList.remove("hidden");
+
+        ctaArea.classList.add("hidden");
+      }
+    }
+
+    // ---------- التحكم بزر التالي (المقدم) ----------
+    async function hostNext(data, names){
+      if(!isHost) return;
+      hideErr();
+
+      const phase = clean(data?.phase);
+
+      if(phase === "vote"){
+        const votesBy = (data?.votesBy && typeof data.votesBy === "object") ? data.votesBy : {};
+        if(!canHostNextVote(names, votesBy)){
+          showErr("انتظر لين يصوّتون الجميع.");
+          return;
+        }
+        await setRoom({ phase: "reveal", revealTs: Date.now() });
+        return;
+      }
+
+      if(phase === "reveal"){
+        await setRoom({ phase: "guess" });
+        return;
+      }
+
+      if(phase === "guess"){
+        const outName = getOutName(data);
+        const guessBy = (data?.guessBy && typeof data?.guessBy === "object") ? data.guessBy : {};
+        const chosen = outName ? clean(guessBy?.[outName]) : "";
+        if(!chosen){
+          showErr("انتظر لين يختار اللي برا السالفة السالفة.");
+          return;
+        }
+        await setRoom({ phase: "results" });
+        return;
+      }
+
+      if(phase === "results"){
+        const namesNow = getPlayersNames(data);
+        if(!resultsReady(data, namesNow)){
+          showErr("لحظة... جاري تجهيز النتائج.");
+          startFastSync();
+          return;
+        }
+        await setRoom({ phase: "round_end" });
+        return;
+      }
+    }
+
+    // ✅ زر الأصفر (ctaBtn): في نهاية الجولة = كمل لعب للمقدم
+    ctaBtn.addEventListener("click", async () => {
+      if(!isHost) return;
+      const data = window.__lastRoomData || {};
+      const phase = clean(data?.phase);
+
+      if(phase === "round_end"){
+        hideErr();
+        ctaBtn.disabled = true;
+        try{
+          await resetRoundForNewGame();
+          window.location.href = "categories.html?room=" + encodeURIComponent(roomId) + "&mode=multi";
+        }catch(e){
+          console.warn(e);
+          showErr("صار خطأ في الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+          ctaBtn.disabled = false;
+        }
+        return;
+      }
+
+      const names = getPlayersNames(data);
+      try{
+        await hostNext(data, names);
+      }catch(e){
+        console.warn(e);
+        showErr("صار خطأ في الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+      }
+    });
+
+    // ✅ زر التالي داخل المودال للمقدم
+    modalNext.addEventListener("click", async () => {
+      if(!isHost) return;
+      const data = window.__lastRoomData || {};
+      const names = getPlayersNames(data);
+      try{
+        await hostNext(data, names);
+        closeVoteModal();
+      }catch(e){
+        console.warn(e);
+        showErr("صار خطأ في الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+      }
+    });
+
+    // ---------- Render by phase ----------
+    function renderByRoom(data){
+      window.__lastRoomData = data || {};
+      if(!data) return;
+
+      const phase = clean(data?.phase) || "vote";
+      const names = getPlayersNames(data);
+
+      // ✅ إخفاء عنوان "الكشف" (badge) في مرحلة الكشف فقط
+      pageTitle.style.display = (phase === "reveal") ? "none" : "block";
+
+      // ✅ حقوق تظهر فقط في نهاية الجولة
+      rightsEl.style.display = (phase === "round_end") ? "block" : "none";
+
+      // ✅ إزالة ستايل نهاية الجولة إذا خرجنا منها
+      if(phase !== "round_end"){
+        cardEl.classList.remove("roundEndCard");
+      }
+
+      // ✅ إعادة وضع الأزرار الافتراضي خارج نهاية الجولة
+      if(phase !== "round_end"){
+        buyBtnMode = "store";
+        buyBtn.textContent = "لشراء اللعبة اضغط هنا";
+        buyArea.classList.toggle("hidden", isHost);
+        ctaArea.classList.toggle("hidden", !isHost);
+      }
+
+      // ✅ إذا خرجنا من التصويت نقفل المودال ونصفر العلم
+      if(phase !== "vote"){
+        closeVoteModal();
+        voteModalOpenedByMe = false;
+      }
+
+      if(phase === "ready"){
+        window.location.href = "ready.html?room=" + encodeURIComponent(roomId);
+        return;
+      }
+
+      if(phase === "category" || phase === "categories"){
+        if(!isHost){
+          pageTitle.textContent = "بانتظار...";
+          cardEl.innerHTML = `<div class="hint">بانتظار المقدم...</div>`;
+        }
+        if(isHost) ctaBtn.disabled = true;
+        return;
+      }
+
+      if(isHost && phase !== "round_end"){
+        ctaBtn.classList.remove("vote");
+        ctaBtn.textContent = "التالي";
+      }
+
+      if(phase === "vote"){
+        stopFastSync();
+        const votesBy = (data?.votesBy && typeof data.votesBy === "object") ? data.votesBy : {};
+
+        if(voteModalOpenedByMe && modalBack.style.display === "flex"){
+          updateVoteModalList(names, votesBy);
+          if(isHost){
+            modalNext.disabled = !canHostNextVote(names, votesBy);
+          }
+        }
+
+        if(isHost){
+          ctaBtn.disabled = !canHostNextVote(names, votesBy);
+        }
+        renderVote(names, votesBy);
+        return;
+      }
+
+      if(phase === "reveal"){
+        stopFastSync();
+        const outName = getOutName(data);
+        renderReveal(names, outName, data?.revealTs);
+        return;
+      }
+
+      if(phase === "guess"){
+        renderGuess(data, names);
+        return;
+      }
+
+      if(phase === "results"){
+        renderResults(data, names);
+        return;
+      }
+
+      if(phase === "round_end"){
+        stopFastSync();
+        renderRoundEnd();
+        return;
+      }
+
+      pageTitle.textContent = "بانتظار...";
+      cardEl.innerHTML = `<div class="hint">بانتظار المقدم...</div>`;
+      if(isHost) ctaBtn.disabled = true;
+    }
+
+    (async () => {
+      if(!roomId){
+        showErr("الرابط غير صحيح: رمز الغرفة غير موجود.");
+        return;
+      }
+
+      try{
+        await ensureRoom(roomId);
+
+        await syncFromServerOnce();
+
+        listenRoom(roomId, async (data) => {
+          if(!data) return;
+
+          try{ await ensureGuessSetupIfHost(data); }catch(e){}
+
+          try{
+            const names = getPlayersNames(data);
+            const didApply = await applyScoresIfHost(data, names);
+            if(didApply){
+              await syncFromServerOnce();
+              return;
+            }
+          }catch(e){}
+
+          try{
+            const ph = clean(data?.phase);
+            if(ph === "results" && isHost){
+              const names = getPlayersNames(data);
+              if(!resultsReady(data, names)) startFastSync();
+            }
+          }catch(e){}
+
+          renderByRoom(data);
+        });
+
+        startFastSync();
+
+      }catch(e){
+        console.warn(e);
+        showErr("تعذر الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+      }
+    })();
+  </script>
+</body>
+</html>
+
+<!-- multi_round.html برا السالفة – إصدار 8 (Round End: new style + host add players + players buy only + rights footer | Reveal: hide badge title only) -->

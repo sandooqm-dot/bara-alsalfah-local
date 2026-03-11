@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>لعبة برا السالفة - جاهز</title>
+
+  <style>
+    :root{
+      --bg:#e9e3d6;
+      --green:#3f5b2a;
+      --greenCard:#6e8554;
+      --yellow:#f2c300;
+      --text:#1a1a1a;
+
+      --shadow: 0 10px 0 rgba(0,0,0,0.18);
+      --shadowSmall: 0 8px 0 rgba(0,0,0,0.18);
+
+      --frameRadius: 28px;
+      --frameBorder: 6px;
+
+      --cardRadius: 22px;
+      --nameRadius: 22px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+    }
+
+    .page{
+      min-height: 100vh;
+      padding: 14px 12px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    .frame{
+      width: min(520px, 100%);
+      background: var(--bg);
+      border: var(--frameBorder) solid var(--green);
+      border-radius: var(--frameRadius);
+      padding: 18px 16px 26px;
+      position: relative;
+
+      min-height: calc(100vh - 28px);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    .topRow{
+      position: relative;
+      min-height: 86px;
+      margin-bottom: 4px;
+      padding-left: 118px;
+    }
+    .logo{
+      position:absolute;
+      left: 10px;
+      top: 2px;
+      width: 98px;
+      height: 98px;
+      object-fit: contain;
+      opacity: 0.98;
+      pointer-events:none;
+    }
+    .h1{
+      position:absolute;
+      right: 18px;
+      top: 22px;
+      margin:0;
+      text-align:right;
+      color: var(--green);
+      font-weight: 1000;
+      font-size: 34px;
+      letter-spacing: .2px;
+      line-height: 1.15;
+      white-space:nowrap;
+    }
+
+    .center{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      flex-direction:column;
+      padding: 6px 0 18px;
+      gap: 14px;
+    }
+
+    .namePill{
+      width: min(440px, 92%);
+      background: rgba(216,207,177,0.9);
+      border-radius: var(--nameRadius);
+      padding: 16px 14px;
+      text-align:center;
+      color: var(--green);
+      font-weight: 1000;
+      font-size: 42px;
+      line-height: 1;
+      letter-spacing: .2px;
+    }
+    .namePill.hidden{ display:none; }
+
+    .flipWrap{
+      width: min(460px, 92%);
+      perspective: 1100px;
+    }
+    .flip{
+      width:100%;
+      position:relative;
+      transform-style: preserve-3d;
+      transition: transform .75s ease;
+      min-height: 420px;
+    }
+    .flip.isFlipped{
+      transform: rotateY(180deg);
+    }
+
+    .cardFace{
+      position:absolute;
+      inset:0;
+      border-radius: var(--cardRadius);
+      backface-visibility: hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding: 22px 18px;
+      gap: 18px;
+    }
+
+    .front,
+    .back{
+      background: var(--greenCard);
+    }
+    .back{
+      transform: rotateY(180deg);
+    }
+
+    .frontText{
+      color:#fff;
+      font-weight: 1000;
+      font-size: 36px;
+      line-height: 1.35;
+      padding: 0 6px;
+      margin-bottom: 12px; /* ✅ فراغ بين الكلام وزر جاهز */
+    }
+
+    .revealText{
+      color:#fff;
+      font-weight: 1000;
+      font-size: 58px;
+      line-height: 1.1;
+      letter-spacing: .2px;
+      padding: 0 10px;
+    }
+    .revealText.small{
+      font-size: 52px;
+    }
+
+    .btn{
+      width: min(360px, 82%);
+      border: 0;
+      border-radius: 22px;
+      padding: 16px 18px;
+      font-size: 46px;
+      font-weight: 1000;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      text-align:center;
+      background: var(--yellow);
+      color:#111;
+      box-shadow: var(--shadowSmall);
+    }
+    .btn:active{ transform: translateY(1px); box-shadow: 0 7px 0 rgba(0,0,0,0.18); }
+    .btn[disabled]{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    /* ✅ التعديل المطلوب فقط: زر "فهمت" أسفل المربع الزيتي */
+    .cardFace.back{ padding-bottom: 130px; }
+    .cardFace.back #understoodBtn{
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 26px;
+    }
+
+    .note{
+      color: rgba(255,255,255,0.9);
+      font-weight: 900;
+      font-size: 16px;
+      line-height: 1.5;
+      opacity: .95;
+      display:none;
+    }
+
+    .err{
+      width: min(460px, 92%);
+      text-align:center;
+      color:#b00020;
+      font-weight: 900;
+      font-size: 16px;
+      display:none;
+      line-height: 1.4;
+      margin: 10px auto 0;
+    }
+
+    .homeBtn{
+      position:absolute;
+      left: 18px;
+      bottom: 18px;
+      width:72px;
+      height:72px;
+      border-radius:50%;
+      border:6px solid #000;
+      background:#a9dbff;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:0 8px 0 rgba(0,0,0,.25);
+      -webkit-tap-highlight-color:transparent;
+      z-index: 10;
+    }
+    .homeBtn.show{ display:flex; }
+    .homeBtn:active{ transform:translateY(1px); box-shadow:0 7px 0 rgba(0,0,0,.25); }
+    .homeBtn svg{ width:44px;height:44px; fill:#111; }
+
+    @media (max-width: 420px){
+      .namePill{ font-size: 40px; }
+      .frontText{ font-size: 34px; }
+      .revealText{ font-size: 54px; }
+      .btn{ font-size: 44px; }
+    }
+    @media (max-width: 360px){
+      .h1{ font-size: 30px; top: 20px; right: 16px; }
+      .logo{ width: 90px; height: 90px; }
+      .namePill{ font-size: 36px; }
+      .frontText{ font-size: 30px; }
+      .revealText{ font-size: 48px; }
+      .btn{ font-size: 40px; }
+      .flip{ min-height: 400px; }
+      .homeBtn{ width:66px;height:66px; }
+      .homeBtn svg{ width:40px;height:40px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="frame">
+
+      <div class="topRow">
+        <img class="logo" src="logo.PNG" alt="logo">
+        <div class="h1">لعبة برا السالفة</div>
+      </div>
+
+      <div class="center">
+        <div class="namePill" id="namePill"></div>
+
+        <div class="flipWrap">
+          <div class="flip" id="flip">
+
+            <!-- Front -->
+            <div class="cardFace front">
+              <div class="frontText">
+                اضغط جاهز حتى تعرف<br/>
+                انت برا السالفة أو داخلها<br/>
+                ولا تخلي احد غيرك<br/>
+                يشوف الشاشة !
+              </div>
+
+              <button class="btn" id="readyBtn">جاهز</button>
+              <div class="note" id="frontNote"></div>
+            </div>
+
+            <!-- Back -->
+            <div class="cardFace back">
+              <div id="revealBox" class="revealText" style="display:none;"></div>
+              <div id="outsiderBox" class="revealText small" style="display:none;">انت برا السالفة 👀</div>
+
+              <button class="btn" id="understoodBtn" disabled>فهمت</button>
+              <div class="note" id="backNote"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div id="err" class="err"></div>
+
+      <!-- زر الرئيسية (للمقدم فقط) -->
+      <button class="homeBtn" id="homeBtn" aria-label="الرئيسية" title="الرئيسية">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/>
+        </svg>
+      </button>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { ensureRoom, listenRoom, roomRef } from "./data/firebase.js";
+    import {
+      runTransaction,
+      updateDoc,
+      serverTimestamp,
+      increment,
+      arrayUnion
+    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { db } from "./data/firebase.js";
+
+    const flip = document.getElementById("flip");
+    const readyBtn = document.getElementById("readyBtn");
+    const understoodBtn = document.getElementById("understoodBtn");
+
+    const revealBox = document.getElementById("revealBox");
+    const outsiderBox = document.getElementById("outsiderBox");
+
+    const frontNote = document.getElementById("frontNote");
+    const backNote = document.getElementById("backNote");
+
+    const errBox = document.getElementById("err");
+
+    const namePill = document.getElementById("namePill");
+    const homeBtn  = document.getElementById("homeBtn");
+
+    function showErr(msg){
+      errBox.textContent = msg;
+      errBox.style.display = "block";
+    }
+    function hideErr(){
+      errBox.textContent = "";
+      errBox.style.display = "none";
+    }
+    function cleanName(x){ return String(x || "").trim(); }
+
+    const POSSIBLE_PLAYER_KEYS = [
+      "bara_playerName_multi",
+      "bara_playerName_multi_v1",
+      "bara_playerName_multi_v2"
+    ];
+    const POSSIBLE_HOST_KEYS = [
+      "bara_hostName_multi_v4",
+      "bara_hostName_multi_v3",
+      "bara_hostName_multi_v2",
+      "bara_hostName_multi_v1"
+    ];
+
+    function getMyName(){
+      for(const k of POSSIBLE_PLAYER_KEYS){
+        const v = cleanName(sessionStorage.getItem(k));
+        if(v) return v;
+      }
+      for(const k of POSSIBLE_HOST_KEYS){
+        const v = cleanName(localStorage.getItem(k));
+        if(v) return v;
+      }
+      return "";
+    }
+
+    const params = new URLSearchParams(location.search);
+    const roomId = cleanName(params.get("room"));
+
+    const myName = getMyName();
+
+    if(myName){
+      namePill.textContent = myName;
+      namePill.classList.remove("hidden");
+    }else{
+      namePill.textContent = "";
+      namePill.classList.add("hidden");
+    }
+
+    const HOST_ROOM_KEYS = ["bara_roomId_multi_v4","bara_roomId_multi_v3","bara_roomId_multi_v2","bara_roomId_multi_v1"];
+    function getHostRoomId(){
+      for(const k of HOST_ROOM_KEYS){
+        const v = cleanName(sessionStorage.getItem(k));
+        if(v) return v;
+      }
+      return "";
+    }
+    function isHostByName(){
+      if(!myName) return false;
+      for(const k of POSSIBLE_HOST_KEYS){
+        const v = cleanName(localStorage.getItem(k));
+        if(v && v === myName) return true;
+      }
+      return false;
+    }
+    const hostRoomId = getHostRoomId();
+    const isHost = (!!roomId && ((!!hostRoomId && hostRoomId === roomId) || isHostByName()));
+
+    if(isHost){
+      homeBtn.classList.add("show");
+      homeBtn.addEventListener("click", () => {
+        window.location.href = "index.html";
+      });
+    }
+
+    function getOutNameAny(data){
+      return cleanName(data?.outsiderName)
+        || cleanName(data?.outName)
+        || cleanName(data?.outPlayer)
+        || cleanName(data?.outsideName)
+        || cleanName(data?.baraOut)
+        || "";
+    }
+    function getStoryWordAny(data){
+      return cleanName(data?.storyWord)
+        || cleanName(data?.topicWord)
+        || cleanName(data?.salfahWord)
+        || cleanName(data?.word)
+        || "";
+    }
+
+    function revealForMe(data){
+      const outsiderName = getOutNameAny(data);
+      const storyWord = getStoryWordAny(data);
+
+      const iAmOutsider = (myName && outsiderName && myName === outsiderName);
+
+      revealBox.style.display = "none";
+      outsiderBox.style.display = "none";
+
+      if(iAmOutsider){
+        outsiderBox.style.display = "block";
+      }else{
+        revealBox.style.display = "block";
+        revealBox.textContent = storyWord || "—";
+      }
+
+      understoodBtn.disabled = false;
+    }
+
+    function flipCard(){
+      flip.classList.add("isFlipped");
+    }
+
+    async function ensureRoundSetup(roomId){
+      const ref = roomRef(roomId);
+
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        if(!snap.exists()) return;
+
+        const data = snap.data() || {};
+
+        const existingRoundId = cleanName(data?.roundId);
+        const existingOut = getOutNameAny(data);
+        const existingStory = getStoryWordAny(data);
+
+        if(existingRoundId && existingOut && existingStory){
+          const needsFix =
+            cleanName(data?.outsiderName) !== existingOut ||
+            cleanName(data?.outName) !== existingOut ||
+            cleanName(data?.outPlayer) !== existingOut ||
+            cleanName(data?.outsideName) !== existingOut ||
+            cleanName(data?.baraOut) !== existingOut;
+
+          if(needsFix){
+            tx.update(ref, {
+              updatedAt: serverTimestamp(),
+              tick: increment(1),
+
+              outsiderName: existingOut,
+              outName: existingOut,
+              outPlayer: existingOut,
+              outsideName: existingOut,
+              baraOut: existingOut,
+
+              storyWord: existingStory
+            });
+          }
+          return;
+        }
+
+        const players = Array.isArray(data.players) ? data.players : [];
+        const names = players.map(p => cleanName(p?.name)).filter(Boolean);
+        if(names.length < 3) return;
+
+        const outsider = existingOut || names[Math.floor(Math.random() * names.length)];
+
+        let word = existingStory;
+
+        if(!word){
+          const pool = Array.isArray(data?.categoryWords) ? data.categoryWords : [];
+          if(Array.isArray(pool) && pool.length){
+            const cleanPool = pool.map(w => cleanName(w)).filter(Boolean);
+            if(cleanPool.length){
+              word = cleanPool[Math.floor(Math.random() * cleanPool.length)];
+            }
+          }
+        }
+
+        if(!word){
+          const words = Array.isArray(data.words) ? data.words : null;
+          if(Array.isArray(words) && words.length){
+            word = cleanName(words[Math.floor(Math.random() * words.length)]);
+          }else{
+            const fallback = Array.isArray(data.storyWords) ? data.storyWords : null;
+            if(Array.isArray(fallback) && fallback.length){
+              word = cleanName(fallback[Math.floor(Math.random() * fallback.length)]);
+            }
+          }
+        }
+
+        const rid = existingRoundId || String(Date.now());
+
+        tx.update(ref, {
+          updatedAt: serverTimestamp(),
+          tick: increment(1),
+
+          roundId: rid,
+
+          outsiderName: outsider,
+          outName: outsider,
+          outPlayer: outsider,
+          outsideName: outsider,
+          baraOut: outsider,
+
+          storyWord: cleanName(word) || "—",
+          phase: "ready"
+        });
+      });
+    }
+
+    readyBtn.addEventListener("click", async () => {
+      hideErr();
+
+      if(!roomId){
+        showErr("الرابط غير صحيح: رمز الغرفة غير موجود.");
+        return;
+      }
+      if(!myName){
+        showErr("اسمك غير معروف في هذا الجهاز. ارجع للصفحة السابقة وادخل اسمك ثم جرّب.");
+        return;
+      }
+
+      readyBtn.disabled = true;
+
+      try{
+        await ensureRoom(roomId);
+        await ensureRoundSetup(roomId);
+
+        try{
+          await updateDoc(roomRef(roomId), {
+            updatedAt: serverTimestamp(),
+            tick: increment(1),
+            readyList: arrayUnion(myName)
+          });
+        }catch(e){}
+
+        flipCard();
+
+      }catch(e){
+        console.warn(e);
+        showErr("صار خطأ في الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+        readyBtn.disabled = false;
+      }
+    });
+
+    understoodBtn.addEventListener("click", async () => {
+      hideErr();
+
+      if(!roomId){
+        showErr("الرابط غير صحيح: رمز الغرفة غير موجود.");
+        return;
+      }
+      if(!myName){
+        showErr("اسمك غير معروف في هذا الجهاز.");
+        return;
+      }
+
+      understoodBtn.disabled = true;
+
+      try{
+        await updateDoc(roomRef(roomId), {
+          updatedAt: serverTimestamp(),
+          tick: increment(1),
+          understoodList: arrayUnion(myName)
+        });
+
+        window.location.href = "ready_wait.html?room=" + encodeURIComponent(roomId);
+
+      }catch(e){
+        console.warn(e);
+        showErr("صار خطأ في الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+        understoodBtn.disabled = false;
+      }
+    });
+
+    (async () => {
+      if(!roomId) return;
+
+      try{
+        await ensureRoom(roomId);
+
+        listenRoom(roomId, (data) => {
+          if(!data) return;
+
+          const word = getStoryWordAny(data);
+          const outsider = getOutNameAny(data);
+
+          if(flip.classList.contains("isFlipped") && (word || outsider)){
+            revealForMe(data);
+          }
+
+          frontNote.textContent = "";
+          backNote.textContent = "";
+        });
+
+      }catch(e){
+        console.warn(e);
+        showErr("تعذر الاتصال. حدّث الصفحة وجرب مرة ثانية.");
+      }
+    })();
+  </script>
+</body>
+</html>
+
+<!-- ready.html برا السالفة – إصدار 8 (حذف العبارة بالكامل) -->

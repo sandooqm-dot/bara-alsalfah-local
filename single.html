@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>لعبة برا السالفة - جهاز واحد</title>
+
+  <style>
+    :root{
+      --bg:#e9e3d6;
+      --green:#3f5b2a;
+      --green2:#6e8554;
+      --yellow:#f2c300;
+      --purple:#8b49b9;
+      --text:#1a1a1a;
+      --muted:#9a9a9a;
+
+      --shadow: 0 10px 0 rgba(0,0,0,0.18);
+      --shadowSmall: 0 8px 0 rgba(0,0,0,0.18);
+
+      /* مكان زر الرئيسية */
+      --homeSide: 18px;
+      --homeBottom: calc(18px + env(safe-area-inset-bottom));
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+    }
+
+    .page{
+      min-height: 100vh;
+      padding: 14px 12px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    .frame{
+      width: min(520px, 100%);
+      background: var(--bg);
+      border: 6px solid var(--green);
+      border-radius: 26px;
+      padding: 18px 16px 24px;
+      position: relative;
+
+      min-height: calc(100vh - 28px);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* رأس الصفحة */
+    .topRow{
+      position: relative;
+      min-height: 86px;
+      margin-bottom: 10px;
+      padding-left: 118px;
+    }
+
+    /* العنوان (يمين أعلى) */
+    .title{
+      position:absolute;
+      right: 18px;
+      top: 18px;
+      font-weight: 800;
+      color: var(--green);
+      font-size: calc(16px * 1.02); /* +2% */
+      line-height: 1.2;
+      text-align:right;
+      white-space:nowrap;
+    }
+
+    /* اللوجو (يسار) */
+    .logo{
+      position:absolute;
+      left: 10px;
+      top: 2px;
+      width: 98px;
+      height: 98px;
+      object-fit: contain;
+      opacity: 0.98;
+      pointer-events:none;
+    }
+
+    h2{
+      margin: 10px 0 14px;
+      text-align:center;
+      color: var(--green);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .inputs{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      margin-top: 2px;
+    }
+
+    .nameInput{
+      width: 100%;
+      padding: 14px 14px;
+      border: 4px solid var(--green2);
+      border-radius: 18px;
+      background:#fff;
+      font-size: 20px;
+      font-weight: 700;
+      color:#111;
+      outline:none;
+      text-align:center;
+    }
+    .nameInput::placeholder{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 18px;
+      opacity: 0.75;
+    }
+
+    .plusWrap{
+      display:flex;
+      justify-content:center;
+      margin: 18px 0 8px;
+    }
+    .plusBtn{
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      border: 4px solid #000;
+      background: var(--purple);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      box-shadow: var(--shadowSmall);
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .plusBtn span{
+      color:#fff;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 1;
+      transform: translateY(-1px);
+    }
+
+    /* ✅ زر ابدأ اللعب صار تحت زر + ومتحرك مع المحتوى */
+    .startWrap{
+      display:flex;
+      justify-content:center;
+      margin: 14px 0 18px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    }
+    .startBtn{
+      border: 4px solid #000;
+      background: var(--yellow);
+      color:#111;
+      font-weight: 900;
+      font-size: 24px;
+      border-radius: 22px;
+      padding: 12px 26px;
+      min-width: 220px;
+      max-width: 78%;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    /* زر الرئيسية ثابت أسفل يسار داخل الإطار */
+    .homeBtn{
+      position:absolute;
+      left: var(--homeSide);
+      bottom: var(--homeBottom);
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      border: 4px solid #000;
+      background: #bfe3ff;
+      box-shadow: var(--shadowSmall);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      cursor:pointer;
+      z-index: 5;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .homeBtn svg{
+      width: 34px;
+      height: 34px;
+      fill: #111;
+    }
+
+    @media (max-width: 360px){
+      .topRow{ min-height: 78px; padding-left: 108px; }
+      .logo{ width: 90px; height: 90px; left: 10px; top: 2px; }
+      .title{ font-size: calc(15px * 1.02); right: 16px; top: 16px; }
+      h2{ font-size: 20px; }
+      .nameInput{ font-size: 18px; }
+      .startBtn{ font-size: 22px; min-width: 200px; }
+      .plusBtn{ width: 54px; height: 54px; }
+      .plusBtn span{ font-size: 34px; }
+      .homeBtn{ width: 60px; height: 60px; }
+      .homeBtn svg{ width: 32px; height: 32px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="frame">
+      <div class="topRow">
+        <div class="title">لعبة برا السالفة</div>
+        <img class="logo" src="logo.PNG" alt="logo">
+      </div>
+
+      <h2>ادخل اسماء اللاعبين :</h2>
+
+      <div class="inputs" id="inputs">
+        <input class="nameInput" type="text" placeholder="اللاعب رقم 1" />
+        <input class="nameInput" type="text" placeholder="اللاعب رقم 2" />
+        <input class="nameInput" type="text" placeholder="اللاعب رقم 3" />
+      </div>
+
+      <div class="plusWrap">
+        <div class="plusBtn" id="addBtn" aria-label="إضافة لاعب">
+          <span>+</span>
+        </div>
+      </div>
+
+      <!-- ✅ هنا مكان زر ابدأ اللعب الجديد (تحت + مباشرة) -->
+      <div class="startWrap">
+        <button class="startBtn" id="startBtn">ابدأ اللعب</button>
+      </div>
+
+      <div class="homeBtn" id="homeBtn" title="الرئيسية" aria-label="الرئيسية">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('focusin', (e) => {
+      if (e.target.classList && e.target.classList.contains('nameInput')) {
+        e.target.dataset.ph = e.target.placeholder;
+        e.target.placeholder = '';
+      }
+    });
+    document.addEventListener('focusout', (e) => {
+      if (e.target.classList && e.target.classList.contains('nameInput')) {
+        if (!e.target.value.trim()) {
+          e.target.placeholder = e.target.dataset.ph || '';
+        }
+      }
+    });
+
+    const inputsWrap = document.getElementById('inputs');
+    const addBtn = document.getElementById('addBtn');
+    const startBtn = document.getElementById('startBtn');
+    const homeBtn = document.getElementById('homeBtn');
+
+    function nextIndex(){
+      return inputsWrap.querySelectorAll('.nameInput').length + 1;
+    }
+
+    addBtn.addEventListener('click', () => {
+      const i = document.createElement('input');
+      i.className = 'nameInput';
+      i.type = 'text';
+      i.placeholder = `اللاعب رقم ${nextIndex()}`;
+      inputsWrap.appendChild(i);
+      i.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => i.focus(), 200);
+    });
+
+    function clearBaraState(){
+      for (let k = localStorage.length - 1; k >= 0; k--) {
+        const key = localStorage.key(k);
+        if (key && key.startsWith('bara_')) localStorage.removeItem(key);
+      }
+      sessionStorage.removeItem('bara_players');
+      sessionStorage.removeItem('bara_selectedCategory');
+      sessionStorage.removeItem('bara_secretWord');
+      sessionStorage.removeItem('bara_outPlayerIndex');
+      sessionStorage.removeItem('players');
+      sessionStorage.removeItem('categoryKey');
+      sessionStorage.removeItem('singleState');
+    }
+
+    homeBtn.addEventListener('click', () => {
+      clearBaraState();
+      window.location.href = 'index.html';
+    });
+
+    /* ✅ تعبئة الأسماء عند الرجوع من "تغيير اللاعبين" */
+    function readSavedPlayers(){
+      try{
+        const a = sessionStorage.getItem('bara_players');
+        if(a){
+          const v = JSON.parse(a);
+          if(Array.isArray(v) && v.length) return v;
+        }
+      }catch(e){}
+      try{
+        const b = sessionStorage.getItem('players');
+        if(b){
+          const v = JSON.parse(b);
+          if(Array.isArray(v) && v.length) return v;
+        }
+      }catch(e){}
+      try{
+        const c = sessionStorage.getItem('baraPlayers');
+        if(c){
+          const v = JSON.parse(c);
+          if(Array.isArray(v) && v.length) return v;
+        }
+      }catch(e){}
+      return [];
+    }
+
+    function ensureInputsCount(count){
+      const current = inputsWrap.querySelectorAll('.nameInput').length;
+      for(let n=current+1; n<=count; n++){
+        const i = document.createElement('input');
+        i.className = 'nameInput';
+        i.type = 'text';
+        i.placeholder = `اللاعب رقم ${n}`;
+        inputsWrap.appendChild(i);
+      }
+    }
+
+    (function hydrateNames(){
+      const names = readSavedPlayers();
+      if(!names.length) return;
+
+      ensureInputsCount(names.length);
+
+      const inputs = Array.from(inputsWrap.querySelectorAll('.nameInput'));
+      names.forEach((name, idx) => {
+        if(inputs[idx]) inputs[idx].value = String(name || '').trim();
+      });
+    })();
+    /* ✅ نهاية التعديل المطلوب */
+
+    startBtn.addEventListener('click', () => {
+      const names = Array.from(inputsWrap.querySelectorAll('.nameInput'))
+        .map(i => i.value.trim())
+        .filter(Boolean);
+
+      if (names.length < 3) {
+        alert('لازم تدخل 3 أسماء على الأقل');
+        return;
+      }
+
+      /* ✅ (التعديل المطلوب فقط) حفظ الأسماء في كل المفاتيح */
+      sessionStorage.setItem('bara_players', JSON.stringify(names));
+      sessionStorage.setItem('players', JSON.stringify(names));
+      sessionStorage.setItem('baraPlayers', JSON.stringify(names));
+      /* ✅ نهاية التعديل */
+
+      window.location.href = 'categories.html';
+    });
+  </script>
+</body>
+</html>
+
+<!-- single.html برا السالفة – إصدار 2 (Fix: حفظ أسماء اللاعبين في كل المفاتيح) -->
