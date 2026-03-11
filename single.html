@@ -12,13 +12,13 @@
       --green2:#6e8554;
       --yellow:#f2c300;
       --purple:#8b49b9;
+      --cream:#f1e9d7;
       --text:#1a1a1a;
       --muted:#9a9a9a;
 
       --shadow: 0 10px 0 rgba(0,0,0,0.18);
       --shadowSmall: 0 8px 0 rgba(0,0,0,0.18);
 
-      /* مكان زر الرئيسية */
       --homeSide: 18px;
       --homeBottom: calc(18px + env(safe-area-inset-bottom));
     }
@@ -46,13 +46,11 @@
       border-radius: 26px;
       padding: 18px 16px 24px;
       position: relative;
-
       min-height: calc(100vh - 28px);
       display:flex;
       flex-direction:column;
     }
 
-    /* رأس الصفحة */
     .topRow{
       position: relative;
       min-height: 86px;
@@ -60,20 +58,18 @@
       padding-left: 118px;
     }
 
-    /* العنوان (يمين أعلى) */
     .title{
       position:absolute;
       right: 18px;
       top: 18px;
       font-weight: 800;
       color: var(--green);
-      font-size: calc(16px * 1.02); /* +2% */
+      font-size: calc(16px * 1.02);
       line-height: 1.2;
       text-align:right;
       white-space:nowrap;
     }
 
-    /* اللوجو (يسار) */
     .logo{
       position:absolute;
       left: 10px;
@@ -112,6 +108,7 @@
       outline:none;
       text-align:center;
     }
+
     .nameInput::placeholder{
       color: var(--muted);
       font-weight: 800;
@@ -124,6 +121,7 @@
       justify-content:center;
       margin: 18px 0 8px;
     }
+
     .plusBtn{
       width: 58px;
       height: 58px;
@@ -138,6 +136,7 @@
       user-select:none;
       -webkit-tap-highlight-color:transparent;
     }
+
     .plusBtn span{
       color:#fff;
       font-size: 36px;
@@ -146,16 +145,21 @@
       transform: translateY(-1px);
     }
 
-    /* ✅ زر ابدأ اللعب صار تحت زر + ومتحرك مع المحتوى */
+    .helpWrap,
     .startWrap{
       display:flex;
       justify-content:center;
-      margin: 14px 0 18px;
+      margin: 14px 0 0;
+    }
+
+    .startWrap{
+      margin-bottom: 18px;
       padding-bottom: calc(14px + env(safe-area-inset-bottom));
     }
+
+    .helpBtn,
     .startBtn{
       border: 4px solid #000;
-      background: var(--yellow);
       color:#111;
       font-weight: 900;
       font-size: 24px;
@@ -163,12 +167,20 @@
       padding: 12px 26px;
       min-width: 220px;
       max-width: 78%;
+      width: min(320px, 78%);
       box-shadow: var(--shadow);
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
     }
 
-    /* زر الرئيسية ثابت أسفل يسار داخل الإطار */
+    .helpBtn{
+      background: var(--cream);
+    }
+
+    .startBtn{
+      background: var(--yellow);
+    }
+
     .homeBtn{
       position:absolute;
       left: var(--homeSide);
@@ -186,10 +198,82 @@
       z-index: 5;
       -webkit-tap-highlight-color:transparent;
     }
+
     .homeBtn svg{
       width: 34px;
       height: 34px;
       fill: #111;
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:22px 14px;
+      z-index:999;
+    }
+
+    .overlay.show{ display:flex; }
+
+    .modalShell{
+      width:min(560px, 96vw);
+      max-height:90vh;
+      background:var(--green2);
+      border-radius:18px;
+      padding:18px 16px 16px;
+      box-shadow:0 18px 35px rgba(0,0,0,.35);
+      overflow:auto;
+    }
+
+    .modalTitle{
+      width:fit-content;
+      margin:6px auto 14px;
+      background:var(--cream);
+      color:var(--green);
+      font-weight:900;
+      font-size:clamp(28px, 5.8vw, 44px);
+      padding:10px 28px;
+      border-radius:16px;
+    }
+
+    .modalBody{
+      color:#fff;
+      font-size:clamp(16px, 3.9vw, 21px);
+      line-height:1.95;
+      font-weight:700;
+      padding:0 10px 6px;
+      text-align:right;
+    }
+
+    .modalBody .section{
+      margin-top:18px;
+      font-weight:900;
+    }
+
+    .modalFooter{
+      margin-top:16px;
+      display:flex;
+      justify-content:center;
+      padding-bottom:2px;
+    }
+
+    .backBtn{
+      border: 4px solid #000;
+      background: var(--yellow);
+      color:#111;
+      font-weight: 900;
+      font-size: 24px;
+      border-radius: 22px;
+      padding: 12px 26px;
+      min-width: 220px;
+      max-width: 78%;
+      width: min(320px, 78%);
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
     }
 
     @media (max-width: 360px){
@@ -198,7 +282,9 @@
       .title{ font-size: calc(15px * 1.02); right: 16px; top: 16px; }
       h2{ font-size: 20px; }
       .nameInput{ font-size: 18px; }
-      .startBtn{ font-size: 22px; min-width: 200px; }
+      .helpBtn,
+      .startBtn,
+      .backBtn{ font-size: 22px; min-width: 200px; }
       .plusBtn{ width: 54px; height: 54px; }
       .plusBtn span{ font-size: 34px; }
       .homeBtn{ width: 60px; height: 60px; }
@@ -229,6 +315,10 @@
         </div>
       </div>
 
+      <div class="helpWrap">
+        <button class="helpBtn" id="helpBtn" type="button">تعليمات اللعبة</button>
+      </div>
+
       <div class="startWrap">
         <button class="startBtn" id="startBtn">ابدأ اللعب</button>
       </div>
@@ -241,10 +331,32 @@
     </div>
   </div>
 
+  <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modalShell" role="document">
+      <div id="helpTitle" class="modalTitle">التعليمات</div>
+
+      <div class="modalBody">
+        <div class="section">طريقة اللعب:</div>
+        اللعبة تعتمد على “سالفة/موضوع” مخفي،<br>
+        وفي كل جولة: لاعب واحد يعرف السالفة، والباقين برا السالفة.
+
+        <div class="section">الأدوار:</div>
+        كل لاعب يسأل سؤال سريع أو يجاوب حسب دوره،<br>
+        اللي يعرف السالفة يجاوب بذكاء بدون ما يفضح الموضوع،<br>
+        والباقين يحاولون يفهمون من الإجابات.
+
+        <div class="section">التصويت:</div>
+        بعد انتهاء الأدوار/الوقت يبدأ التصويت: مين برا السالفة؟<br>
+        إذا انكشف برا السالفة يفوز اللي يعرفون السالفة، وإذا ما انكشف يفوز برا السالفة.
+      </div>
+
+      <div class="modalFooter">
+        <button id="backBtn" class="backBtn" type="button">رجوع</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    /***********************
-     * بوابة التفعيل
-     ***********************/
     const GAME_KEY = "bara_alsalfah";
     const LS_ACTIVE = `SNDQ_ACTIVE_${GAME_KEY}`;
     const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
@@ -276,6 +388,9 @@
     const addBtn = document.getElementById('addBtn');
     const startBtn = document.getElementById('startBtn');
     const homeBtn = document.getElementById('homeBtn');
+    const helpBtn = document.getElementById('helpBtn');
+    const overlay = document.getElementById('overlay');
+    const backBtn = document.getElementById('backBtn');
 
     function nextIndex(){
       return inputsWrap.querySelectorAll('.nameInput').length + 1;
@@ -309,6 +424,12 @@
     homeBtn.addEventListener('click', () => {
       clearBaraState();
       window.location.href = 'index.html';
+    });
+
+    helpBtn.addEventListener('click', () => overlay.classList.add('show'));
+    backBtn.addEventListener('click', () => overlay.classList.remove('show'));
+    overlay.addEventListener('click', (e) => {
+      if(e.target === overlay) overlay.classList.remove('show');
     });
 
     function readSavedPlayers(){
@@ -382,4 +503,4 @@
 </body>
 </html>
 
-<!-- single.html برا السالفة المحلي – حماية التفعيل – إصدار 3 -->
+<!-- single.html برا السالفة المحلي – إضافة زر التعليمات – إصدار 4 -->
