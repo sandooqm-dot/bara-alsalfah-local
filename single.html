@@ -229,7 +229,6 @@
         </div>
       </div>
 
-      <!-- ✅ هنا مكان زر ابدأ اللعب الجديد (تحت + مباشرة) -->
       <div class="startWrap">
         <button class="startBtn" id="startBtn">ابدأ اللعب</button>
       </div>
@@ -243,12 +242,28 @@
   </div>
 
   <script>
+    /***********************
+     * بوابة التفعيل
+     ***********************/
+    const GAME_KEY = "bara_alsalfah";
+    const LS_ACTIVE = `SNDQ_ACTIVE_${GAME_KEY}`;
+    const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
+
+    function isActivated(){
+      return localStorage.getItem(LS_ACTIVE) === "1" && !!localStorage.getItem(LS_CODE);
+    }
+
+    if(!isActivated()){
+      location.replace("activation.html?next=" + encodeURIComponent("single.html"));
+    }
+
     document.addEventListener('focusin', (e) => {
       if (e.target.classList && e.target.classList.contains('nameInput')) {
         e.target.dataset.ph = e.target.placeholder;
         e.target.placeholder = '';
       }
     });
+
     document.addEventListener('focusout', (e) => {
       if (e.target.classList && e.target.classList.contains('nameInput')) {
         if (!e.target.value.trim()) {
@@ -288,6 +303,7 @@
       sessionStorage.removeItem('players');
       sessionStorage.removeItem('categoryKey');
       sessionStorage.removeItem('singleState');
+      sessionStorage.removeItem('baraPlayers');
     }
 
     homeBtn.addEventListener('click', () => {
@@ -295,7 +311,6 @@
       window.location.href = 'index.html';
     });
 
-    /* ✅ تعبئة الأسماء عند الرجوع من "تغيير اللاعبين" */
     function readSavedPlayers(){
       try{
         const a = sessionStorage.getItem('bara_players');
@@ -304,6 +319,7 @@
           if(Array.isArray(v) && v.length) return v;
         }
       }catch(e){}
+
       try{
         const b = sessionStorage.getItem('players');
         if(b){
@@ -311,6 +327,7 @@
           if(Array.isArray(v) && v.length) return v;
         }
       }catch(e){}
+
       try{
         const c = sessionStorage.getItem('baraPlayers');
         if(c){
@@ -318,12 +335,13 @@
           if(Array.isArray(v) && v.length) return v;
         }
       }catch(e){}
+
       return [];
     }
 
     function ensureInputsCount(count){
       const current = inputsWrap.querySelectorAll('.nameInput').length;
-      for(let n=current+1; n<=count; n++){
+      for(let n=current + 1; n<=count; n++){
         const i = document.createElement('input');
         i.className = 'nameInput';
         i.type = 'text';
@@ -343,7 +361,6 @@
         if(inputs[idx]) inputs[idx].value = String(name || '').trim();
       });
     })();
-    /* ✅ نهاية التعديل المطلوب */
 
     startBtn.addEventListener('click', () => {
       const names = Array.from(inputsWrap.querySelectorAll('.nameInput'))
@@ -355,11 +372,9 @@
         return;
       }
 
-      /* ✅ (التعديل المطلوب فقط) حفظ الأسماء في كل المفاتيح */
       sessionStorage.setItem('bara_players', JSON.stringify(names));
       sessionStorage.setItem('players', JSON.stringify(names));
       sessionStorage.setItem('baraPlayers', JSON.stringify(names));
-      /* ✅ نهاية التعديل */
 
       window.location.href = 'categories.html';
     });
@@ -367,4 +382,4 @@
 </body>
 </html>
 
-<!-- single.html برا السالفة – إصدار 2 (Fix: حفظ أسماء اللاعبين في كل المفاتيح) -->
+<!-- single.html برا السالفة المحلي – حماية التفعيل – إصدار 3 -->
