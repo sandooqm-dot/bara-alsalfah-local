@@ -392,6 +392,21 @@
   </div>
 
 <script>
+/***********************
+ * بوابة التفعيل
+ ***********************/
+const GAME_KEY = "bara_alsalfah";
+const LS_ACTIVE = `SNDQ_ACTIVE_${GAME_KEY}`;
+const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
+
+function isActivated(){
+  return localStorage.getItem(LS_ACTIVE) === "1" && !!localStorage.getItem(LS_CODE);
+}
+
+if(!isActivated()){
+  location.replace("activation.html?next=" + encodeURIComponent("single_game.html"));
+}
+
 function getSessionJSON(key){
   try{
     const v = sessionStorage.getItem(key);
@@ -803,7 +818,6 @@ function render(){
     setPageTitle("");
     const voter = players[state.voteIndex];
 
-    /* ✅ التعديل المطلوب: آخر لاعب أيضًا زرّه "تصويت" أحمر */
     ctaBtn.textContent = "تصويت";
     ctaBtn.classList.add("vote");
     ctaBtn.classList.add("compact");
@@ -857,7 +871,6 @@ function render(){
     return;
   }
 
-  /* ✅ التعديل المطلوب: صفحة "لحظة الحقيقة!" قبل الكشف */
   if(s === 10){
     setPageTitle("لحظة الحقيقة!");
     ctaBtn.textContent = "التالي";
@@ -1132,14 +1145,12 @@ function next(){
       return;
     }
 
-    /* ✅ التعديل المطلوب: بعد آخر تصويت نروح لصفحة "لحظة الحقيقة!" */
     state.screen = 10;
     state.currentPick = -1;
     saveAndRender();
     return;
   }
 
-  /* ✅ التعديل المطلوب: بعد "لحظة الحقيقة!" نفتح الكشف مباشرة */
   if(s === 10){ state.screen = 6; saveAndRender(); return; }
 
   if(s === 6){ state.screen = 7; saveAndRender(); return; }
@@ -1170,5 +1181,3 @@ function escapeHtml(str){
 
 </body>
 </html>
-
-<!-- single_game.html برا السالفة – إصدار 8 (إضافة صفحة لحظة الحقيقة قبل الكشف + آخر تصويت زر تصويت) -->
