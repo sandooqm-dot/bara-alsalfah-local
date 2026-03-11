@@ -223,23 +223,29 @@
     </div>
   </div>
 
-  <script type="module">
-    // ✅ كسر الكاش (مهم)
-    import { updateRoomFields, ensureRoom, roomRef, db } from "./data/firebase.js?v=6";
+  <script>
+    /***********************
+     * بوابة التفعيل
+     ***********************/
+    const GAME_KEY = "bara_alsalfah";
+    const LS_ACTIVE = `SNDQ_ACTIVE_${GAME_KEY}`;
+    const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
 
-    import {
-      runTransaction,
-      serverTimestamp,
-      increment
-    } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    function isActivated(){
+      return localStorage.getItem(LS_ACTIVE) === "1" && !!localStorage.getItem(LS_CODE);
+    }
+
+    if(!isActivated()){
+      location.replace("activation.html?next=" + encodeURIComponent("categories.html"));
+    }
 
     const IMAGE_SIZES = {
-      eat:  { file: "eat.PNG",  w: 190, h: 120  },
-      zoo:  { file: "zoo.PNG",  w: 260, h: 130  },
+      eat:  { file: "eat.PNG",  w: 190, h: 120 },
+      zoo:  { file: "zoo.PNG",  w: 260, h: 130 },
       play: { file: "play.PNG", w: 185, h: 98  },
-      car:  { file: "car.PNG",  w: 390, h: 130  },
-      frot: { file: "frot.PNG", w: 190, h: 130  },
-      cola: { file: "cola.PNG", w: 190, h: 130  },
+      car:  { file: "car.PNG",  w: 390, h: 130 },
+      frot: { file: "frot.PNG", w: 190, h: 130 },
+      cola: { file: "cola.PNG", w: 190, h: 130 }
     };
 
     const CATEGORIES = [
@@ -248,7 +254,7 @@
       { key:"play", label:"لاعبين" },
       { key:"car",  label:"سيارات" },
       { key:"frot", label:"فواكة وخضار" },
-      { key:"cola", label:"مشروبات" },
+      { key:"cola", label:"مشروبات" }
     ];
 
     const KEY_PLAYERS = "players";
@@ -264,8 +270,10 @@
     let selectedKey = null;
     let selectedLabel = "";
 
-    function safeJSONParse(v){ try { return JSON.parse(v); } catch(e){ return null; } }
-    function clean(x){ return String(x || "").trim(); }
+    function safeJSONParse(v){
+      try { return JSON.parse(v); }
+      catch(e){ return null; }
+    }
 
     function getPlayersFromSession(){
       const v1 = sessionStorage.getItem(KEY_PLAYERS);
@@ -289,14 +297,10 @@
         sessionStorage.setItem(KEY_PLAYERS, JSON.stringify(players));
         sessionStorage.setItem("bara_players", JSON.stringify(players));
         sessionStorage.setItem("bara_players_list", JSON.stringify(players));
+        sessionStorage.setItem("baraPlayers", JSON.stringify(players));
       }
       return players;
     }
-
-    // ✅ نمط الأجهزة المتعددة (المقدم)
-    const MULTI_ROOM_KEY = "bara_roomId_multi_v4";
-    const multiRoomId = String(sessionStorage.getItem(MULTI_ROOM_KEY) || "").trim();
-    const isMultiHost = !!multiRoomId;
 
     function setCategoryEverywhere(key, label){
       selectedKey = key;
@@ -306,6 +310,8 @@
       sessionStorage.setItem("bara_category_id", key);
       sessionStorage.setItem("bara_category_label", selectedLabel);
       sessionStorage.setItem("bara_selectedCategory", key);
+      sessionStorage.setItem("bara_category", key);
+      sessionStorage.setItem("bara_category_key", key);
       sessionStorage.setItem("bara_step", "category");
 
       startBtn.disabled = false;
@@ -313,6 +319,7 @@
 
     function buildGrid(){
       grid.innerHTML = "";
+
       CATEGORIES.forEach(cat => {
         const size = IMAGE_SIZES[cat.key] || { file: "", w: 170, h: 95 };
 
@@ -341,22 +348,28 @@
 
     function clearAllGameState(){
       const ssKeys = [];
-      for(let i=0;i<sessionStorage.length;i++){
+      for(let i = 0; i < sessionStorage.length; i++){
         const k = sessionStorage.key(i);
         if(k) ssKeys.push(k);
       }
-      ssKeys.forEach(k => { if(k.startsWith("bara_")) sessionStorage.removeItem(k); });
+
+      ssKeys.forEach(k => {
+        if(k.startsWith("bara_")) sessionStorage.removeItem(k);
+      });
 
       sessionStorage.removeItem(KEY_PLAYERS);
       sessionStorage.removeItem(KEY_CATEGORY);
       sessionStorage.removeItem("singleState");
 
       const lsKeys = [];
-      for(let i=0;i<localStorage.length;i++){
+      for(let i = 0; i < localStorage.length; i++){
         const k = localStorage.key(i);
         if(k) lsKeys.push(k);
       }
-      lsKeys.forEach(k => { if(k.startsWith("bara_")) localStorage.removeItem(k); });
+
+      lsKeys.forEach(k => {
+        if(k.startsWith("bara_")) localStorage.removeItem(k);
+      });
     }
 
     homeBtn.addEventListener("click", () => {
@@ -367,21 +380,21 @@
     (function init(){
       buildGrid();
 
-      // جهاز واحد فقط: لازم أسماء
-      if(!isMultiHost){
-        const players = normalizePlayersToExpectedKeys();
-        if(players.length < 3){
-          alert("الأسماء غير موجودة. ارجع للصفحة السابقة وأدخل الأسماء ثم جرّب مرة ثانية.");
-          window.location.href = "single.html";
-          return;
-        }
+      const players = normalizePlayersToExpectedKeys();
+      if(players.length < 3){
+        alert("الأسماء غير موجودة. ارجع للصفحة السابقة وأدخل الأسماء ثم جرّب مرة ثانية.");
+        window.location.href = "single.html";
+        return;
       }
 
       let saved = (sessionStorage.getItem(KEY_CATEGORY) || "").trim();
       if(!saved){
         for (const k of ALT_CAT_KEYS){
           const v = (sessionStorage.getItem(k) || "").trim();
-          if(v){ saved = v; break; }
+          if(v){
+            saved = v;
+            break;
+          }
         }
       }
 
@@ -396,173 +409,17 @@
       }
     })();
 
-    function explainErr(e){
-      const code = (e && e.code) ? String(e.code) : "";
-      const msg  = (e && e.message) ? String(e.message) : String(e || "");
-      return (code ? (code + " - ") : "") + (msg || "Unknown error");
-    }
-
-    // =========================
-    // ✅ تحميل كلمات الكتاغوري كاملة + اختيار سالفة عشوائية بدون تكرار
-    // =========================
-    async function loadCategoryWords(key){
-      const k = clean(key);
-      if(!k) return [];
-
-      try{
-        await import(`./data/${encodeURIComponent(k)}.js?v=${Date.now()}`);
-      }catch(e){
-        try{ await import(`./data/${k}.js?v=${Date.now()}`); }catch(_e){}
+    startBtn.addEventListener("click", () => {
+      if(!isActivated()){
+        location.href = "activation.html?next=" + encodeURIComponent("categories.html");
+        return;
       }
 
-      const poolRaw = window.BARA_WORDS && window.BARA_WORDS[k] ? window.BARA_WORDS[k] : [];
-      const arr = Array.isArray(poolRaw) ? poolRaw : [];
-
-      const seen = new Set();
-      const out = [];
-      for(const w of arr){
-        const s = clean(w);
-        if(!s) continue;
-        if(seen.has(s)) continue;
-        seen.add(s);
-        out.push(s);
-      }
-      return out;
-    }
-
-    function pickRandom(arr){
-      if(!Array.isArray(arr) || !arr.length) return "";
-      return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-    function uniqueNamesFromRoomPlayers(d){
-      const players = Array.isArray(d?.players) ? d.players : [];
-      const names = players.map(p => clean(p?.name)).filter(Boolean);
-      const seen = new Set();
-      const uniq = [];
-      for(const n of names){
-        if(seen.has(n)) continue;
-        seen.add(n);
-        uniq.push(n);
-      }
-      return uniq;
-    }
-
-    async function setRoomCategoryAndStory(roomId, catKey, catLabel, words){
-      const ref = roomRef(roomId);
-
-      await runTransaction(db, async (tx) => {
-        const snap = await tx.get(ref);
-        if(!snap.exists()) return;
-
-        const d = snap.data() || {};
-
-        const usedMap = (d.usedStoryWords && typeof d.usedStoryWords === "object") ? d.usedStoryWords : {};
-        const usedArrRaw = Array.isArray(usedMap[catKey]) ? usedMap[catKey] : [];
-        const usedArr = usedArrRaw.map(clean).filter(Boolean);
-
-        let candidates = words.filter(w => !usedArr.includes(w));
-
-        if(candidates.length === 0){
-          usedMap[catKey] = [];
-          candidates = words.slice();
-        }
-
-        const storyWord = pickRandom(candidates) || pickRandom(words) || "";
-
-        usedMap[catKey] = Array.from(new Set([...(Array.isArray(usedMap[catKey]) ? usedMap[catKey] : []), storyWord]))
-          .map(clean)
-          .filter(Boolean);
-
-        // =========================
-        // ✅ (المهم للمشاكل)
-        // 1) برا السالفة عشوائي كل جولة
-        // 2) تصفير مربعات فهمت/الانتظار
-        // 3) تصفير بيانات الجولة السابقة
-        // =========================
-        const names = uniqueNamesFromRoomPlayers(d);
-        const outName = pickRandom(names) || "";
-
-        const newRoundId = String(Date.now());
-
-        tx.update(ref, {
-          updatedAt: serverTimestamp(),
-          tick: increment(1),
-
-          categoryKey: catKey,
-          categoryLabel: catLabel,
-
-          // كلمات الكتاغوري كاملة
-          categoryWords: words,
-
-          // سالفة الجولة
-          storyWord: storyWord,
-
-          // ✅ برا السالفة عشوائي + جولة جديدة
-          outName: outName,
-          roundId: newRoundId,
-
-          // ✅ تصفير بيانات الجولة السابقة
-          votesBy: {},
-          guessBy: {},
-          guessOptions: [],
-          correctWord: "",
-          guessRoundId: "",
-          revealTs: 0,
-          scoresAppliedFor: "",
-
-          // ✅ تصفير مربعات "فهمت/الانتظار"
-          readyBy: {},
-          understoodBy: {},
-
-          // نفس سلوكك السابق
-          phase: "ready",
-          phaseAt: Date.now(),
-
-          // منع تكرار السوالف
-          usedStoryWords: usedMap
-        });
-      });
-    }
-
-    startBtn.addEventListener("click", async () => {
       if(!selectedKey){
         alert("اختر نوع السالفة أولاً.");
         return;
       }
 
-      // ✅ الأجهزة المتعددة (المقدم)
-      if(isMultiHost){
-        if(!multiRoomId){
-          alert("ما تم العثور على رقم الغرفة في هذا الجهاز. ارجع لصفحة المقدم وجرب مرة ثانية.");
-          return;
-        }
-
-        try{
-          startBtn.disabled = true;
-
-          await ensureRoom(multiRoomId);
-
-          const words = await loadCategoryWords(selectedKey);
-
-          if(!words.length){
-            startBtn.disabled = false;
-            alert("ما قدرت أقرأ كلمات هذا الكتاغوري من ملف الداتا.\nتأكد إن ملف data موجود واسم الكتاغوري صحيح.");
-            return;
-          }
-
-          await setRoomCategoryAndStory(multiRoomId, selectedKey, selectedLabel, words);
-
-          window.location.href = "ready.html?room=" + encodeURIComponent(multiRoomId);
-
-        }catch(e){
-          startBtn.disabled = false;
-          alert("صار خطأ في الاتصال:\n" + explainErr(e));
-        }
-        return;
-      }
-
-      // ✅ جهاز واحد (كما هو)
       const players = normalizePlayersToExpectedKeys();
       if(players.length < 3){
         alert("الأسماء غير موجودة. ارجع وأدخل الأسماء.");
@@ -571,10 +428,16 @@
       }
 
       sessionStorage.setItem(KEY_CATEGORY, selectedKey);
+      sessionStorage.setItem("bara_category_id", selectedKey);
+      sessionStorage.setItem("bara_selectedCategory", selectedKey);
+      sessionStorage.setItem("bara_category", selectedKey);
+      sessionStorage.setItem("bara_category_key", selectedKey);
+      sessionStorage.setItem("bara_category_label", selectedLabel);
+
       window.location.href = "single_game.html";
     });
   </script>
 </body>
 </html>
 
-<!-- categories.html برا السالفة – إصدار 8 (Fix: random outName each round + reset vote/guess + reset ready/understood) -->
+<!-- categories.html برا السالفة المحلي – بدون أونلاين أو Firebase – إصدار 9 -->
