@@ -106,13 +106,18 @@
       cursor:pointer;
       box-shadow:0 10px 0 rgba(0,0,0,.22);
       -webkit-tap-highlight-color:transparent;
-      transition:transform .05s ease;
+      transition:transform .05s ease, opacity .15s ease;
     }
     .pill:active{transform:translateY(1px)}
     .pill + .pill{margin-top:16px}
 
     .mode.selected{background:var(--sky)}
     .mode.unselected{background:var(--cream)}
+    .mode.disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      filter:saturate(.7);
+    }
 
     .start-wrap{
       display:flex;
@@ -230,7 +235,7 @@
     <div class="card-wrap">
       <section class="card" aria-label="اختيار نمط اللعب">
         <button id="btnSingle" class="pill mode selected" type="button">جهاز واحد</button>
-        <button id="btnMulti" class="pill mode unselected" type="button">أجهزة متعددة</button>
+        <button id="btnMulti" class="pill mode unselected disabled" type="button">أجهزة متعددة</button>
         <button id="btnHelp" class="pill" type="button">تعليمات اللعبة</button>
       </section>
     </div>
@@ -258,9 +263,9 @@
         بعد انتهاء الأدوار/الوقت يبدأ التصويت: مين برا السالفة؟<br>
         إذا انكشف برا السالفة يفوز اللي يعرفون السالفة، وإذا ما انكشف يفوز برا السالفة.
 
-        <div class="section">طرق اللعب:</div>
-        1) جهاز واحد: تلعبون على جهاز واحد وينتقل الدور بينكم.<br>
-        2) أجهزة متعددة: كل لاعب من جواله وكل شيء يتحدث عند الجميع.
+        <div class="section">طريقة هذه النسخة:</div>
+        هذه النسخة تعمل على جهاز واحد فقط،<br>
+        ولا تدعم الأجهزة المتعددة أو المزامنة.
       </div>
 
       <div class="modal-footer">
@@ -283,14 +288,13 @@
 
     window.addEventListener("load", () => {
       if(!isActivated()){
-        // يوديه لصفحة التفعيل المستقلة قبل الصفحة الرئيسية
         location.replace("activation.html?next=" + encodeURIComponent("index.html"));
         return;
       }
     });
 
     /***********************
-     * اختيار النمط + التعليمات
+     * النسخة المحلية: جهاز واحد فقط
      ***********************/
     let mode = "single";
 
@@ -302,22 +306,21 @@
     const btnBack   = document.getElementById("btnBack");
 
     function setMode(next){
-      mode = next;
-      if(mode === "single"){
-        btnSingle.classList.add("selected");
-        btnSingle.classList.remove("unselected");
-        btnMulti.classList.add("unselected");
-        btnMulti.classList.remove("selected");
-      }else{
-        btnMulti.classList.add("selected");
-        btnMulti.classList.remove("unselected");
-        btnSingle.classList.add("unselected");
-        btnSingle.classList.remove("selected");
-      }
+      mode = "single";
+
+      btnSingle.classList.add("selected");
+      btnSingle.classList.remove("unselected");
+
+      btnMulti.classList.add("unselected", "disabled");
+      btnMulti.classList.remove("selected");
     }
 
     btnSingle.addEventListener("click", () => setMode("single"));
-    btnMulti.addEventListener("click", () => setMode("multi"));
+
+    btnMulti.addEventListener("click", () => {
+      setMode("single");
+      alert("هذه النسخة تعمل على جهاز واحد فقط");
+    });
 
     btnHelp.addEventListener("click", () => overlay.classList.add("show"));
     btnBack.addEventListener("click", () => overlay.classList.remove("show"));
@@ -326,19 +329,16 @@
     });
 
     btnStart.addEventListener("click", () => {
-      // احتياط: لو انمسحت بيانات التفعيل وهو داخل الصفحة
       if(!isActivated()){
         location.href = "activation.html?next=" + encodeURIComponent("index.html");
         return;
       }
-      if(mode === "single"){
-        window.location.href = "single.html";
-      }else{
-        window.location.href = "players.html";
-      }
+      window.location.href = "single.html";
     });
+
+    setMode("single");
   </script>
 </body>
 </html>
 
-<!-- اسم النسخة: index.html برا السالفة – بدون منبثق – تحويل لصفحة التفعيل – إصدار 2 -->
+<!-- اسم النسخة: index.html برا السالفة المحلي – إلغاء الأونلاين من الصفحة الرئيسية – إصدار 3 -->
