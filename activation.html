@@ -317,6 +317,7 @@
     const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
     const LS_EMAIL  = `SNDQ_EMAIL_${GAME_KEY}`;
     const LS_TOKEN  = `SNDQ_TOKEN_${GAME_KEY}`;
+    const LS_DEVICE = `SNDQ_DEVICEKEY_${GAME_KEY}`;
 
     const emailEl = document.getElementById("email");
     const passwordEl = document.getElementById("password");
@@ -362,6 +363,24 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
+    function getDeviceId(){
+      let id = localStorage.getItem(LS_DEVICE);
+      if(id && id.length >= 16) return id;
+
+      const bytes = new Uint8Array(16);
+      if (window.crypto && crypto.getRandomValues) {
+        crypto.getRandomValues(bytes);
+      } else {
+        for (let i = 0; i < bytes.length; i++) {
+          bytes[i] = Math.floor(Math.random() * 256);
+        }
+      }
+
+      id = Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+      localStorage.setItem(LS_DEVICE, id);
+      return id;
+    }
+
     function showMsg(text, type){
       msg.className = "msg " + (type === "ok" ? "ok" : "err");
       msg.textContent = text;
@@ -404,15 +423,6 @@
       localStorage.removeItem(LS_ACTIVE);
     }
 
-    function isActivatedLocally(){
-      return (
-        localStorage.getItem(LS_ACTIVE) === "1" &&
-        !!localStorage.getItem(LS_CODE) &&
-        !!localStorage.getItem(LS_EMAIL) &&
-        !!localStorage.getItem(LS_TOKEN)
-      );
-    }
-
     function setMode(next){
       mode = next;
       hideMsg();
@@ -447,8 +457,11 @@
 
     async function api(path, options = {}){
       const token = options.token || "";
+      const deviceId = getDeviceId();
+
       const headers = {
         "Content-Type": "application/json",
+        "X-Device-Id": deviceId,
         ...(options.headers || {})
       };
 
@@ -456,10 +469,12 @@
         headers["Authorization"] = `Bearer ${token}`;
       }
 
+      const body = options.body ? { ...options.body, deviceId } : undefined;
+
       const res = await fetch(API_BASE + path, {
         method: options.method || "GET",
         headers,
-        body: options.body ? JSON.stringify(options.body) : undefined,
+        body: body ? JSON.stringify(body) : undefined,
       });
 
       let data = {};
@@ -479,9 +494,6 @@
       if(savedEmail) emailEl.value = savedEmail;
 
       if(!token){
-        if(isActivatedLocally()){
-          clearAuthState();
-        }
         setMode(savedEmail ? "login" : "register");
         return;
       }
