@@ -72,7 +72,7 @@
       right: 0;
       font-weight: 900;
       color: var(--green);
-      font-size: 39.6px; /* تكبير 10% */
+      font-size: 39.6px;
       line-height: 1.1;
       text-align:center;
       white-space:nowrap;
@@ -161,21 +161,31 @@
       font-weight: 900;
       font-size: 24px;
       border-radius: 22px;
-      padding: 12px 26px;
-      min-width: 220px;
-      max-width: 78%;
-      width: min(320px, 78%);
+      padding: 12px 22px;
+      min-width: 0;
+      max-width: 100%;
+      width: fit-content;
+      min-height: 62px;
       box-shadow: var(--shadow);
       cursor:pointer;
       -webkit-tap-highlight-color:transparent;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      white-space:nowrap;
     }
 
     .helpBtn{
-      background: var(--cream);
+      background: var(--green2);
+      color:#fff;
+      min-width: 255px;
     }
 
     .startBtn{
       background: var(--yellow);
+      color:#111;
+      min-width: 255px;
     }
 
     .overlay{
@@ -257,7 +267,9 @@
       .nameInput{ font-size: 18px; }
       .helpBtn,
       .startBtn,
-      .backBtn{ font-size: 22px; min-width: 200px; }
+      .backBtn{ font-size: 22px; }
+      .helpBtn,
+      .startBtn{ min-width: 235px; padding: 11px 18px; min-height: 58px; }
       .plusBtn{ width: 54px; height: 54px; }
       .plusBtn span{ font-size: 34px; }
     }
