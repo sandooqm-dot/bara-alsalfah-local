@@ -588,6 +588,26 @@ function ensureScores(){
 let state = getSessionJSON("singleState");
 let categoryWordsList = [];
 
+/***********************
+ * الأصوات
+ ***********************/
+const soundWrong = new Audio("rong.MP4");
+const soundRight = new Audio("Rhite.MP4");
+
+soundWrong.preload = "auto";
+soundRight.preload = "auto";
+
+function playSound(audioEl){
+  try{
+    audioEl.pause();
+    audioEl.currentTime = 0;
+    const p = audioEl.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(() => {});
+    }
+  }catch(e){}
+}
+
 async function ensureState(){
   if(!state){
     state = {
@@ -976,6 +996,10 @@ function render(){
         if(state.guessPicked) return;
         state.guessPicked = w;
         state.outsiderGuessedCorrect = (w === state.topicWord);
+
+        if (w === state.topicWord) playSound(soundRight);
+        else playSound(soundWrong);
+
         saveOnly();
         render();
       });
