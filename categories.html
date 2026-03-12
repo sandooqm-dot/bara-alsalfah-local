@@ -137,6 +137,12 @@
       display:block;
       object-fit:contain;
       filter: drop-shadow(0 2px 0 rgba(0,0,0,.15));
+      opacity:0;
+      transition:opacity .18s ease;
+    }
+
+    .cat img.loaded{
+      opacity:1;
     }
 
     .primaryBtn{
@@ -317,10 +323,23 @@
       startBtn.disabled = false;
     }
 
+    function loadImageDeferred(img, src, delay){
+      const run = () => {
+        img.onload = () => img.classList.add("loaded");
+        img.src = src;
+      };
+
+      if ("requestIdleCallback" in window) {
+        requestIdleCallback(() => setTimeout(run, delay), { timeout: 800 });
+      } else {
+        setTimeout(run, delay);
+      }
+    }
+
     function buildGrid(){
       grid.innerHTML = "";
 
-      CATEGORIES.forEach(cat => {
+      CATEGORIES.forEach((cat, index) => {
         const size = IMAGE_SIZES[cat.key] || { file: "", w: 170, h: 95 };
 
         const btn = document.createElement("button");
@@ -329,12 +348,24 @@
         btn.setAttribute("data-key", cat.key);
         btn.setAttribute("data-label", cat.label);
 
-        btn.innerHTML = `
-          <div class="catTitle">${cat.label}</div>
-          <div class="catImageWrap">
-            <img src="${size.file}" alt="" style="width:${size.w}px; height:${size.h}px;">
-          </div>
-        `;
+        const title = document.createElement("div");
+        title.className = "catTitle";
+        title.textContent = cat.label;
+
+        const wrap = document.createElement("div");
+        wrap.className = "catImageWrap";
+
+        const img = document.createElement("img");
+        img.alt = "";
+        img.width = size.w;
+        img.height = size.h;
+        img.decoding = "async";
+        img.style.width = size.w + "px";
+        img.style.height = size.h + "px";
+
+        wrap.appendChild(img);
+        btn.appendChild(title);
+        btn.appendChild(wrap);
 
         btn.addEventListener("click", () => {
           document.querySelectorAll(".cat").forEach(x => x.classList.remove("active"));
@@ -343,6 +374,8 @@
         });
 
         grid.appendChild(btn);
+
+        loadImageDeferred(img, size.file, index * 60);
       });
     }
 
@@ -439,5 +472,3 @@
   </script>
 </body>
 </html>
-
-<!-- categories.html برا السالفة المحلي – بدون أونلاين أو Firebase – إصدار 9 -->
