@@ -230,20 +230,13 @@
   </div>
 
   <script>
-    /***********************
-     * بوابة التفعيل
-     ***********************/
+    const API_BASE = "https://bara-auth.sandooq-games.com";
     const GAME_KEY = "bara_alsalfah";
+
     const LS_ACTIVE = `SNDQ_ACTIVE_${GAME_KEY}`;
     const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
-
-    function isActivated(){
-      return localStorage.getItem(LS_ACTIVE) === "1" && !!localStorage.getItem(LS_CODE);
-    }
-
-    if(!isActivated()){
-      location.replace("activation.html?next=" + encodeURIComponent("categories.html"));
-    }
+    const LS_EMAIL  = `SNDQ_EMAIL_${GAME_KEY}`;
+    const LS_TOKEN  = `SNDQ_TOKEN_${GAME_KEY}`;
 
     const IMAGE_SIZES = {
       eat:  { file: "eat.PNG",  w: 190, h: 120 },
@@ -275,6 +268,50 @@
 
     let selectedKey = null;
     let selectedLabel = "";
+
+    async function ensureAuthorized(){
+      const token = localStorage.getItem(LS_TOKEN) || "";
+      const nextUrl = "categories.html";
+
+      if(!token){
+        location.replace("activation.html?next=" + encodeURIComponent(nextUrl));
+        return false;
+      }
+
+      try{
+        const res = await fetch(API_BASE + "/api/me", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        let data = {};
+        try{
+          data = await res.json();
+        }catch(e){
+          data = {};
+        }
+
+        if(!(data && data.ok && data.user && data.user.activated)){
+          localStorage.removeItem(LS_ACTIVE);
+          localStorage.removeItem(LS_CODE);
+          location.replace("activation.html?next=" + encodeURIComponent(nextUrl));
+          return false;
+        }
+
+        localStorage.setItem(LS_ACTIVE, "1");
+        localStorage.setItem(LS_EMAIL, String(data.user.email || "").trim().toLowerCase());
+        if(data.user.activatedCode){
+          localStorage.setItem(LS_CODE, data.user.activatedCode);
+        }
+
+        return true;
+      }catch(e){
+        location.replace("activation.html?next=" + encodeURIComponent(nextUrl));
+        return false;
+      }
+    }
 
     function safeJSONParse(v){
       try { return JSON.parse(v); }
@@ -410,7 +447,10 @@
       window.location.href = "index.html";
     });
 
-    (function init(){
+    async function initPage(){
+      const allowed = await ensureAuthorized();
+      if(!allowed) return;
+
       buildGrid();
 
       const players = normalizePlayersToExpectedKeys();
@@ -440,13 +480,11 @@
           setCategoryEverywhere(saved, btn.getAttribute("data-label") || "");
         }
       }
-    })();
+    }
 
-    startBtn.addEventListener("click", () => {
-      if(!isActivated()){
-        location.href = "activation.html?next=" + encodeURIComponent("categories.html");
-        return;
-      }
+    startBtn.addEventListener("click", async () => {
+      const allowed = await ensureAuthorized();
+      if(!allowed) return;
 
       if(!selectedKey){
         alert("اختر نوع السالفة أولاً.");
@@ -469,6 +507,8 @@
 
       window.location.href = "single_game.html";
     });
+
+    window.addEventListener("load", initPage);
   </script>
 </body>
 </html>
