@@ -360,23 +360,16 @@
       startBtn.disabled = false;
     }
 
-    function loadImageDeferred(img, src, delay){
-      const run = () => {
-        img.onload = () => img.classList.add("loaded");
-        img.src = src;
-      };
-
-      if ("requestIdleCallback" in window) {
-        requestIdleCallback(() => setTimeout(run, delay), { timeout: 800 });
-      } else {
-        setTimeout(run, delay);
-      }
+    function loadImageNow(img, src){
+      img.onload = () => img.classList.add("loaded");
+      img.onerror = () => img.classList.add("loaded");
+      img.src = src;
     }
 
     function buildGrid(){
       grid.innerHTML = "";
 
-      CATEGORIES.forEach((cat, index) => {
+      CATEGORIES.forEach((cat) => {
         const size = IMAGE_SIZES[cat.key] || { file: "", w: 170, h: 95 };
 
         const btn = document.createElement("button");
@@ -396,7 +389,9 @@
         img.alt = "";
         img.width = size.w;
         img.height = size.h;
-        img.decoding = "async";
+        img.decoding = "sync";
+        img.loading = "eager";
+        img.fetchPriority = "high";
         img.style.width = size.w + "px";
         img.style.height = size.h + "px";
 
@@ -412,7 +407,7 @@
 
         grid.appendChild(btn);
 
-        loadImageDeferred(img, size.file, index * 60);
+        loadImageNow(img, size.file);
       });
     }
 
