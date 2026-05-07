@@ -342,7 +342,123 @@
     const LS_EMAIL  = `SNDQ_EMAIL_${GAME_KEY}`;
     const LS_TOKEN  = `SNDQ_TOKEN_${GAME_KEY}`;
 
+    const NEW_AUTH_API_BASE = "https://sandooq-games-api.sandooq-m.workers.dev";
+    const NEW_GAME_ID = "bra-alsalfah";
+    const NEW_SITE_ACCESS_KEY = "SNDQ_SITE_ACCESS_bra_alsalfah_v1";
+    const NEW_SITE_TOKEN_KEY = "SNDQ_SITE_TOKEN_bra_alsalfah_v1";
+    const NEW_SITE_GAME_KEY = "SNDQ_SITE_GAME_bra_alsalfah_v1";
+
+    function readSession(key){
+      try{ return sessionStorage.getItem(key) || ""; }catch(e){ return ""; }
+    }
+
+    function writeSession(key, value){
+      try{ sessionStorage.setItem(key, String(value || "")); }catch(e){}
+    }
+
+    function normalizeGameId(value){
+      const gameId = String(value || "").trim().toLowerCase();
+      return gameId === NEW_GAME_ID ? NEW_GAME_ID : "";
+    }
+
+    function readQueryValue(keys){
+      const params = new URLSearchParams(location.search || "");
+      for(const key of keys){
+        const value = String(params.get(key) || "").trim();
+        if(value) return value;
+      }
+      return "";
+    }
+
+    function createTemporaryDeviceToken(){
+      try{
+        if(crypto.randomUUID) return "bara_site_" + crypto.randomUUID();
+      }catch(e){}
+
+      try{
+        const bytes = new Uint8Array(16);
+        crypto.getRandomValues(bytes);
+        return "bara_site_" + Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+      }catch(e){}
+
+      return "bara_site_" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    function cleanNewAccessParamsFromUrl(){
+      try{
+        const url = new URL(location.href);
+        [
+          "sg_token",
+          "sandooq_token",
+          "access_token",
+          "token",
+          "sg_game",
+          "game_id",
+          "game",
+          "sg_temp",
+          "temporary",
+          "is_temporary"
+        ].forEach(key => url.searchParams.delete(key));
+
+        const clean = url.pathname + (url.search ? url.search : "") + (url.hash || "");
+        history.replaceState(null, document.title, clean);
+      }catch(e){}
+    }
+
+    async function checkNewSystemAccess(){
+      const tokenFromQuery = readQueryValue(["sg_token", "sandooq_token", "access_token", "token"]);
+      const tokenFromSession = String(readSession(NEW_SITE_TOKEN_KEY) || "").trim();
+      const token = tokenFromQuery || tokenFromSession;
+
+      if(!token) return false;
+
+      const gameFromQuery = normalizeGameId(readQueryValue(["sg_game", "game_id", "game"]));
+      const gameFromSession = normalizeGameId(readSession(NEW_SITE_GAME_KEY));
+      const gameId = gameFromQuery || gameFromSession || NEW_GAME_ID;
+
+      if(gameId !== NEW_GAME_ID) return false;
+
+      if(!tokenFromQuery && readSession(NEW_SITE_ACCESS_KEY) === "1" && tokenFromSession){
+        return true;
+      }
+
+      try{
+        const res = await fetch(NEW_AUTH_API_BASE + "/api/game/access", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({
+            game_id: NEW_GAME_ID,
+            device_token: createTemporaryDeviceToken(),
+            device_name: "Bra Alsalfah Site Access",
+            is_temporary: true
+          }),
+          cache: "no-store"
+        });
+
+        let data = {};
+        try{ data = await res.json(); }catch(e){ data = {}; }
+
+        if(res.ok && data && data.allowed === true){
+          writeSession(NEW_SITE_ACCESS_KEY, "1");
+          writeSession(NEW_SITE_TOKEN_KEY, token);
+          writeSession(NEW_SITE_GAME_KEY, NEW_GAME_ID);
+          cleanNewAccessParamsFromUrl();
+          return true;
+        }
+
+        return false;
+      }catch(e){
+        return false;
+      }
+    }
+
     async function ensureAuthorized(){
+      const siteAllowed = await checkNewSystemAccess();
+      if(siteAllowed) return true;
+
       const token = localStorage.getItem(LS_TOKEN) || "";
       const nextUrl = "single.html";
 
