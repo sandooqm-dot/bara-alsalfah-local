@@ -347,6 +347,7 @@
     const NEW_SITE_ACCESS_KEY = "SNDQ_SITE_ACCESS_bra_alsalfah_v1";
     const NEW_SITE_TOKEN_KEY = "SNDQ_SITE_TOKEN_bra_alsalfah_v1";
     const NEW_SITE_GAME_KEY = "SNDQ_SITE_GAME_bra_alsalfah_v1";
+    const NEW_SITE_TEMP_KEY = "SNDQ_SITE_TEMP_bra_alsalfah_v1";
 
     function readSession(key){
       try{ return sessionStorage.getItem(key) || ""; }catch(e){ return ""; }
@@ -405,6 +406,32 @@
       }catch(e){}
     }
 
+    function buildProtectedInternalUrl(path){
+      const token = String(readSession(NEW_SITE_TOKEN_KEY) || "").trim();
+      const gameId = normalizeGameId(readSession(NEW_SITE_GAME_KEY)) || NEW_GAME_ID;
+      const isTemporary = String(readSession(NEW_SITE_TEMP_KEY) || "").trim() === "1";
+
+      if(!token){
+        return path;
+      }
+
+      try{
+        const url = new URL(path, location.href);
+        url.searchParams.set("sg_token", token);
+        url.searchParams.set("sg_game", gameId);
+
+        if(isTemporary){
+          url.searchParams.set("sg_temp", "1");
+        }else{
+          url.searchParams.delete("sg_temp");
+        }
+
+        return url.pathname + url.search + url.hash;
+      }catch(e){
+        return path;
+      }
+    }
+
     async function checkNewSystemAccess(){
       const tokenFromQuery = readQueryValue(["sg_token", "sandooq_token", "access_token", "token"]);
       const tokenFromSession = String(readSession(NEW_SITE_TOKEN_KEY) || "").trim();
@@ -415,6 +442,9 @@
       const gameFromQuery = normalizeGameId(readQueryValue(["sg_game", "game_id", "game"]));
       const gameFromSession = normalizeGameId(readSession(NEW_SITE_GAME_KEY));
       const gameId = gameFromQuery || gameFromSession || NEW_GAME_ID;
+      const tempFromQuery = readQueryValue(["sg_temp", "temporary", "is_temporary"]);
+      const tempFromSession = String(readSession(NEW_SITE_TEMP_KEY) || "").trim();
+      const isTemporary = tempFromQuery === "1" || tempFromSession === "1";
 
       if(gameId !== NEW_GAME_ID) return false;
 
@@ -445,6 +475,7 @@
           writeSession(NEW_SITE_ACCESS_KEY, "1");
           writeSession(NEW_SITE_TOKEN_KEY, token);
           writeSession(NEW_SITE_GAME_KEY, NEW_GAME_ID);
+          writeSession(NEW_SITE_TEMP_KEY, isTemporary ? "1" : "0");
           cleanNewAccessParamsFromUrl();
           return true;
         }
@@ -612,7 +643,7 @@
       sessionStorage.setItem('players', JSON.stringify(names));
       sessionStorage.setItem('baraPlayers', JSON.stringify(names));
 
-      window.location.href = 'categories.html';
+      window.location.href = buildProtectedInternalUrl('categories.html');
     });
 
     window.addEventListener('load', async () => {
