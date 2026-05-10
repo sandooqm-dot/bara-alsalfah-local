@@ -391,6 +391,7 @@
     </div>
   </div>
 
+
 <script>
 const API_BASE = "https://bara-auth.sandooq-games.com";
 const GAME_KEY = "bara_alsalfah";
@@ -399,7 +400,172 @@ const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
 const LS_EMAIL  = `SNDQ_EMAIL_${GAME_KEY}`;
 const LS_TOKEN  = `SNDQ_TOKEN_${GAME_KEY}`;
 
+const NEW_AUTH_API_BASE = "https://sandooq-games-api.sandooq-m.workers.dev";
+const NEW_GAME_ID = "bra-alsalfah";
+const NEW_SITE_ACCESS_KEY = "SNDQ_SITE_ACCESS_bra_alsalfah_v1";
+const NEW_SITE_TOKEN_KEY = "SNDQ_SITE_TOKEN_bra_alsalfah_v1";
+const NEW_SITE_GAME_KEY = "SNDQ_SITE_GAME_bra_alsalfah_v1";
+const NEW_SITE_TEMP_KEY = "SNDQ_SITE_TEMP_bra_alsalfah_v1";
+
+function readSession(key){
+  try{ return sessionStorage.getItem(key) || ""; }catch(e){ return ""; }
+}
+function writeSession(key, value){
+  try{ sessionStorage.setItem(key, String(value || "")); }catch(e){}
+}
+function readLocal(key){
+  try{ return localStorage.getItem(key) || ""; }catch(e){ return ""; }
+}
+function writeLocal(key, value){
+  try{ localStorage.setItem(key, String(value || "")); }catch(e){}
+}
+
+function normalizeGameId(value){
+  const gameId = String(value || "").trim().toLowerCase();
+  return gameId === NEW_GAME_ID ? NEW_GAME_ID : "";
+}
+
+function readQueryValue(keys){
+  const params = new URLSearchParams(location.search || "");
+  for(const key of keys){
+    const value = String(params.get(key) || "").trim();
+    if(value) return value;
+  }
+  return "";
+}
+
+function readBooleanQuery(keys){
+  const value = readQueryValue(keys);
+  return value === "1" || value === "true" || value === "yes";
+}
+
+function createTemporaryDeviceToken(){
+  try{
+    if(crypto.randomUUID) return "bara_site_" + crypto.randomUUID();
+  }catch(e){}
+
+  try{
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    return "bara_site_" + Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+  }catch(e){}
+
+  return "bara_site_" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+function rememberNewSiteAccess(token, gameId, isTemporary){
+  if(!token || gameId !== NEW_GAME_ID) return;
+
+  writeSession(NEW_SITE_ACCESS_KEY, "1");
+  writeSession(NEW_SITE_TOKEN_KEY, token);
+  writeSession(NEW_SITE_GAME_KEY, gameId);
+  writeSession(NEW_SITE_TEMP_KEY, isTemporary ? "1" : "0");
+
+  writeLocal(NEW_SITE_ACCESS_KEY, "1");
+  writeLocal(NEW_SITE_TOKEN_KEY, token);
+  writeLocal(NEW_SITE_GAME_KEY, gameId);
+  writeLocal(NEW_SITE_TEMP_KEY, isTemporary ? "1" : "0");
+}
+
+function getRememberedNewSiteAccess(){
+  const token = String(
+    readQueryValue(["sg_token", "sandooq_token", "access_token", "token"]) ||
+    readSession(NEW_SITE_TOKEN_KEY) ||
+    readLocal(NEW_SITE_TOKEN_KEY)
+  ).trim();
+
+  const gameId = normalizeGameId(
+    readQueryValue(["sg_game", "game_id", "game"]) ||
+    readSession(NEW_SITE_GAME_KEY) ||
+    readLocal(NEW_SITE_GAME_KEY) ||
+    NEW_GAME_ID
+  );
+
+  const isTemporary =
+    readBooleanQuery(["sg_temp", "temporary", "is_temporary"]) ||
+    readSession(NEW_SITE_TEMP_KEY) === "1" ||
+    readLocal(NEW_SITE_TEMP_KEY) === "1";
+
+  if(token && gameId === NEW_GAME_ID){
+    rememberNewSiteAccess(token, gameId, isTemporary);
+    return {
+      allowed: true,
+      token,
+      gameId,
+      isTemporary
+    };
+  }
+
+  return {
+    allowed: false,
+    token: "",
+    gameId: "",
+    isTemporary: false
+  };
+}
+
+function cleanNewAccessParamsFromUrl(){
+  try{
+    const url = new URL(location.href);
+    [
+      "sg_token",
+      "sandooq_token",
+      "access_token",
+      "token",
+      "sg_game",
+      "game_id",
+      "game",
+      "sg_temp",
+      "temporary",
+      "is_temporary"
+    ].forEach(key => url.searchParams.delete(key));
+
+    const clean = url.pathname + (url.search ? url.search : "") + (url.hash || "");
+    history.replaceState(null, document.title, clean);
+  }catch(e){}
+}
+
+async function verifyNewSystemAccess(){
+  const siteAccess = getRememberedNewSiteAccess();
+  if(!siteAccess.allowed) return false;
+
+  try{
+    const res = await fetch(NEW_AUTH_API_BASE + "/api/game/access", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": "Bearer " + siteAccess.token
+      },
+      body: JSON.stringify({
+        game_id: NEW_GAME_ID,
+        device_token: createTemporaryDeviceToken(),
+        device_name: "Bra Alsalfah Single Game Access",
+        is_temporary: true
+      }),
+      cache: "no-store"
+    });
+
+    let data = {};
+    try{ data = await res.json(); }catch(e){ data = {}; }
+
+    if(res.ok && data && data.allowed === true){
+      rememberNewSiteAccess(siteAccess.token, NEW_GAME_ID, true);
+      cleanNewAccessParamsFromUrl();
+      return true;
+    }
+  }catch(e){}
+
+  return false;
+}
+
 async function ensureAuthorized(){
+  const siteAccess = getRememberedNewSiteAccess();
+
+  if(siteAccess.allowed){
+    verifyNewSystemAccess();
+    return true;
+  }
+
   const token = localStorage.getItem(LS_TOKEN) || "";
   const nextUrl = "single_game.html";
 
@@ -440,6 +606,23 @@ async function ensureAuthorized(){
   }catch(e){
     location.replace("activation.html?next=" + encodeURIComponent(nextUrl));
     return false;
+  }
+}
+
+function buildNextUrl(path){
+  const cleanPath = String(path || "").trim() || "categories.html";
+  const siteAccess = getRememberedNewSiteAccess();
+
+  if(!siteAccess.allowed) return cleanPath;
+
+  try{
+    const url = new URL(cleanPath, location.href);
+    url.searchParams.set("sg_token", siteAccess.token);
+    url.searchParams.set("sg_game", NEW_GAME_ID);
+    url.searchParams.set("sg_temp", "1");
+    return url.toString();
+  }catch(e){
+    return cleanPath;
   }
 }
 
@@ -617,9 +800,6 @@ function ensureScores(){
   return out;
 }
 
-let state = getSessionJSON("singleState");
-let categoryWordsList = [];
-
 /***********************
  * الأصوات
  ***********************/
@@ -638,6 +818,74 @@ function playSound(audioEl){
       p.catch(() => {});
     }
   }catch(e){}
+}
+
+let state = getSessionJSON("singleState");
+let categoryWordsList = [];
+
+/***********************
+ * العرض
+ ***********************/
+const pageTitle = document.getElementById("pageTitle");
+const content = document.getElementById("content");
+const ctaBtn = document.getElementById("ctaBtn");
+const ctaArea = document.getElementById("ctaArea");
+const homeBtn = document.getElementById("homeBtn");
+
+function setPageTitle(text){
+  const t = (text || "").trim();
+  if(!t){
+    pageTitle.textContent = "";
+    pageTitle.classList.remove("show");
+    return;
+  }
+  pageTitle.textContent = t;
+  pageTitle.classList.add("show");
+}
+
+homeBtn.addEventListener("click", () => {
+  sessionStorage.removeItem("bara_players");
+  sessionStorage.removeItem("players");
+  sessionStorage.removeItem("baraPlayers");
+
+  sessionStorage.removeItem("bara_category_id");
+  sessionStorage.removeItem("categoryKey");
+  sessionStorage.removeItem("bara_selectedCategory");
+
+  sessionStorage.removeItem("singleState");
+  sessionStorage.removeItem(SCORE_KEY);
+  location.href = buildNextUrl("index.html");
+});
+
+async function boot(){
+  const allowed = await ensureAuthorized();
+  if(!allowed) return;
+
+  if(!players.length){
+    location.href = buildNextUrl("single.html");
+    return;
+  }
+
+  setPageTitle("");
+  content.innerHTML = `
+    <div class="bigCard" style="min-height:260px;">
+      <div class="msgText">جاري تجهيز الجولة...</div>
+    </div>
+  `;
+  categoryWordsList = await loadCategoryWords(categoryKey);
+  await ensureState();
+  render();
+}
+
+function buildGuessOptions(){
+  const correct = state.topicWord || "سالفة";
+  const words = Array.isArray(categoryWordsList) ? categoryWordsList.slice() : [];
+  const pool = uniq(words.filter(w => (w || "").trim() && w !== correct));
+  const pick = shuffle(pool).slice(0, 6);
+  const options = shuffle([correct, ...pick]);
+  state.guessOptions = options;
+  state.guessPicked = "";
+  state.outsiderGuessedCorrect = false;
 }
 
 async function ensureState(){
@@ -700,70 +948,6 @@ async function ensureState(){
   if(typeof state.currentPick !== "number") state.currentPick = -1;
 
   setSessionJSON("singleState", state);
-}
-
-const pageTitle = document.getElementById("pageTitle");
-const content = document.getElementById("content");
-const ctaBtn = document.getElementById("ctaBtn");
-const ctaArea = document.getElementById("ctaArea");
-const homeBtn = document.getElementById("homeBtn");
-
-function setPageTitle(text){
-  const t = (text || "").trim();
-  if(!t){
-    pageTitle.textContent = "";
-    pageTitle.classList.remove("show");
-    return;
-  }
-  pageTitle.textContent = t;
-  pageTitle.classList.add("show");
-}
-
-homeBtn.addEventListener("click", () => {
-  sessionStorage.removeItem("bara_players");
-  sessionStorage.removeItem("players");
-  sessionStorage.removeItem("baraPlayers");
-
-  sessionStorage.removeItem("bara_category_id");
-  sessionStorage.removeItem("categoryKey");
-  sessionStorage.removeItem("bara_selectedCategory");
-
-  sessionStorage.removeItem("singleState");
-  sessionStorage.removeItem(SCORE_KEY);
-  location.href = "index.html";
-});
-
-ctaBtn.addEventListener("click", () => next());
-
-async function boot(){
-  const allowed = await ensureAuthorized();
-  if(!allowed) return;
-
-  if(!players.length){
-    location.href = "single.html";
-    return;
-  }
-
-  setPageTitle("");
-  content.innerHTML = `
-    <div class="bigCard" style="min-height:260px;">
-      <div class="msgText">جاري تجهيز الجولة...</div>
-    </div>
-  `;
-  categoryWordsList = await loadCategoryWords(categoryKey);
-  await ensureState();
-  render();
-}
-
-function buildGuessOptions(){
-  const correct = state.topicWord || "سالفة";
-  const words = Array.isArray(categoryWordsList) ? categoryWordsList.slice() : [];
-  const pool = uniq(words.filter(w => (w || "").trim() && w !== correct));
-  const pick = shuffle(pool).slice(0, 6);
-  const options = shuffle([correct, ...pick]);
-  state.guessOptions = options;
-  state.guessPicked = "";
-  state.outsiderGuessedCorrect = false;
 }
 
 function render(){
@@ -1148,12 +1332,12 @@ function render(){
       setSessionJSON("baraPlayers", players);
 
       sessionStorage.removeItem("singleState");
-      location.href = "single.html";
+      location.href = buildNextUrl("single.html");
     });
 
     document.getElementById("continueBtn").addEventListener("click", () => {
       sessionStorage.removeItem("singleState");
-      location.href = "categories.html";
+      location.href = buildNextUrl("categories.html");
     });
 
     return;
@@ -1244,6 +1428,7 @@ function escapeHtml(str){
 
 window.addEventListener("load", boot);
 </script>
+
 
 </body>
 </html>
