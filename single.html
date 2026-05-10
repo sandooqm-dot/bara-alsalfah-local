@@ -333,6 +333,7 @@
     </div>
   </div>
 
+  
   <script>
     const API_BASE = "https://bara-auth.sandooq-games.com";
     const GAME_KEY = "bara_alsalfah";
@@ -357,6 +358,14 @@
       try{ sessionStorage.setItem(key, String(value || "")); }catch(e){}
     }
 
+    function readLocal(key){
+      try{ return localStorage.getItem(key) || ""; }catch(e){ return ""; }
+    }
+
+    function writeLocal(key, value){
+      try{ localStorage.setItem(key, String(value || "")); }catch(e){}
+    }
+
     function normalizeGameId(value){
       const gameId = String(value || "").trim().toLowerCase();
       return gameId === NEW_GAME_ID ? NEW_GAME_ID : "";
@@ -371,6 +380,11 @@
       return "";
     }
 
+    function readBooleanQuery(keys){
+      const value = readQueryValue(keys);
+      return value === "1" || value === "true" || value === "yes";
+    }
+
     function createTemporaryDeviceToken(){
       try{
         if(crypto.randomUUID) return "bara_site_" + crypto.randomUUID();
@@ -383,6 +397,57 @@
       }catch(e){}
 
       return "bara_site_" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    function rememberNewSiteAccess(token, gameId, isTemporary){
+      if(!token || gameId !== NEW_GAME_ID) return;
+
+      writeSession(NEW_SITE_ACCESS_KEY, "1");
+      writeSession(NEW_SITE_TOKEN_KEY, token);
+      writeSession(NEW_SITE_GAME_KEY, gameId);
+      writeSession(NEW_SITE_TEMP_KEY, isTemporary ? "1" : "0");
+
+      writeLocal(NEW_SITE_ACCESS_KEY, "1");
+      writeLocal(NEW_SITE_TOKEN_KEY, token);
+      writeLocal(NEW_SITE_GAME_KEY, gameId);
+      writeLocal(NEW_SITE_TEMP_KEY, isTemporary ? "1" : "0");
+    }
+
+    function getRememberedNewSiteAccess(){
+      const token = String(
+        readQueryValue(["sg_token", "sandooq_token", "access_token", "token"]) ||
+        readSession(NEW_SITE_TOKEN_KEY) ||
+        readLocal(NEW_SITE_TOKEN_KEY)
+      ).trim();
+
+      const gameId = normalizeGameId(
+        readQueryValue(["sg_game", "game_id", "game"]) ||
+        readSession(NEW_SITE_GAME_KEY) ||
+        readLocal(NEW_SITE_GAME_KEY) ||
+        NEW_GAME_ID
+      );
+
+      const isTemporary =
+        readBooleanQuery(["sg_temp", "temporary", "is_temporary"]) ||
+        readSession(NEW_SITE_TEMP_KEY) === "1" ||
+        readLocal(NEW_SITE_TEMP_KEY) === "1";
+
+      if(token && gameId === NEW_GAME_ID){
+        rememberNewSiteAccess(token, gameId, isTemporary);
+        return {
+          allowed: true,
+          token,
+          gameId,
+          isTemporary
+        };
+      }
+
+      return {
+        allowed: false,
+        token: "",
+        gameId: "",
+        isTemporary: false
+      };
     }
 
     function cleanNewAccessParamsFromUrl(){
@@ -406,58 +471,16 @@
       }catch(e){}
     }
 
-    function buildProtectedInternalUrl(path){
-      const token = String(readSession(NEW_SITE_TOKEN_KEY) || "").trim();
-      const gameId = normalizeGameId(readSession(NEW_SITE_GAME_KEY)) || NEW_GAME_ID;
-      const isTemporary = String(readSession(NEW_SITE_TEMP_KEY) || "").trim() === "1";
-
-      if(!token){
-        return path;
-      }
-
-      try{
-        const url = new URL(path, location.href);
-        url.searchParams.set("sg_token", token);
-        url.searchParams.set("sg_game", gameId);
-
-        if(isTemporary){
-          url.searchParams.set("sg_temp", "1");
-        }else{
-          url.searchParams.delete("sg_temp");
-        }
-
-        return url.pathname + url.search + url.hash;
-      }catch(e){
-        return path;
-      }
-    }
-
-    async function checkNewSystemAccess(){
-      const tokenFromQuery = readQueryValue(["sg_token", "sandooq_token", "access_token", "token"]);
-      const tokenFromSession = String(readSession(NEW_SITE_TOKEN_KEY) || "").trim();
-      const token = tokenFromQuery || tokenFromSession;
-
-      if(!token) return false;
-
-      const gameFromQuery = normalizeGameId(readQueryValue(["sg_game", "game_id", "game"]));
-      const gameFromSession = normalizeGameId(readSession(NEW_SITE_GAME_KEY));
-      const gameId = gameFromQuery || gameFromSession || NEW_GAME_ID;
-      const tempFromQuery = readQueryValue(["sg_temp", "temporary", "is_temporary"]);
-      const tempFromSession = String(readSession(NEW_SITE_TEMP_KEY) || "").trim();
-      const isTemporary = tempFromQuery === "1" || tempFromSession === "1";
-
-      if(gameId !== NEW_GAME_ID) return false;
-
-      if(!tokenFromQuery && readSession(NEW_SITE_ACCESS_KEY) === "1" && tokenFromSession){
-        return true;
-      }
+    async function verifyNewSystemAccess(){
+      const siteAccess = getRememberedNewSiteAccess();
+      if(!siteAccess.allowed) return false;
 
       try{
         const res = await fetch(NEW_AUTH_API_BASE + "/api/game/access", {
           method: "POST",
           headers: {
             "Content-Type": "application/json; charset=utf-8",
-            "Authorization": "Bearer " + token
+            "Authorization": "Bearer " + siteAccess.token
           },
           body: JSON.stringify({
             game_id: NEW_GAME_ID,
@@ -472,23 +495,24 @@
         try{ data = await res.json(); }catch(e){ data = {}; }
 
         if(res.ok && data && data.allowed === true){
-          writeSession(NEW_SITE_ACCESS_KEY, "1");
-          writeSession(NEW_SITE_TOKEN_KEY, token);
-          writeSession(NEW_SITE_GAME_KEY, NEW_GAME_ID);
-          writeSession(NEW_SITE_TEMP_KEY, isTemporary ? "1" : "0");
+          rememberNewSiteAccess(siteAccess.token, NEW_GAME_ID, true);
           cleanNewAccessParamsFromUrl();
           return true;
         }
+      }catch(e){}
 
-        return false;
-      }catch(e){
-        return false;
-      }
+      return false;
     }
 
     async function ensureAuthorized(){
-      const siteAllowed = await checkNewSystemAccess();
-      if(siteAllowed) return true;
+      const siteAccess = getRememberedNewSiteAccess();
+
+      // إذا دخل المستخدم من الموقع الجديد ومعه sg_token صحيح، نسمح له بالدخول مباشرة
+      // ثم نتحقق من الصلاحية في الخلفية بدون رميه على التفعيل القديم.
+      if(siteAccess.allowed){
+        verifyNewSystemAccess();
+        return true;
+      }
 
       const token = localStorage.getItem(LS_TOKEN) || "";
       const nextUrl = "single.html";
@@ -530,6 +554,23 @@
       }catch(e){
         location.replace("activation.html?next=" + encodeURIComponent(nextUrl));
         return false;
+      }
+    }
+
+    function buildNextUrl(path){
+      const cleanPath = String(path || "").trim() || "categories.html";
+      const siteAccess = getRememberedNewSiteAccess();
+
+      if(!siteAccess.allowed) return cleanPath;
+
+      try{
+        const url = new URL(cleanPath, location.href);
+        url.searchParams.set("sg_token", siteAccess.token);
+        url.searchParams.set("sg_game", NEW_GAME_ID);
+        url.searchParams.set("sg_temp", "1");
+        return url.toString();
+      }catch(e){
+        return cleanPath;
       }
     }
 
@@ -643,12 +684,13 @@
       sessionStorage.setItem('players', JSON.stringify(names));
       sessionStorage.setItem('baraPlayers', JSON.stringify(names));
 
-      window.location.href = buildProtectedInternalUrl('categories.html');
+      window.location.href = buildNextUrl('categories.html');
     });
 
     window.addEventListener('load', async () => {
       await ensureAuthorized();
     });
   </script>
+
 </body>
 </html>
