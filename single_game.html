@@ -373,7 +373,7 @@
       <div id="content"></div>
 
       <div class="ctaArea" id="ctaArea">
-        <button type="button" class="cta compact" id="ctaBtn" onclick="window.__baraNextStep && window.__baraNextStep()">التالي</button>
+        <button type="button" class="cta compact" id="ctaBtn">التالي</button>
       </div>
 
       <div class="spacerBottom"></div>
@@ -654,7 +654,7 @@ function normalizePlayersArray(arr){
       if(n) out.push(n);
     }
   }
-  return [...new Set(out)];
+  return out;
 }
 
 function looksLikePlayersList(list){
@@ -714,6 +714,22 @@ function readPlayers(){
   setSessionJSON("baraPlayers", best);
 
   return best;
+}
+
+function normalizePlayerNameForCompare(name){
+  return String(name || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function findDuplicatePlayerName(list){
+  const seen = new Set();
+  for(const name of list){
+    const cleanName = String(name || "").trim();
+    const key = normalizePlayerNameForCompare(cleanName);
+    if(!key) continue;
+    if(seen.has(key)) return cleanName;
+    seen.add(key);
+  }
+  return "";
 }
 
 function readCategoryKey(){
@@ -832,7 +848,22 @@ const ctaBtn = document.getElementById("ctaBtn");
 const ctaArea = document.getElementById("ctaArea");
 const homeBtn = document.getElementById("homeBtn");
 
-ctaBtn.addEventListener("click", () => next());
+let nextTapLockAt = 0;
+function handleNextButtonPress(e){
+  if(e){
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  const now = Date.now();
+  if(now - nextTapLockAt < 320) return;
+  nextTapLockAt = now;
+
+  next();
+}
+
+ctaBtn.addEventListener("click", handleNextButtonPress, { passive:false });
+ctaBtn.addEventListener("pointerup", handleNextButtonPress, { passive:false });
 
 function setPageTitle(text){
   const t = (text || "").trim();
@@ -863,7 +894,17 @@ async function boot(){
   const allowed = await ensureAuthorized();
   if(!allowed) return;
 
-  if(!players.length){
+  if(players.length < 3){
+    alert("لازم تدخل 3 أسماء على الأقل");
+    sessionStorage.removeItem("singleState");
+    location.href = buildNextUrl("single.html");
+    return;
+  }
+
+  const duplicateName = findDuplicatePlayerName(players);
+  if(duplicateName){
+    alert("لا يمكن تكرار أسماء اللاعبين. اكتب اسم مختلف لكل لاعب.");
+    sessionStorage.removeItem("singleState");
     location.href = buildNextUrl("single.html");
     return;
   }
@@ -1427,38 +1468,6 @@ function escapeHtml(str){
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
 }
-
-
-window.__baraNextStep = next;
-
-function bindNextButtonStrongly(){
-  const btn = document.getElementById("ctaBtn");
-  if(!btn) return;
-
-  btn.type = "button";
-  btn.onclick = () => next();
-
-  btn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    next();
-  }, { passive:false });
-
-  btn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    next();
-  }, { passive:false });
-
-  btn.addEventListener("pointerup", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    next();
-  }, { passive:false });
-}
-
-bindNextButtonStrongly();
-window.addEventListener("pageshow", bindNextButtonStrongly);
 
 
 window.addEventListener("load", boot);
