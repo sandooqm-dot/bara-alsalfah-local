@@ -2028,6 +2028,9 @@ width:100% !important;
         <article
           class="game-card"
           data-game-id="bdon-kalam"
+          data-details-url="bdon-kalam.html"
+          data-buy-url="https://sandooq-m.com/gygPeBK"
+          data-play-url="https://bdon-kalam.sandooq-games.com"
         >
           <div class="cover cover-photo">
             <picture>
@@ -2089,6 +2092,9 @@ width:100% !important;
         <article
           class="game-card"
           data-game-id="family-feud"
+          data-details-url="family-feud.html"
+          data-buy-url="https://sandooq-m.com/wAReOlN"
+          data-play-url="https://family-feud.sandooq-games.com"
         >
           <div class="cover cover-photo">
             <picture>
@@ -2150,6 +2156,9 @@ width:100% !important;
         <article
           class="game-card"
           data-game-id="horof-edu"
+          data-details-url="horof-edu.html"
+          data-buy-url="https://sandooq-m.com/bwvKNPe"
+          data-play-url="https://horof.sandooq-games.com"
         >
           <div class="cover cover-photo">
             <picture>
@@ -2477,7 +2486,7 @@ width:100% !important;
       'bdon-kalam': 'https://bdon-kalam.sandooq-games.com',
       'bra-alsalfah': 'https://bara.sandooq-games.com/single.html',
       'family-feud': 'https://family-feud.sandooq-games.com',
-      'sandooq': 'sandooq.html'
+      'sandooq': 'https://game2.sandooq-games.com/start.html?v=1774023618302'
     };
 
     const GAME_DETAILS_URLS = {
@@ -2826,16 +2835,13 @@ width:100% !important;
     }
 
     function getPlayUrl(card, gameId, detailsMap) {
-      const cardPlay = String(card.dataset.playUrl || '').trim();
-      if ((gameId === 'bra-alsalfah' || gameId === 'sandooq') && cardPlay) return cardPlay;
-
-      const apiGame = detailsMap.get(gameId);
-      const apiPlay = apiGame && String(apiGame.play_url || '').trim();
-      if (apiPlay) return apiPlay;
-
+      const cardPlay = card ? String(card.dataset.playUrl || '').trim() : '';
       if (cardPlay) return cardPlay;
 
-      return GAME_PLAY_URLS[gameId] || GAME_DETAILS_URLS[gameId] || '#';
+      const directPlay = GAME_PLAY_URLS[gameId];
+      if (directPlay) return directPlay;
+
+      return '#';
     }
 
     function buildPlayUrlWithAccess(playUrl, gameId) {
@@ -2863,7 +2869,7 @@ width:100% !important;
 
     async function buildPlayUrlWithAccessAsync(playUrl, gameId) {
       if (!playUrl || playUrl === '#') return playUrl;
-      if (gameId !== 'family-feud') return buildPlayUrlWithAccess(playUrl, gameId);
+      if (gameId !== 'family-feud') return playUrl;
 
       const token = readLocalValue(TOKEN_KEY).trim();
       if (!token) return playUrl;
@@ -2874,8 +2880,6 @@ width:100% !important;
       try {
         const url = new URL(playUrl, window.location.href);
         url.searchParams.set('sg_token', token);
-        if (gameId) url.searchParams.set('sg_game', gameId);
-        else url.searchParams.delete('sg_game');
 
         if (useTemporary) {
           url.searchParams.set('sg_temp', '1');
@@ -2906,13 +2910,16 @@ width:100% !important;
       if (!link) return;
       prepareAccessButton(link);
 
-      const basePlayUrl = getPlayUrl(card, gameId, detailsMap) || link.dataset.originalHref || '#';
+      const isDirectIndexPlay = gameId === 'bra-alsalfah' || gameId === 'sandooq';
+      const basePlayUrl = isDirectIndexPlay
+        ? (getPlayUrl(card, gameId, detailsMap) || link.dataset.originalHref || '#')
+        : (GAME_DETAILS_URLS[gameId] || link.dataset.originalHref || '#');
 
       link.dataset.basePlayUrl = basePlayUrl;
       link.dataset.gameId = gameId;
-      link.dataset.directIndexPlay = '1';
+      link.dataset.directIndexPlay = isDirectIndexPlay ? '1' : '0';
       link.classList.add('play-action');
-      link.setAttribute('href', buildPlayUrlWithAccess(basePlayUrl, gameId));
+      link.setAttribute('href', isDirectIndexPlay ? buildPlayUrlWithAccess(basePlayUrl, gameId) : basePlayUrl);
       setButtonLabel(link, 'العب');
       setButtonIcon(link, PLAY_BUTTON_ICON);
     }
@@ -2952,7 +2959,7 @@ width:100% !important;
       detectPrivateMode().then(() => refreshAccountUi()).catch(() => {});
     });
 
-    document.addEventListener('click', async event => {
+    document.addEventListener('click', event => {
       const playButton = event.target && event.target.closest
         ? event.target.closest('.game-card .game-btn.play-action[data-direct-index-play="1"]')
         : null;
@@ -2966,7 +2973,7 @@ width:100% !important;
       event.preventDefault();
       event.stopPropagation();
 
-      const finalUrl = await buildPlayUrlWithAccessAsync(basePlayUrl, gameId);
+      const finalUrl = buildPlayUrlWithAccess(basePlayUrl, gameId);
       playButton.setAttribute('href', finalUrl);
       window.location.assign(finalUrl);
     }, { passive:false, capture:true });
