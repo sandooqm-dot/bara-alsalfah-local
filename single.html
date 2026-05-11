@@ -667,6 +667,22 @@
       });
     })();
 
+    function normalizePlayerNameForCompare(name){
+      return String(name || "").trim().replace(/\s+/g, " ").toLowerCase();
+    }
+
+    function findDuplicatePlayerName(list){
+      const seen = new Set();
+      for(const name of list){
+        const cleanName = String(name || "").trim();
+        const key = normalizePlayerNameForCompare(cleanName);
+        if(!key) continue;
+        if(seen.has(key)) return cleanName;
+        seen.add(key);
+      }
+      return "";
+    }
+
     startBtn.addEventListener('click', async () => {
       const allowed = await ensureAuthorized();
       if(!allowed) return;
@@ -677,6 +693,12 @@
 
       if (names.length < 3) {
         alert('لازم تدخل 3 أسماء على الأقل');
+        return;
+      }
+
+      const duplicateName = findDuplicatePlayerName(names);
+      if (duplicateName) {
+        alert('لا يمكن تكرار أسماء اللاعبين. اكتب اسم مختلف لكل لاعب.');
         return;
       }
 
