@@ -1,36 +1,3170 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>لعبة برا السالفة</title>
-
-  <script>
-    (function () {
-      const GAME_KEY = "bara_alsalfah";
-      const LS_ACTIVE = `SNDQ_ACTIVE_${GAME_KEY}`;
-      const LS_CODE   = `SNDQ_CODE_${GAME_KEY}`;
-
-      function isActivated(){
-        return localStorage.getItem(LS_ACTIVE) === "1" && !!localStorage.getItem(LS_CODE);
-      }
-
-      if (isActivated()) {
-        location.replace("single.html");
-      } else {
-        location.replace("activation.html?next=" + encodeURIComponent("single.html"));
-      }
-    })();
-  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>صندوق المسابقات | ألعاب ومسابقات رقمية</title>
+  <meta name="description" content="صندوق المسابقات وجهتك للألعاب والمسابقات الرقمية؛ الحماس والتنافس والمتعة كلها في صندوق واحد للعائلة والمعلمين والفعاليات." />
+  <meta name="theme-color" content="#075c82" />
+  <link rel="preload" href="NotoIKEAArabic-Bold.ttf" as="font" type="font/ttf" crossorigin />
+  <link rel="preload" as="image" href="logo.PNG" />
+  <link rel="preload" as="image" href="horof-cover-card.webp" />
+  <link rel="preload" as="image" href="sandooq-almusabaqat-cover-card.webp" />
+  <link rel="preload" as="image" href="horof-edu-cover-card.webp" />
+  <link rel="preload" as="image" href="sandooq-challenges-bundle-cover-card.webp" />
 
   <style>
-    html,body{
+    @font-face{
+      font-family:"NotoIKEAArabic";
+      src:url("NotoIKEAArabic-Bold.ttf") format("truetype");
+      font-weight:700 950;
+      font-style:normal;
+      font-display:swap;
+    }
+
+    :root{
+      --blue:#087ca8;
+      --blue-dark:#075c82;
+      --blue-deep:#066FAE;
+      --blue-soft:#55bdf2;
+      --yellow:#f7b638;
+      --yellow-light:#ffd76b;
+      --nav-ink:#04384f;
+      --nav-active:#064f73;
+      --white:#ffffff;
+      --ink:#111827;
+      --muted:#333b4a;
+      --green:#2faf72;
+      --line:#222222;
+      --layout-max:1280px;
+      --nav-max:860px;
+      --page-pad:clamp(14px, 4vw, 72px);
+      --bottom-nav-height:clamp(88px, 7vw, 96px);
+      --card-radius:clamp(13px, 1.2vw, 19px);
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html{width:100%;min-height:100%;scroll-behavior:smooth;background:var(--blue-soft);}
+    body{
+      width:100%;
+      min-height:100dvh;
       margin:0;
+      color:var(--ink);
+      font-family:"NotoIKEAArabic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+      background:var(--blue-soft);
+      overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none;}
+    button,a{font:inherit;}
+    img,svg{max-width:100%;}
+
+    .app{
+      width:100%;
+      min-height:100dvh;
+      margin:0;
+      overflow:hidden;
+      background:var(--blue-soft);
+      position:relative;
+      padding-bottom:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    }
+
+    .hero{
+      position:relative;
+      background:var(--blue-deep);
+      min-height:clamp(330px, 42dvh, 430px);
+      padding:clamp(10px, 1.4vw, 20px) var(--page-pad) clamp(26px, 4vw, 54px);
+      border-bottom:clamp(3px, .35vw, 5px) solid var(--line);
+      overflow:hidden;
+      isolation:isolate;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:-14px;
+      z-index:-2;
+      opacity:.18;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.78) 0 2px, transparent 2.4px),
+        radial-gradient(circle, rgba(255,255,255,.5) 0 1.4px, transparent 1.8px);
+      background-size:24px 24px, 38px 38px;
+      background-position:0 0, 10px 12px;
+      animation:dotsMove 18s linear infinite;
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      width:clamp(250px, 32vw, 520px);
+      height:clamp(250px, 32vw, 520px);
+      left:clamp(-210px, -12vw, -80px);
+      bottom:clamp(-220px, -12vw, -95px);
+      border-radius:50%;
+      background:rgba(255,255,255,.08);
+      z-index:-1;
+    }
+
+    @keyframes dotsMove{
+      from{transform:translate3d(0,0,0)}
+      to{transform:translate3d(24px,24px,0)}
+    }
+
+    .top-row{
+      width:100%;
+      max-width:var(--layout-max);
+      margin-inline:auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:clamp(10px, 2vw, 24px);
+      min-height:clamp(34px, 4vw, 52px);
+    }
+
+    .brand-title{
+      color:var(--white);
+      font-weight:950;
+      font-size:clamp(14px, 1.15vw, 18px);
+      letter-spacing:.1px;
+      text-shadow:0 2px 0 rgba(0,0,0,.12);
+      white-space:nowrap;
+    }
+
+    .login-chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:clamp(30px, 3vw, 42px);
+      padding:clamp(5px, .8vw, 10px) clamp(12px, 1.7vw, 22px);
+      border-radius:clamp(12px, 1.2vw, 16px);
+      background:var(--green);
+      color:var(--white);
+      border:2px solid rgba(255,255,255,.35);
+      box-shadow:0 3px 0 rgba(0,0,0,.2);
+      font-weight:950;
+      font-size:clamp(14px, 1.15vw, 18px);
+      line-height:1;
+      white-space:nowrap;
+      transition:transform .18s ease, filter .18s ease;
+    }
+
+    .login-chip:hover{transform:translateY(-1px);filter:saturate(1.08);}
+
+    .logo-wrap{
+      width:clamp(209px, 17.6vw, 286px);
+      min-height:clamp(139px, 14.3vw, 202px);
+      margin:clamp(16px, 2.3vw, 34px) auto clamp(2px, .45vw, 8px);
+      display:grid;
+      place-items:center;
+      position:relative;
+      animation:floatLogo 4.8s ease-in-out infinite;
+    }
+
+    @keyframes floatLogo{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-5px)}
+    }
+
+    .logo-wrap img{
+      width:clamp(200px, 16.5vw, 273px);
+      max-height:clamp(134px, 14.3vw, 196px);
+      object-fit:contain;
+      filter:drop-shadow(0 7px 0 rgba(0,0,0,.14));
+      transform:scale(1.25);
+      transform-origin:center center;
+    }
+
+    .logo-fallback{
+      width:clamp(196px, 16.5vw, 264px);
+      height:clamp(130px, 13.2vw, 187px);
+      display:none;
+      place-items:center;
+      border:3px solid rgba(255,255,255,.78);
+      border-radius:clamp(18px, 1.8vw, 28px);
+      background:rgba(255,255,255,.12);
+      color:#fff;
+      text-align:center;
+      font-size:clamp(18px, 1.35vw, 24px);
+      font-weight:950;
+      line-height:1.25;
+      text-shadow:0 2px 0 rgba(0,0,0,.12);
+    }
+
+    .hero-text{
+      width:100%;
+      max-width:min(920px, 100%);
+      margin:clamp(4px, .75vw, 12px) auto 0;
+      text-align:center;
+      color:var(--white);
+      display:flex;
+      flex-direction:column;
+      gap:clamp(3px, .55vw, 8px);
+    }
+
+    .hero-headline{
+      margin:0;
+      font-weight:950;
+      font-size:clamp(17px, 4.55vw, 34px);
+      line-height:1.35;
+      white-space:nowrap;
+      text-shadow:0 3px 0 rgba(0,0,0,.14);
+    }
+
+    .hero-line{
+      margin:clamp(6px, .9vw, 10px) 0 0;
+      font-weight:900;
+      font-size:clamp(16px, 4.15vw, 31px);
+      line-height:1.45;
+      white-space:nowrap;
+      text-shadow:0 2px 0 rgba(0,0,0,.11);
+    }
+
+    .section-title{
+      background:var(--yellow);
+      color:#111;
+      min-height:clamp(32px, 2.4vw, 42px);
+      border-bottom:clamp(3px, .35vw, 5px) solid var(--line);
+      display:grid;
+      place-items:center;
+      padding:3px var(--page-pad);
+      font-size:clamp(15px, 1.25vw, 20px);
+      font-weight:950;
+      letter-spacing:.2px;
+      text-align:center;
+    }
+
+    .bundles-area{
+      position:relative;
+      background:linear-gradient(180deg, var(--white), #fff8e7);
+      padding:clamp(20px, 3vw, 42px) var(--page-pad);
+      border-bottom:clamp(3px, .35vw, 5px) solid var(--line);
+      overflow:hidden;
+    }
+
+    .bundles-area::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:.10;
+      background-image:radial-gradient(circle, rgba(8,124,168,.75) 0 2px, transparent 2.4px);
+      background-size:30px 30px;
+    }
+
+    .bundles-inner{width:100%;max-width:var(--layout-max);margin-inline:auto;position:relative;z-index:1;}
+    .bundles-grid{display:grid;grid-template-columns:1fr;gap:clamp(16px, 2.5vw, 26px);}
+
+    .bundle-card{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      background:var(--white);
+      border:clamp(2px, .25vw, 3px) solid rgba(31,42,56,.32);
+      border-radius:var(--card-radius);
+      padding:clamp(16px, 2.2vw, 28px);
+      box-shadow:0 7px 0 rgba(16,32,51,.14), 0 22px 44px rgba(6,79,115,.10);
+    }
+
+    .bundle-badge{
+      align-self:flex-start;
+      border-radius:999px;
+      padding:7px 12px;
+      background:var(--yellow);
+      color:#1d2633;
+      font-weight:950;
+      font-size:clamp(12px, .95vw, 14px);
+      box-shadow:0 3px 0 rgba(16,32,51,.12);
+    }
+
+    .bundle-name{
+      margin:0;
+      color:var(--blue-dark);
+      font-weight:950;
+      font-size:clamp(20px, 2vw, 30px);
+      line-height:1.35;
+    }
+
+    .bundle-desc{
+      margin:0;
+      color:var(--muted);
+      font-weight:750;
+      font-size:clamp(14px, 1.15vw, 17px);
+      line-height:1.75;
+    }
+
+    .bundle-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;}
+    .bundle-meta span{
+      min-height:30px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:6px 10px;
+      background:rgba(85,189,242,.20);
+      color:var(--blue-dark);
+      font-weight:900;
+      font-size:clamp(12px, .95vw, 14px);
+      border:1px solid rgba(7,92,130,.12);
+    }
+
+    .games-area{
+      background:var(--blue-soft);
+      padding:clamp(22px, 3.2vw, 42px) var(--page-pad) clamp(38px, 7vw, 96px);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .games-area::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      opacity:.12;
+      background-image:radial-gradient(circle, rgba(255,255,255,.95) 0 2px, transparent 2.3px);
+      background-size:28px 28px;
+      pointer-events:none;
+    }
+
+    .games-grid{
+      width:100%;
+      max-width:var(--layout-max);
+      margin-inline:auto;
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:clamp(20px, 3vw, 44px) clamp(16px, 3vw, 38px);
+      align-items:stretch;
+    }
+
+    .game-card{
+      min-width:0;
+      container-type:inline-size;
+      min-height:clamp(335px, 36vw, 470px);
+      border:clamp(2px, .25vw, 3px) solid var(--line);
+      border-radius:var(--card-radius);
+      background:var(--white);
+      padding:clamp(7px, 1vw, 14px) clamp(7px, 1vw, 14px) clamp(11px, 1.4vw, 18px);
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      box-shadow:0 clamp(4px, .7vw, 8px) 0 rgba(0,0,0,.18);
+      overflow:hidden;
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+
+    .game-card:hover{transform:translateY(-3px);box-shadow:0 clamp(6px, .9vw, 10px) 0 rgba(0,0,0,.18);}
+
+    .cover{
+      width:100%;
+      aspect-ratio:1 / 1;
+      height:auto;
+      border-radius:calc(var(--card-radius) - 4px);
+      border:1.5px solid rgba(0,0,0,.18);
+      overflow:hidden;
+      position:relative;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      isolation:isolate;
+      background:#e9eef4;
+    }
+
+    .cover.cover-photo::before,.cover.cover-photo::after{display:none;}
+    .cover-photo picture,.cover-photo img{display:block;width:100%;height:100%;}
+    .cover-photo img{object-fit:cover;}
+
+    .cover::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-2;
+      opacity:.88;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.38), transparent 42%),
+        radial-gradient(circle at 18% 18%, rgba(255,215,107,.85), transparent 20%),
+        radial-gradient(circle at 85% 75%, rgba(8,124,168,.55), transparent 25%);
+    }
+
+    .cover::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      opacity:.28;
+      background-image:
+        linear-gradient(45deg, rgba(0,0,0,.1) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(0,0,0,.1) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(0,0,0,.1) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(0,0,0,.1) 75%);
+      background-size:22px 22px;
+      background-position:0 0, 0 11px, 11px -11px, -11px 0px;
+    }
+
+    .cover > span{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      max-width:88%;
+      min-height:clamp(42px, 4vw, 62px);
+      padding:clamp(8px, 1vw, 13px) clamp(10px, 1.4vw, 18px);
+      border-radius:clamp(12px, 1.2vw, 18px);
+      color:#fff;
+      background:rgba(7,92,130,.86);
+      border:2px solid rgba(255,255,255,.55);
+      box-shadow:0 4px 0 rgba(0,0,0,.18);
+      font-weight:950;
+      font-size:clamp(15px, 1.45vw, 24px);
+      line-height:1.25;
+      text-shadow:0 2px 0 rgba(0,0,0,.16);
+    }
+
+    .cover.yellow::before{
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.42), transparent 44%),
+        radial-gradient(circle at 20% 18%, rgba(255,215,107,.92), transparent 25%),
+        radial-gradient(circle at 90% 74%, rgba(7,92,130,.68), transparent 28%),
+        linear-gradient(145deg, #f7b638, #fff1bf);
+    }
+
+    .cover.blue::before{
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.36), transparent 45%),
+        radial-gradient(circle at 20% 24%, rgba(255,215,107,.82), transparent 22%),
+        linear-gradient(145deg, #075c82, #087ca8 54%, #55bdf2);
+    }
+
+    .cover.dark::before{
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.18), transparent 45%),
+        radial-gradient(circle at 74% 78%, rgba(247,182,56,.82), transparent 23%),
+        linear-gradient(145deg, #1d2b3f, #061b2b);
+    }
+
+    .cover.white::before{
+      background:
+        radial-gradient(circle at 22% 20%, rgba(247,182,56,.5), transparent 25%),
+        radial-gradient(circle at 82% 78%, rgba(8,124,168,.35), transparent 28%),
+        linear-gradient(145deg, #fff, #edf4f8);
+    }
+
+    .cover.white > span{background:rgba(8,124,168,.88);}
+
+    .cover-login-note{
+      position:absolute;
+      left:50%;
+      right:auto;
+      bottom:clamp(5px, .9vw, 10px);
+      z-index:2;
+      width:max-content;
+      max-width:92%;
+      min-height:clamp(18px, 5.3cqw, 28px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(4px, 1.1cqw, 7px);
+      padding:clamp(3px, .9cqw, 6px) clamp(7px, 2cqw, 12px);
+      border-radius:clamp(6px, 1.8cqw, 12px);
+      background:rgba(0,0,0,.72);
+      color:#fff;
+      font-weight:900;
+      font-size:clamp(7px, 2.4cqw, 12px);
+      line-height:1.05;
+      text-align:center;
+      white-space:nowrap;
+      pointer-events:none;
+      box-shadow:0 2px 0 rgba(0,0,0,.18);
+      transform:translateX(-50%);
+      direction:rtl;
+    }
+
+    .cover-login-note span{
+      display:inline;
+      min-height:0;
+      max-width:none;
+      padding:0;
+      border:0;
+      border-radius:0;
+      background:transparent;
+      box-shadow:none;
+      color:inherit;
+      font:inherit;
+      line-height:inherit;
+      text-shadow:none;
+      white-space:nowrap;
+    }
+
+    .cover-login-note svg{
+      width:clamp(10px, 2.2cqw, 14px);
+      height:clamp(10px, 2.2cqw, 14px);
+      flex:0 0 auto;
+      fill:var(--yellow-light);
+      stroke:#111;
+      stroke-width:1.5;
+      stroke-linejoin:round;
+    }
+
+    .game-card.game-unlocked .cover-login-note{display:none;}
+
+    .game-title-row{
+      width:100%;
+      margin:clamp(8px, 1vw, 13px) 0 0;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:clamp(4px, .6vw, 8px);
+      min-width:0;
+    }
+
+    .game-title-row .game-name{
+      margin:0;
+      flex:1 1 auto;
+      min-width:0;
+      text-align:right;
+      font-size:clamp(11px, 2.8vw, 17px);
+      white-space:nowrap;
+      overflow:hidden;
+    }
+
+    .game-status{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:clamp(16px, 1.65vw, 22px);
+      padding:clamp(2px, .35vw, 4px) clamp(6px, .75vw, 9px);
+      border-radius:999px;
+      border:clamp(1.5px, .18vw, 2px) solid var(--line);
+      background:#f5f7fb;
+      color:#1d2633;
+      font-weight:950;
+      font-size:clamp(7.5px, 1.75vw, 10px);
+      line-height:1;
+      white-space:nowrap;
+      box-shadow:0 2px 0 rgba(0,0,0,.12);
+    }
+
+    .game-card.game-unlocked .game-status{
+      background:#d7f8e7;
+      color:#075c45;
+    }
+
+    .game-desc{
+      width:100%;
+      max-width:100%;
+      margin:clamp(4px, 1.25cqw, 8px) 0 clamp(8px, 2cqw, 12px);
+      color:var(--muted);
+      font-weight:850;
+      font-size:clamp(10px, 3.05cqw, 15px);
+      line-height:1.35;
+      text-align:center;
+      white-space:normal;
+      overflow-wrap:normal;
+      text-wrap:balance;
+    }
+
+    .game-meta-text{
+      margin:clamp(4px, 1.25cqw, 7px) 0 0;
+      color:#607084;
+      font-weight:900;
+      font-size:clamp(7.5px, 2.15cqw, 12px);
+      line-height:1.25;
+      text-align:center;
+      white-space:nowrap;
+    }
+
+
+    .game-name{
+      margin:clamp(9px, 1.2vw, 16px) 0 0;
+      text-align:center;
+      font-weight:950;
+      font-size:clamp(14px, 1.25vw, 20px);
+      line-height:1.35;
+      color:#111;
+    }
+
+    .game-type{
+      display:none;
+    }
+
+    .card-actions{
+      margin-top:auto;
+      display:grid;
+      gap:clamp(4px, .55vw, 7px);
+      padding:0 clamp(3px, .5vw, 6px);
+    }
+
+    .game-card[data-game-id="horof"] .game-title-row,
+    .game-card[data-game-id="bdon-kalam"] .game-title-row,
+    .game-card[data-game-id="bra-alsalfah"] .game-title-row,
+    .game-card[data-game-id="family-feud"] .game-title-row,
+    .game-card[data-game-id="sandooq"] .game-title-row{
+      margin-top:clamp(9px, 2.1cqw, 14px);
+    }
+
+    .game-card[data-game-id="horof"] .game-meta-text,
+    .game-card[data-game-id="bdon-kalam"] .game-meta-text,
+    .game-card[data-game-id="bra-alsalfah"] .game-meta-text,
+    .game-card[data-game-id="family-feud"] .game-meta-text,
+    .game-card[data-game-id="sandooq"] .game-meta-text{
+      margin-top:clamp(6px, 1.65cqw, 10px);
+    }
+
+    .game-card[data-game-id="horof"] .game-desc,
+    .game-card[data-game-id="bdon-kalam"] .game-desc,
+    .game-card[data-game-id="bra-alsalfah"] .game-desc,
+    .game-card[data-game-id="family-feud"] .game-desc,
+    .game-card[data-game-id="sandooq"] .game-desc{
+      margin-top:clamp(7px, 1.8cqw, 11px);
+      margin-bottom:clamp(10px, 2.5cqw, 16px);
+    }
+
+    .game-card[data-game-id="horof"] .card-actions,
+    .game-card[data-game-id="bdon-kalam"] .card-actions,
+    .game-card[data-game-id="bra-alsalfah"] .card-actions,
+    .game-card[data-game-id="family-feud"] .card-actions,
+    .game-card[data-game-id="sandooq"] .card-actions{
+      margin-top:clamp(10px, 2.6cqw, 18px);
+    }
+
+
+
+    .game-card[data-game-id="sandooq"] .game-title-row .game-name{
+      font-size:clamp(8px, 2.05vw, 13.5px);
+      letter-spacing:-.25px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:clip;
+    }
+
+    .game-card[data-game-id="horof-edu"] .game-title-row{
+      margin-top:clamp(9px, 2.1cqw, 14px);
+    }
+
+    .game-card[data-game-id="horof-edu"] .game-title-row .game-name{
+      font-size:clamp(8px, 2.1vw, 14px);
+      letter-spacing:-.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:clip;
+    }
+
+    .game-card[data-game-id="horof-edu"] .game-meta-text{
+      margin-top:clamp(6px, 1.65cqw, 10px);
+    }
+
+    .game-card[data-game-id="horof-edu"] .game-desc{
+      margin-top:clamp(7px, 1.8cqw, 11px);
+      margin-bottom:clamp(10px, 2.5cqw, 16px);
+    }
+
+    .game-card[data-game-id="horof-edu"] .card-actions{
+      margin-top:clamp(10px, 2.6cqw, 18px);
+    }
+
+    .game-btn{
+      min-height:clamp(25px, 1.95vw, 31px);
+      border:0;
+      border-radius:999px;
+      background:var(--blue);
+      color:var(--white);
+      display:grid;
+      grid-template-columns:clamp(20px, 1.65vw, 25px) 1fr clamp(10px, .8vw, 14px);
+      direction:ltr;
+      align-items:center;
+      justify-items:center;
+      gap:clamp(3px, .4vw, 6px);
+      padding:3px clamp(5px, .65vw, 9px);
+      font-size:clamp(8.8px, .72vw, 11px);
+      font-weight:900;
+      line-height:1;
+      box-shadow:0 3px 0 rgba(247,182,56,.88);
+      cursor:pointer;
+      transition:transform .16s ease, filter .16s ease;
+    }
+
+    .game-btn-text{
+      direction:rtl;
+      justify-self:center;
+      transform:translateX(3px);
+      white-space:nowrap;
+    }
+
+    .game-btn:hover{transform:translateY(-1px);filter:saturate(1.08);}
+    .game-btn[hidden]{display:none !important;}
+    .game-btn.play-action{background:var(--green);box-shadow:0 3px 0 rgba(247,182,56,.88);}
+
+    .icon-badge{
+      width:clamp(20px, 1.65vw, 25px);
+      height:clamp(20px, 1.65vw, 25px);
+      border-radius:50%;
+      background:var(--yellow);
+      color:var(--blue-dark);
+      display:grid;
+      place-items:center;
+      justify-self:start;
+      flex:0 0 auto;
+    }
+
+    .icon-badge svg{
+      width:68%;
+      height:68%;
+      display:block;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:2.45;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .site-footer{
+      position:relative;
+      background:linear-gradient(180deg, #3c83ad 0%, #2f6f96 32%, #205b7d 100%);
+      border-top:clamp(3px, .35vw, 5px) solid var(--line);
+      color:var(--white);
+      overflow:hidden;
+    }
+
+    .site-footer::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      opacity:.12;
+      background-image:radial-gradient(circle, rgba(255,255,255,.92) 0 2px, transparent 2.4px);
+      background-size:28px 28px;
+      pointer-events:none;
+    }
+
+    .footer-inner{
+      position:relative;
+      z-index:1;
+      width:100%;
+      max-width:var(--layout-max);
+      margin-inline:auto;
+      padding:clamp(28px, 4vw, 48px) var(--page-pad) clamp(22px, 4vw, 34px);
+    }
+
+    .footer-title{
+      margin:0 0 clamp(18px, 2.5vw, 26px);
+      text-align:center;
+      font-size:clamp(22px, 2vw, 30px);
+      font-weight:950;
+      color:var(--white);
+      line-height:1.35;
+    }
+
+    .reviews-carousel{
+      width:100%;
+      max-width:900px;
+      margin:0 auto clamp(46px, 6vw, 72px);
+      position:relative;
+    }
+
+    .reviews-viewport{
+      display:flex;
+      gap:clamp(16px, 2.5vw, 26px);
+      overflow-x:auto;
+      overflow-y:hidden;
+      scroll-snap-type:x mandatory;
+      scroll-behavior:smooth;
+      padding:0 clamp(44px, 10vw, 96px) 12px;
+      direction:ltr;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+      cursor:grab;
+    }
+
+    .reviews-viewport:active{cursor:grabbing;}
+    .reviews-viewport::-webkit-scrollbar{display:none;}
+
+    .review-slide{
+      position:relative;
+      flex:0 0 min(620px, 76vw);
+      scroll-snap-align:center;
+      display:grid;
+      place-items:center;
+      direction:rtl;
+    }
+
+    .review-card{
+      width:100%;
+      height:clamp(220px, 24vw, 280px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      background:rgba(255,255,255,.97);
+      color:var(--ink);
+      border-radius:clamp(22px, 3vw, 36px);
+      padding:clamp(18px, 2.6vw, 30px);
+      box-shadow:0 10px 0 rgba(16,32,51,.16), 0 28px 40px rgba(0,0,0,.12);
+      text-align:center;
+      border:1px solid rgba(255,255,255,.26);
+      overflow:hidden;
+    }
+
+    .review-head{
+      display:flex;
+      flex-direction:row-reverse;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(8px, 1.2vw, 14px);
+      margin-bottom:clamp(10px, 1.4vw, 16px);
+      flex-wrap:nowrap;
+      min-width:0;
+    }
+
+    .review-name{
+      color:var(--ink);
+      font-size:clamp(13px, 1.25vw, 18px);
+      font-weight:950;
+      line-height:1.35;
+      max-width:52%;
+      overflow-wrap:anywhere;
+      text-align:right;
+    }
+
+    .review-stars{
+      color:var(--yellow);
+      letter-spacing:2px;
+      font-size:clamp(18px, 2.15vw, 30px);
+      direction:ltr;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+
+    .review-text{
+      margin:0;
+      color:var(--ink);
+      font-size:clamp(15px, 1.5vw, 23px);
+      line-height:1.75;
+      font-weight:900;
+      overflow-wrap:anywhere;
+    }
+
+    .review-card.name-long .review-name{
+      font-size:clamp(11px, 1vw, 15px);
+      max-width:48%;
+    }
+
+    .review-card.text-long .review-text{
+      font-size:clamp(12px, 1.18vw, 18px);
+      line-height:1.65;
+    }
+
+    .review-card.text-very-long .review-text{
+      font-size:clamp(10.5px, 1vw, 15px);
+      line-height:1.55;
+    }
+
+
+    .review-card.text-ultra-long .review-text{
+      font-size:clamp(9px, .9vw, 13px);
+      line-height:1.42;
+    }
+
+
+    /* ترتيب التقييمات: اسم العميل والنجوم في الأعلى، ونص التقييم في المساحة الكبيرة */
+    .review-card{
+      justify-content:flex-start;
+      gap:0;
+    }
+
+    .review-head{
+      width:100%;
+      display:flex;
+      flex-direction:row;
+      direction:rtl;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(8px, 1.2vw, 14px);
+      margin:0 0 clamp(10px, 1.4vw, 16px);
+      flex-wrap:nowrap;
+      min-width:0;
+    }
+
+    .review-name{
+      max-width:52%;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      text-align:right;
+    }
+
+    .review-stars{
+      flex:0 0 auto;
+      white-space:nowrap;
+      direction:ltr;
+    }
+
+    .review-text{
+      width:100%;
+      flex:1 1 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0;
+      text-align:center;
+    }
+
+    .review-card.name-long .review-name{
+      max-width:48%;
+    }
+
+
+    /* تحسين مساحة نص التقييم داخل منطقة داخلية آمنة بدون الاقتراب من أطراف البطاقة */
+    .review-card .review-text{
+      width:min(86%, 560px);
+      max-width:86%;
+      align-self:center;
+      flex:1 1 auto;
+      padding:clamp(10px, 1.35vw, 18px) clamp(12px, 2vw, 24px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      font-size:clamp(14px, 1.32vw, 21px);
+      line-height:1.62;
+    }
+
+    .review-card.text-long .review-text{
+      width:min(88%, 580px);
+      max-width:88%;
+      font-size:clamp(13px, 1.2vw, 18px);
+      line-height:1.55;
+    }
+
+    .review-card.text-very-long .review-text{
+      width:min(90%, 600px);
+      max-width:90%;
+      font-size:clamp(12px, 1.08vw, 16.5px);
+      line-height:1.48;
+    }
+
+    .review-card.text-ultra-long .review-text{
+      width:min(90%, 600px);
+      max-width:90%;
+      font-size:clamp(11px, 1vw, 15.5px);
+      line-height:1.42;
+    }
+
+    .footer-branding{
+      max-width:760px;
+      margin:0 auto;
+      text-align:center;
+    }
+
+    .footer-branding h3{
+      margin:0;
+      font-size:clamp(22px, 2vw, 30px);
+      font-weight:950;
+      color:var(--white);
+      line-height:1.35;
+    }
+
+    .footer-branding p{
+      margin:clamp(14px, 2vw, 20px) 0 0;
+      color:rgba(255,255,255,.95);
+      font-size:clamp(14px, 1.15vw, 18px);
+      line-height:1.9;
+      font-weight:800;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* تنسيق أيقونات التواصل والروابط السريعة في ذيل الصفحة */
+    .footer-icons{
+      display:grid;
+      grid-template-columns:repeat(4, auto);
+      justify-content:center;
+      align-items:center;
+      gap:clamp(12px, 2.2vw, 22px);
+      margin-top:clamp(18px, 2.6vw, 28px);
+      flex-wrap:nowrap;
+    }
+
+    .footer-icon{
+      width:clamp(52px, 7vw, 66px);
+      height:clamp(52px, 7vw, 66px);
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.28);
+      box-shadow:0 5px 0 rgba(16,32,51,.14);
+      transition:transform .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+
+    .footer-icon:hover{
+      transform:translateY(-1px);
+      background:rgba(255,255,255,.22);
+      box-shadow:0 6px 0 rgba(16,32,51,.16);
+    }
+
+    .footer-icon svg{
+      width:54%;
+      height:54%;
+      stroke:#fff;
+      fill:none;
+      stroke-width:2.25;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .footer-icon svg .fill-mark{
+      fill:#fff;
+      stroke:none;
+    }
+
+    .quick-links-title{
+      margin:clamp(34px, 5vw, 52px) 0 clamp(14px, 2vw, 22px);
+      text-align:center;
+      font-size:clamp(20px, 2.2vw, 32px);
+      font-weight:950;
+      color:var(--white);
+      line-height:1.3;
+    }
+
+    .quick-links{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(120px, 190px));
+      justify-content:center;
+      align-items:center;
+      gap:clamp(14px, 2.4vw, 24px) clamp(38px, 9vw, 90px);
+      max-width:620px;
+      margin:0 auto;
+    }
+
+    .quick-link{
+      min-height:clamp(34px, 4.8vw, 46px);
+      display:flex;
+      flex-direction:row-reverse;
+      align-items:center;
+      justify-content:center;
+      gap:clamp(8px, 1.5vw, 12px);
+      text-align:center;
+      padding:4px 2px;
+      color:var(--white);
+      font-size:clamp(14px, 1.35vw, 19px);
+      font-weight:900;
+      line-height:1.2;
+      opacity:.98;
+    }
+
+    .quick-link svg{
+      width:clamp(20px, 2.4vw, 28px);
+      height:clamp(20px, 2.4vw, 28px);
+      flex:0 0 auto;
+      stroke:#fff;
+      fill:none;
+      stroke-width:2.35;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      opacity:.96;
+    }
+
+    .quick-link svg .fill-mark{
+      fill:#fff;
+      stroke:none;
+    }
+
+    .quick-link.muted{
+      opacity:.72;
+      pointer-events:none;
+      cursor:default;
+    }
+
+    @media (max-width:430px){
+      .footer-icons{
+        gap:14px;
+      }
+
+      .quick-links{
+        grid-template-columns:repeat(2, minmax(116px, 1fr));
+        gap:14px 34px;
+        max-width:360px;
+      }
+    }
+
+    .footer-legal{
+      position:relative;
+      z-index:1;
+      background:#17324b;
+      border-top:1px solid rgba(255,255,255,.16);
+    }
+
+    .footer-legal-inner{
+      width:100%;
+      max-width:var(--layout-max);
+      margin-inline:auto;
+      padding:14px var(--page-pad) calc(14px + env(safe-area-inset-bottom));
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      text-align:center;
+      color:var(--white);
+      font-size:clamp(13px, 1vw, 16px);
+      font-weight:750;
+    }
+
+    .legal-links{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .legal-link{
+      min-height:32px;
+      padding:5px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.18);
+      color:var(--white);
+      font-size:13px;
+      font-weight:800;
+      opacity:.9;
+    }
+
+    .bottom-nav{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      width:100%;
+      height:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+      background:linear-gradient(180deg, #f7b638 0%, #e99f18 100%);
+      border-top:clamp(3px, .35vw, 5px) solid var(--line);
+      z-index:40;
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+      padding:0 var(--page-pad) env(safe-area-inset-bottom);
+      box-shadow:0 -5px 18px rgba(0,0,0,.16);
+      isolation:isolate;
+    }
+
+    .bottom-nav-inner{
+      width:100%;
+      max-width:var(--nav-max);
+      height:100%;
+      position:relative;
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      align-items:center;
+      gap:clamp(3px, .8vw, 10px);
+      padding:8px 0;
+      --indicator-w:25%;
+      --indicator-h:72px;
+      --indicator-x:0px;
+      --indicator-y:8px;
+    }
+
+    .nav-indicator{
+      position:absolute;
+      top:0;
+      left:0;
+      width:var(--indicator-w);
+      height:var(--indicator-h);
+      border-radius:22px;
+      background:var(--nav-active);
+      border:2px solid rgba(255,255,255,.32);
+      box-shadow:0 5px 0 rgba(0,0,0,.2);
+      transform:translate3d(var(--indicator-x), var(--indicator-y), 0);
+      transition:
+        transform .28s cubic-bezier(.22, 1, .36, 1),
+        width .28s cubic-bezier(.22, 1, .36, 1),
+        height .28s cubic-bezier(.22, 1, .36, 1);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .nav-item{
+      min-width:0;
+      height:clamp(68px, 6.5vw, 78px);
+      border-radius:22px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      color:var(--nav-ink);
+      text-shadow:0 1px 0 rgba(255,255,255,.28);
+      font-weight:950;
+      font-size:clamp(11px, 1vw, 14px);
+      line-height:1.1;
+      text-align:center;
+      position:relative;
+      z-index:1;
+      transition:color .2s ease, transform .2s ease;
+      padding-inline:4px;
+    }
+
+    .nav-item.active{color:#fff;transform:translateY(-1px);}
+    .nav-icon{
+      width:clamp(32px, 3vw, 40px);
+      height:clamp(32px, 3vw, 40px);
+      display:grid;
+      place-items:center;
+      color:currentColor;
+      transition:color .2s ease, transform .2s ease;
+    }
+
+    .nav-icon svg{
+      width:90%;
+      height:90%;
+      display:block;
+      stroke:currentColor;
+      fill:none;
+      stroke-width:2.75;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .nav-item.active .nav-icon{color:var(--yellow-light);transform:scale(1.04);}
+    .nav-item.nav-featured .nav-icon{
+      border-radius:16px;
+      background:rgba(4,56,79,.12);
+      box-shadow:inset 0 0 0 1px rgba(4,56,79,.18);
+    }
+
+    .nav-item.nav-featured.active .nav-icon{background:transparent;box-shadow:none;}
+
+    @media (min-width:640px){
+      .bundles-grid{grid-template-columns:repeat(2, minmax(0,1fr));}
+      .games-grid{grid-template-columns:repeat(3, minmax(0,1fr));}
+    }
+
+    @media (min-width:1024px){
+      .games-grid{grid-template-columns:repeat(4, minmax(0,1fr));}
+      .hero-text{max-width:1040px;}
+    }
+
+    @media (min-width:1440px){
+      :root{--layout-max:1400px;}
+      .games-grid{grid-template-columns:repeat(5, minmax(0,1fr));}
+    }
+
+    @media (max-width:640px){
+      .quick-links{grid-template-columns:1fr;}
+      .review-slide{flex-basis:min(620px, 78vw);}
+    }
+
+    @media (max-width:430px){
+      :root{--bottom-nav-height:88px;--page-pad:clamp(12px, 4vw, 18px);}
+      .hero{min-height:330px;}
+      .cover > span{font-size:clamp(14px, 4.2vw, 16px);}
+      .game-name{font-size:clamp(13px, 3.8vw, 14px);}
+      .game-btn{font-size:clamp(8px, 2.35vw, 9.5px);min-height:25px;}
+      .icon-badge{width:20px;height:20px;}
+      .section-title{min-height:36px;font-size:17px;}
+    }
+
+    @media (max-width:360px){
+      .games-grid{gap:18px 12px;}
+      .card-actions{padding-inline:3px;}
+    }
+
+    @media (max-width:320px){
+      .games-grid{grid-template-columns:1fr;}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation-duration:.001ms !important;
+        animation-iteration-count:1 !important;
+        scroll-behavior:auto !important;
+        transition-duration:.001ms !important;
+      }
+    }
+
+    /* تثبيت الشريط السفلي دائماً (حماية إضافية خصوصاً على iOS) */
+    .bottom-nav{
+      position:fixed !important;
+      left:0 !important;
+      right:0 !important;
+      bottom:0 !important;
+      transform:translateZ(0);
+      -webkit-transform:translateZ(0);
+      will-change:transform;
+    }
+
+
+    /* تثبيت جذري للشريط السفلي على الجوال و iOS */
+    :root{
+      --bottom-nav-space:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+      --visual-viewport-bottom:0px;
+    }
+
+    .app{
+      padding-bottom:calc(var(--bottom-nav-space) + 26px) !important;
+    }
+
+    .bottom-nav{
+      position:fixed !important;
+      inset-inline:0 !important;
+      top:auto !important;
+      bottom:0 !important;
+width:100% !important;
+      height:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom)) !important;
+      transform:translate3d(0,0,0) !important;
+      -webkit-transform:translate3d(0,0,0) !important;
+      backface-visibility:hidden;
+      -webkit-backface-visibility:hidden;
+      contain:layout paint style;
+      will-change:transform, bottom;
+    }
+
+
+    /* ضبط نهائي لذيل الصفحة: تصغير أيقونات التواصل وترتيب الروابط السريعة 2×2 */
+    .footer-branding .footer-icons{
+      display:grid !important;
+      grid-template-columns:repeat(4, auto) !important;
+      justify-content:center !important;
+      align-items:center !important;
+      gap:clamp(12px, 3.8vw, 22px) !important;
+      margin-top:clamp(26px, 5vw, 42px) !important;
+      margin-bottom:clamp(34px, 5vw, 50px) !important;
+      flex-wrap:nowrap !important;
+    }
+
+    .footer-branding .footer-icon{
+      width:clamp(42px, 10vw, 54px) !important;
+      height:clamp(42px, 10vw, 54px) !important;
+      border-radius:50% !important;
+      display:grid !important;
+      place-items:center !important;
+    }
+
+    .footer-branding .footer-icon svg{
+      width:50% !important;
+      height:50% !important;
+      stroke:#fff !important;
+      fill:none !important;
+      stroke-width:2.45 !important;
+      stroke-linecap:round !important;
+      stroke-linejoin:round !important;
+    }
+
+    .quick-links-title{
+      margin:0 0 clamp(18px, 3vw, 26px) !important;
+      text-align:center !important;
+      font-size:clamp(20px, 5.2vw, 30px) !important;
+      font-weight:950 !important;
+      color:var(--white) !important;
+      line-height:1.3 !important;
+    }
+
+    .quick-links{
+      display:grid !important;
+      grid-template-columns:repeat(2, minmax(118px, 1fr)) !important;
+      grid-template-rows:repeat(2, auto) !important;
+      justify-content:center !important;
+      align-items:center !important;
+      gap:clamp(16px, 4vw, 24px) clamp(42px, 12vw, 96px) !important;
+      width:min(100%, 460px) !important;
+      max-width:460px !important;
+      margin:0 auto !important;
+    }
+
+    .quick-link{
+      min-height:clamp(34px, 6vw, 46px) !important;
+      display:flex !important;
+      flex-direction:row-reverse !important;
+      align-items:center !important;
+      justify-content:center !important;
+      gap:clamp(8px, 2vw, 12px) !important;
+      text-align:center !important;
+      color:var(--white) !important;
+      font-size:clamp(15px, 4vw, 20px) !important;
+      font-weight:900 !important;
+      line-height:1.2 !important;
+      padding:0 !important;
+    }
+
+    .quick-link svg{
+      width:clamp(20px, 5.5vw, 27px) !important;
+      height:clamp(20px, 5.5vw, 27px) !important;
+      flex:0 0 auto !important;
+      stroke:#fff !important;
+      fill:none !important;
+      stroke-width:2.45 !important;
+      stroke-linecap:round !important;
+      stroke-linejoin:round !important;
+      opacity:.96 !important;
+    }
+
+
+    /* ضبط حجم روابط سريعة وتحويل الأيقونة للجهة الأخرى */
+    .quick-links-title{
+      font-size:clamp(18px, 4.5vw, 26px) !important;
+      margin:0 0 clamp(16px, 2.6vw, 22px) !important;
+    }
+
+    .quick-link{
+      flex-direction:row !important;
+      font-size:clamp(13px, 3.4vw, 17px) !important;
+      min-height:clamp(30px, 5vw, 40px) !important;
+      gap:clamp(6px, 1.4vw, 10px) !important;
+    }
+
+    .quick-link svg{
+      width:clamp(17px, 4.4vw, 23px) !important;
+      height:clamp(17px, 4.4vw, 23px) !important;
+    }
+
+
+    /* ضبط شريط الحقوق وإزالة المسافة السماوية أسفله */
+    .footer-legal{
+      margin-bottom:calc((var(--bottom-nav-space, calc(var(--bottom-nav-height) + env(safe-area-inset-bottom))) + 26px) * -1) !important;
+    }
+
+    .footer-legal-inner{
+      padding:14px var(--page-pad) calc(14px + env(safe-area-inset-bottom) + var(--bottom-nav-space, calc(var(--bottom-nav-height) + env(safe-area-inset-bottom))) + 26px) !important;
+      display:flex !important;
+      flex-direction:row !important;
+      align-items:center !important;
+      justify-content:center !important;
+      gap:0 !important;
+      text-align:center !important;
+      white-space:nowrap !important;
+      font-size:clamp(8.8px, 2.65vw, 14px) !important;
+      line-height:1.4 !important;
+      letter-spacing:-.12px;
+    }
+
+    .legal-line{
+      color:var(--white);
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .legal-line .legal-link{
+      min-height:auto !important;
+      display:inline !important;
+      padding:0 !important;
+      border-radius:0 !important;
+      background:transparent !important;
+      border:0 !important;
+      color:var(--white) !important;
+      font-size:inherit !important;
+      font-weight:inherit !important;
+      opacity:1 !important;
+    }
+
+
+    /* إخفاء الخلفية السماوية أسفل شريط الحقوق فقط */
+    .app{
+      background:#17324b !important;
+    }
+
+    .legal-line .legal-link{
+      color:rgba(255,215,107,.96) !important;
+      text-decoration:underline;
+      text-underline-offset:4px;
+    }
+
+
+
+    /* حل جذري لتثبيت الشريط السفلي ومنع الطفو على iOS والجوال */
+    :root{
+      --bottom-nav-space:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+      --visual-viewport-bottom:0px;
+    }
+
+    html,
+    body{
+      min-height:100% !important;
+      overflow-x:hidden !important;
+    }
+
+    .app{
+      min-height:100dvh !important;
+      overflow:visible !important;
+      padding-bottom:calc(var(--bottom-nav-space) + 26px) !important;
+    }
+
+    .bottom-nav{
+      position:fixed !important;
+      left:0 !important;
+      right:0 !important;
+      top:auto !important;
+      bottom:0 !important;
+width:100% !important;
+      height:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom)) !important;
+      z-index:2147483000 !important;
+      transform:translate3d(0,0,0) !important;
+      -webkit-transform:translate3d(0,0,0) !important;
+      backface-visibility:hidden !important;
+      -webkit-backface-visibility:hidden !important;
+      contain:layout paint style !important;
+      will-change:transform, bottom !important;
+      margin:0 !important;
+    }
+
+    .bottom-nav-inner{
+      transform:translate3d(0,0,0) !important;
+      -webkit-transform:translate3d(0,0,0) !important;
+    }
+
+
+
+    /* ضبط نهائي ثابت للشريط السفلي بدون تحريك الصفحة يمين/يسار */
+    :root{
+      --bottom-nav-space:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+      --keyboard-offset:0px;
+    }
+
+    html,
+    body{
+      width:100% !important;
+      max-width:100% !important;
+      overflow-x:hidden !important;
+    }
+
+    .app{
+      width:100% !important;
+      max-width:100% !important;
+      overflow-x:hidden !important;
+      overflow-y:visible !important;
+      padding-bottom:calc(var(--bottom-nav-space) + 26px) !important;
+    }
+
+    .bottom-nav{
+      position:fixed !important;
+      left:0 !important;
+      right:0 !important;
+      top:auto !important;
+      bottom:0 !important;
+      width:100% !important;
+      height:var(--bottom-nav-space) !important;
+      padding:0 var(--page-pad) env(safe-area-inset-bottom) !important;
+      z-index:2147483000 !important;
+      transform:none !important;
+      -webkit-transform:none !important;
+      backface-visibility:hidden !important;
+      -webkit-backface-visibility:hidden !important;
+      contain:none !important;
+      will-change:auto !important;
+      border:1px solid rgba(85,189,242,.38) !important;
+      border-bottom:0 !important;
+      border-radius:clamp(18px, 5vw, 32px) clamp(18px, 5vw, 32px) 0 0 !important;
+      box-shadow:none !important;
+      overflow:hidden !important;
+      margin:0 !important;
+    }
+
+    .bottom-nav .nav-indicator{
+      box-shadow:none !important;
+      border-color:rgba(85,189,242,.28) !important;
+    }
+
+    body.keyboard-open .bottom-nav{
+      bottom:calc(var(--keyboard-offset, 0px) * -1) !important;
+    }
+
+    body.keyboard-open .app{
+      padding-bottom:calc(var(--bottom-nav-space) + 26px) !important;
+    }
+
+
+    /* ضبط نهائي لألوان الشريط السفلي: المربع النشط مثل شريط العروض والألعاب والنص أسود */
+    .bottom-nav{
+      background:var(--blue-deep) !important;
+      border:1px solid rgba(85,189,242,.38) !important;
+      border-bottom:0 !important;
+      border-radius:clamp(18px, 5vw, 32px) clamp(18px, 5vw, 32px) 0 0 !important;
+      box-shadow:none !important;
+      overflow:hidden !important;
+    }
+
+    .bottom-nav .nav-item{
+      color:rgba(255,255,255,.92) !important;
+      text-shadow:none !important;
+    }
+
+    .bottom-nav .nav-item.active{
+      color:#111 !important;
+      text-shadow:none !important;
+    }
+
+    .bottom-nav .nav-item.active .nav-icon{
+      color:#111 !important;
+    }
+
+    .bottom-nav .nav-indicator{
+      background:var(--yellow) !important;
+      border:1px solid rgba(21,21,21,.22) !important;
+      box-shadow:none !important;
+    }
+
+    .bottom-nav .nav-item.nav-featured .nav-icon{
+      background:rgba(255,255,255,.10) !important;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.12) !important;
+    }
+
+    .bottom-nav .nav-item.nav-featured.active .nav-icon{
+      background:transparent !important;
+      box-shadow:none !important;
+    }
+
+
+
+    /* بطاقة بكج صندوق التحديات الجديدة */
+    #bundles .bundles-grid{
+      grid-template-columns:1fr !important;
+      justify-items:center;
+    }
+
+    .bundle-card.bundle-game-card{
+      width:100%;
+      max-width:min(100%, 860px);
+      margin-inline:auto;
+      container-type:inline-size;
+      min-height:auto;
+      border:clamp(2px, .25vw, 3px) solid var(--line);
+      border-radius:var(--card-radius);
+      background:var(--white);
+      padding:clamp(7px, 1vw, 14px) clamp(7px, 1vw, 14px) clamp(11px, 1.4vw, 18px);
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:0;
+      box-shadow:0 clamp(4px, .7vw, 8px) 0 rgba(0,0,0,.18);
+      overflow:hidden;
+      position:relative;
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+
+    .bundle-card.bundle-game-card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 clamp(6px, .9vw, 10px) 0 rgba(0,0,0,.18);
+    }
+
+    .bundle-card.bundle-game-card .bundle-badge{
+      position:absolute;
+      top:clamp(11px, 2.3cqw, 18px);
+      right:clamp(11px, 2.3cqw, 18px);
+      z-index:3;
+      align-self:auto;
+      border:clamp(1.5px, .18vw, 2px) solid var(--line);
+      box-shadow:0 3px 0 rgba(0,0,0,.15);
+    }
+
+    .bundle-cover{
+      width:100%;
+      aspect-ratio:1672 / 941;
+      height:auto;
+      border-radius:calc(var(--card-radius) - 4px);
+      border:1.5px solid rgba(0,0,0,.18);
+      overflow:hidden;
+      position:relative;
+      background:#e9eef4;
+      display:block;
+    }
+
+    .bundle-cover picture,
+    .bundle-cover img{
+      display:block;
       width:100%;
       height:100%;
-      background:#e9e1cf;
     }
-  </style>
+
+    .bundle-cover img{
+      object-fit:cover;
+    }
+
+    .bundle-title-row{
+      width:100%;
+      margin:clamp(9px, 2.1cqw, 14px) 0 0;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:clamp(4px, .6vw, 8px);
+      min-width:0;
+    }
+
+    .bundle-title-row .bundle-name{
+      margin:0;
+      flex:1 1 auto;
+      min-width:0;
+      text-align:right;
+      color:#111;
+      font-weight:950;
+      font-size:clamp(14px, 3.2cqw, 23px);
+      line-height:1.35;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .bundle-status{
+      flex:0 0 auto;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:clamp(16px, 1.65vw, 22px);
+      padding:clamp(2px, .35vw, 4px) clamp(6px, .75vw, 9px);
+      border-radius:999px;
+      border:clamp(1.5px, .18vw, 2px) solid var(--line);
+      background:#fff7d6;
+      color:#1d2633;
+      font-weight:950;
+      font-size:clamp(7.5px, 1.75vw, 10px);
+      line-height:1;
+      white-space:nowrap;
+      box-shadow:0 2px 0 rgba(0,0,0,.12);
+    }
+
+    .bundle-meta-text{
+      margin:clamp(6px, 1.65cqw, 10px) 0 0;
+      color:#607084;
+      font-weight:900;
+      font-size:clamp(10px, 2.35cqw, 15px);
+      line-height:1.35;
+      text-align:center;
+      white-space:normal;
+    }
+
+    .bundle-card.bundle-game-card .bundle-desc{
+      width:100%;
+      max-width:100%;
+      margin:clamp(7px, 1.8cqw, 11px) 0 clamp(10px, 2.5cqw, 16px);
+      color:var(--muted);
+      font-weight:850;
+      font-size:clamp(12px, 2.8cqw, 17px);
+      line-height:1.6;
+      text-align:center;
+      text-wrap:balance;
+    }
+
+    .bundle-card.bundle-game-card .bundle-meta{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:8px;
+      margin:0 0 clamp(10px, 2.2cqw, 15px);
+    }
+
+    .bundle-card.bundle-game-card .bundle-actions{
+      margin-top:auto;
+      display:grid;
+      gap:clamp(4px, .55vw, 7px);
+      padding:0 clamp(3px, .5vw, 6px);
+    }
+
+    .bundle-card.bundle-game-card .game-btn{
+      min-height:clamp(30px, 3.2vw, 40px);
+      font-size:clamp(10px, 1vw, 14px);
+    }
+
+    @media (max-width:430px){
+      .bundle-card.bundle-game-card .bundle-title-row .bundle-name{
+        font-size:clamp(15px, 4.6vw, 20px);
+      }
+
+      .bundle-card.bundle-game-card .bundle-desc{
+        font-size:clamp(12px, 3.6vw, 15px);
+        line-height:1.65;
+      }
+
+      .bundle-card.bundle-game-card .game-btn{
+        min-height:30px;
+        font-size:clamp(9px, 2.65vw, 11px);
+      }
+    }
+
+    /* تعديلات بطاقة بكج صندوق التحديات */
+    .bundle-card.bundle-game-card .bundle-title-row{
+      width:100%;
+      margin:clamp(14px, 2.5cqw, 18px) 0 0 !important;
+      display:flex !important;
+      align-items:center !important;
+      justify-content:center !important;
+      gap:clamp(4px, .6vw, 8px) !important;
+      min-width:0 !important;
+      position:relative !important;
+      z-index:1 !important;
+    }
+
+    .bundle-card.bundle-game-card .bundle-title-row .bundle-name{
+      margin:0 !important;
+      flex:0 1 auto !important;
+      min-width:0 !important;
+      text-align:center !important;
+      color:#111 !important;
+      font-weight:950 !important;
+      font-size:clamp(18px, 3.65cqw, 27px) !important;
+      line-height:1.35 !important;
+      white-space:nowrap !important;
+      overflow:visible !important;
+      text-overflow:clip !important;
+    }
+
+    .bundle-card.bundle-game-card .bundle-desc{
+      width:100% !important;
+      max-width:100% !important;
+      margin:clamp(10px, 2cqw, 14px) 0 clamp(12px, 2.8cqw, 18px) !important;
+      color:var(--muted) !important;
+      font-weight:850 !important;
+      font-size:clamp(14px, 2.95cqw, 18px) !important;
+      line-height:1.75 !important;
+      text-align:center !important;
+      text-wrap:balance !important;
+    }
+
+    .bundle-card.bundle-game-card .bundle-actions{
+      margin-top:auto !important;
+      display:grid !important;
+      grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+      gap:clamp(8px, 1cqw, 12px) !important;
+      padding:0 clamp(3px, .5vw, 6px) !important;
+      align-items:stretch !important;
+    }
+
+    .bundle-card.bundle-game-card .bundle-actions .game-btn{
+      min-height:clamp(30px, 3.2vw, 40px) !important;
+      font-size:clamp(10px, 1vw, 14px) !important;
+    }
+
+    @media (max-width:430px){
+      .bundle-card.bundle-game-card .bundle-title-row .bundle-name{
+        font-size:clamp(18px, 5.2vw, 23px) !important;
+      }
+
+      .bundle-card.bundle-game-card .bundle-desc{
+        font-size:clamp(13px, 3.8vw, 16px) !important;
+        line-height:1.7 !important;
+      }
+
+      .bundle-card.bundle-game-card .bundle-actions{
+        grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+      }
+
+      .bundle-card.bundle-game-card .bundle-actions .game-btn{
+        min-height:30px !important;
+        font-size:clamp(9px, 2.65vw, 11px) !important;
+      }
+    }
+
+
+
+    /* إصلاح نهائي لتثبيت الشريط السفلي ومنع تحركه أثناء التمرير */
+    :root{
+      --bottom-nav-fixed-height:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    }
+
+    html,
+    body{
+      width:100% !important;
+      max-width:100% !important;
+      overflow-x:hidden !important;
+    }
+
+    .app{
+      width:100% !important;
+      max-width:100% !important;
+      overflow-x:hidden !important;
+      padding-bottom:calc(var(--bottom-nav-fixed-height) + 26px) !important;
+    }
+
+    .bottom-nav{
+      position:fixed !important;
+      left:0 !important;
+      right:0 !important;
+      top:auto !important;
+      bottom:0 !important;
+      width:100vw !important;
+      height:var(--bottom-nav-fixed-height) !important;
+      min-height:var(--bottom-nav-fixed-height) !important;
+      max-height:var(--bottom-nav-fixed-height) !important;
+      padding:0 var(--page-pad) env(safe-area-inset-bottom) !important;
+      margin:0 !important;
+      z-index:2147483000 !important;
+      transform:translateZ(0) !important;
+      -webkit-transform:translateZ(0) !important;
+      backface-visibility:hidden !important;
+      -webkit-backface-visibility:hidden !important;
+      will-change:auto !important;
+      contain:paint !important;
+    }
+
+    body.keyboard-open .bottom-nav{
+      bottom:0 !important;
+    }
+
+    .bottom-nav-inner{
+      height:100% !important;
+      transform:translateZ(0) !important;
+      -webkit-transform:translateZ(0) !important;
+    }
+
+  
+    /* ✅ تثبيت الشريط السفلي على iOS أثناء إظهار/إخفاء شريط المتصفح */
+    .bottom-nav{
+      bottom:0 !important;
+}
+
+</style>
 </head>
-<body></body>
+
+<body>
+  <div class="app">
+    <header class="hero" id="home">
+      <div class="top-row">
+        <div class="brand-title">صندوق المسابقات</div>
+        <a class="login-chip" href="account.html">تسجيل الدخول</a>
+      </div>
+
+      <div class="logo-wrap" aria-label="شعار صندوق المسابقات">
+        <img src="logo.PNG" alt="صندوق المسابقات" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
+        <div class="logo-fallback">صندوق<br>المسابقات</div>
+      </div>
+
+      <div class="hero-text">
+        <p class="hero-headline">كل أجواء اللعب والتحدي في صندوق واحد</p>
+        <p class="hero-line">العاب جماعية جاهزة للجمعات والفعاليات</p>
+      </div>
+    </header>
+
+    <section class="section-title" aria-label="قسم العروض">
+      العروض
+    </section>
+
+
+    <section class="bundles-area" id="bundles" aria-label="قسم العروض والبكجات">
+      <div class="bundles-inner">
+        <div class="bundles-grid">
+          <article class="bundle-card bundle-game-card" data-bundle-id="challenges-box">
+            <span class="bundle-badge">الأوفر</span>
+
+            <div class="bundle-cover cover-photo">
+              <picture>
+                <source type="image/webp" srcset="sandooq-challenges-bundle-cover-card.webp" />
+                <img src="sandooq-challenges-bundle-cover.PNG" alt="غلاف بكج صندوق التحديات" width="1672" height="941" loading="lazy" decoding="async" />
+              </picture>
+            </div>
+
+            <div class="bundle-title-row">
+              <h3 class="bundle-name">بكج صندوق التحديات</h3>
+            </div>
+
+            <p class="bundle-desc">صندوق واحد يجمع 5 ألعاب مختلفة<br>بتجارب أكثر تنوعًا وسعر أقل من شراء كل لعبة منفصلة</p>
+
+            <div class="card-actions bundle-actions">
+              <a class="game-btn" href="sandooq-challenges-bundle.html">
+                <span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span>
+                <span class="game-btn-text">عرض البكج</span>
+              </a>
+              <a class="game-btn" href="https://sandooq-m.com" target="_blank" rel="noopener">
+                <span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span>
+                <span class="game-btn-text">شراء البكج</span>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-title" aria-label="قسم الألعاب">
+      الألعاب
+    </section>
+
+    <main class="games-area" id="games">
+      <div class="games-grid">
+        <article
+          class="game-card"
+          data-game-id="horof"
+          data-details-url="horof.html"
+          data-buy-url="https://sandooq-m.com/rRDZGeZ"
+          data-play-url="https://horof.sandooq-games.com"
+        >
+          <div class="cover cover-photo">
+            <picture>
+              <source type="image/webp" srcset="horof-cover-card.webp" />
+              <img src="horof-cover.PNG" alt="غلاف لعبة سباق الحروف" width="640" height="640" loading="eager" decoding="async" fetchpriority="high" />
+            </picture>
+            <div class="cover-login-note" aria-label="تصفح فقط حتى تسجل الدخول">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2h1.2c.9 0 1.6.7 1.6 1.6v7.1c0 .9-.7 1.6-1.6 1.6H5.8c-.9 0-1.6-.7-1.6-1.6v-7.1c0-.9.7-1.6 1.6-1.6H7Zm2 0h6V8a3 3 0 0 0-6 0v2Z"></path></svg>
+              <span>تصفح فقط حتى تسجل الدخول</span>
+            </div>
+          </div>
+          <div class="game-title-row">
+            <h2 class="game-name">لعبة سباق الحروف</h2>
+            <span class="game-status" data-status-for="horof">مقفلة</span>
+          </div>
+          <p class="game-meta-text">+2 لاعبين · 15–30 دقيقة</p>
+          <p class="game-desc">سباق أسئلة على الحروف مع جرس لكل لاعب وخريطة تفاعلية.</p>
+          <div class="card-actions">
+            <a class="game-btn" href="horof.html" data-action="details">
+              <span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span>
+              <span class="game-btn-text">عرض اللعبة</span>
+            </a>
+            <a class="game-btn" href="https://sandooq-m.com/rRDZGeZ" data-action="buy" data-play-url="https://horof.sandooq-games.com">
+              <span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span>
+              <span class="game-btn-text">شراء اللعبة</span>
+            </a>
+          </div>
+        </article>
+
+        <article
+          class="game-card"
+          data-game-id="bdon-kalam"
+        >
+          <div class="cover cover-photo">
+            <picture>
+              <source type="image/webp" srcset="bdon-kalam-cover-card.webp" />
+              <img src="bdon-kalam-cover.PNG" alt="غلاف لعبة بدون كلام" width="640" height="640" loading="lazy" decoding="async" />
+            </picture>
+            <div class="cover-login-note" aria-label="تصفح فقط حتى تسجل الدخول">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2h1.2c.9 0 1.6.7 1.6 1.6v7.1c0 .9-.7 1.6-1.6 1.6H5.8c-.9 0-1.6-.7-1.6-1.6v-7.1c0-.9.7-1.6 1.6-1.6H7Zm2 0h6V8a3 3 0 0 0-6 0v2Z"></path></svg>
+              <span>تصفح فقط حتى تسجل الدخول</span>
+            </div>
+          </div>
+          <div class="game-title-row">
+            <h2 class="game-name">لعبة بدون كلام</h2>
+            <span class="game-status">مقفلة</span>
+          </div>
+          <p class="game-meta-text">+2 لاعبين · 10–20 دقيقة</p>
+          <p class="game-desc">امسح الباركود، شاهد التحدي، واشرح لفريقك بدون أي كلام.</p>
+          <div class="card-actions">
+            <a class="game-btn" href="bdon-kalam.html">
+              <span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span>
+              <span class="game-btn-text">عرض اللعبة</span>
+            </a>
+            <a class="game-btn" href="https://sandooq-m.com/gygPeBK">
+              <span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span>
+              <span class="game-btn-text">شراء اللعبة</span>
+            </a>
+          </div>
+        </article>
+
+        <article
+          class="game-card"
+          data-game-id="bra-alsalfah"
+          data-details-url="bra-alsalfah.html"
+          data-buy-url="https://sandooq-m.com/YzZqAlO"
+          data-play-url="https://bara.sandooq-games.com/single.html"
+        >
+          <div class="cover cover-photo">
+            <picture>
+              <source type="image/webp" srcset="bra-alsalfah-cover-card.webp" />
+              <img src="bra-alsalfah-cover.PNG" alt="غلاف لعبة برا السالفة" width="640" height="640" loading="lazy" decoding="async" />
+            </picture>
+            <div class="cover-login-note" aria-label="تصفح فقط حتى تسجل الدخول">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2h1.2c.9 0 1.6.7 1.6 1.6v7.1c0 .9-.7 1.6-1.6 1.6H5.8c-.9 0-1.6-.7-1.6-1.6v-7.1c0-.9.7-1.6 1.6-1.6H7Zm2 0h6V8a3 3 0 0 0-6 0v2Z"></path></svg>
+              <span>تصفح فقط حتى تسجل الدخول</span>
+            </div>
+          </div>
+          <div class="game-title-row">
+            <h2 class="game-name">لعبة برا السالفة</h2>
+            <span class="game-status">مقفلة</span>
+          </div>
+          <p class="game-meta-text">+3 لاعبين · 10-20 دقيقة</p>
+          <p class="game-desc">كل لاعب يحاول يثبت أنه داخل السالفة... لكن واحد بينهم يمثل عليكم.</p>
+          <div class="card-actions">
+            <a class="game-btn" href="bra-alsalfah.html"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span><span class="game-btn-text">عرض اللعبة</span></a>
+            <a class="game-btn" href="https://sandooq-m.com/YzZqAlO"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span><span class="game-btn-text">شراء اللعبة</span></a>
+          </div>
+        </article>
+
+        <article
+          class="game-card"
+          data-game-id="family-feud"
+        >
+          <div class="cover cover-photo">
+            <picture>
+              <source type="image/webp" srcset="family-feud-cover-card.webp" />
+              <img src="family-feud-cover.PNG" alt="غلاف لعبة فاميلي فيود" width="640" height="640" loading="lazy" decoding="async" />
+            </picture>
+            <div class="cover-login-note" aria-label="تصفح فقط حتى تسجل الدخول">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2h1.2c.9 0 1.6.7 1.6 1.6v7.1c0 .9-.7 1.6-1.6 1.6H5.8c-.9 0-1.6-.7-1.6-1.6v-7.1c0-.9.7-1.6 1.6-1.6H7Zm2 0h6V8a3 3 0 0 0-6 0v2Z"></path></svg>
+              <span>تصفح فقط حتى تسجل الدخول</span>
+            </div>
+          </div>
+          <div class="game-title-row">
+            <h2 class="game-name">لعبة فاميلي فيود</h2>
+            <span class="game-status">مقفلة</span>
+          </div>
+          <p class="game-meta-text">+ لاعبين · 15–30 دقيقة</p>
+          <p class="game-desc">تحدي الإجابات الأكثر شعبية بجرس وشاشة عرض وأصوات حماسية</p>
+          <div class="card-actions">
+            <a class="game-btn" href="family-feud.html"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span><span class="game-btn-text">عرض اللعبة</span></a>
+            <a class="game-btn" href="https://sandooq-m.com/wAReOlN"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span><span class="game-btn-text">شراء اللعبة</span></a>
+          </div>
+        </article>
+
+        <article
+          class="game-card"
+          data-game-id="sandooq"
+          data-details-url="sandooq.html"
+          data-buy-url="https://sandooq-m.com/bwdZAqe"
+          data-play-url="https://game2.sandooq-games.com/start.html?v=1774023618302"
+        >
+          <div class="cover cover-photo">
+            <picture>
+              <source type="image/webp" srcset="sandooq-almusabaqat-cover-card.webp" />
+              <img src="sandooq-almusabaqat-cover.PNG" alt="غلاف لعبة صندوق المسابقات" width="640" height="640" loading="lazy" decoding="async" />
+            </picture>
+            <div class="cover-login-note" aria-label="تصفح فقط حتى تسجل الدخول">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2h1.2c.9 0 1.6.7 1.6 1.6v7.1c0 .9-.7 1.6-1.6 1.6H5.8c-.9 0-1.6-.7-1.6-1.6v-7.1c0-.9.7-1.6 1.6-1.6H7Zm2 0h6V8a3 3 0 0 0-6 0v2Z"></path></svg>
+              <span>تصفح فقط حتى تسجل الدخول</span>
+            </div>
+          </div>
+          <div class="game-title-row">
+            <h2 class="game-name">لعبة صندوق المسابقات</h2>
+            <span class="game-status" data-status-for="sandooq">مقفلة</span>
+          </div>
+          <p class="game-meta-text">+2 لاعبين · 20–40 دقيق</p>
+          <p class="game-desc">صندوق واحد يجمع أكثر من نوع تحدي لتجربة مسابقات ممتعة في كل جَمعة</p>
+          <div class="card-actions">
+            <a class="game-btn" href="sandooq.html">
+              <span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span>
+              <span class="game-btn-text">عرض اللعبة</span>
+            </a>
+            <a class="game-btn" href="https://sandooq-m.com/bwdZAqe">
+              <span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span>
+              <span class="game-btn-text">شراء اللعبة</span>
+            </a>
+          </div>
+        </article>
+
+        <article
+          class="game-card"
+          data-game-id="horof-edu"
+        >
+          <div class="cover cover-photo">
+            <picture>
+              <source type="image/webp" srcset="horof-edu-cover-card.webp" />
+              <img src="horof-edu-cover.PNG" alt="غلاف لعبة سباق الحروف التعليمية" width="640" height="640" loading="lazy" decoding="async" />
+            </picture>
+            <div class="cover-login-note" aria-label="تصفح فقط حتى تسجل الدخول">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2h1.2c.9 0 1.6.7 1.6 1.6v7.1c0 .9-.7 1.6-1.6 1.6H5.8c-.9 0-1.6-.7-1.6-1.6v-7.1c0-.9.7-1.6 1.6-1.6H7Zm2 0h6V8a3 3 0 0 0-6 0v2Z"></path></svg>
+              <span>تصفح فقط حتى تسجل الدخول</span>
+            </div>
+          </div>
+          <div class="game-title-row">
+            <h2 class="game-name">لعبة سباق الحروف التعليمية</h2>
+            <span class="game-status" data-status-for="horof-edu">مقفلة</span>
+          </div>
+          <p class="game-meta-text">+2 لاعبين/فرق · 15-30 دقيقة</p>
+          <p class="game-desc">حوّل درسك ومراجعتك إلى لعبة تفاعلية قابلة للتعديل وإضافة الأسئلة</p>
+          <div class="card-actions">
+            <a class="game-btn" href="horof-edu.html"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span><span class="game-btn-text">عرض اللعبة</span></a>
+            <a class="game-btn" href="https://sandooq-m.com/bwvKNPe"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span><span class="game-btn-text">شراء اللعبة</span></a>
+          </div>
+        </article>
+
+        <article class="game-card" hidden aria-hidden="true" style="display:none;">
+          <div class="cover blue"><span>بنك الكلمات</span></div>
+          <h2 class="game-name">لعبة بنك الكلمات</h2>
+          <p class="game-type">لعبة تفاعلية جماعية</p>
+          <div class="card-actions">
+            <a class="game-btn" href="#"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span><span class="game-btn-text">عرض اللعبة</span></a>
+            <a class="game-btn" href="#"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span><span class="game-btn-text">شراء اللعبة</span></a>
+          </div>
+        </article>
+
+        <article class="game-card" hidden aria-hidden="true" style="display:none;">
+          <div class="cover yellow"><span>الأسرع</span></div>
+          <h2 class="game-name">لعبة الأسرع</h2>
+          <p class="game-type">لعبة تفاعلية جماعية</p>
+          <div class="card-actions">
+            <a class="game-btn" href="#"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.7-6.2 9.2-6.2S21.2 12 21.2 12 17.5 18.2 12 18.2 2.8 12 2.8 12Z"></path><circle cx="12" cy="12" r="3.15" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.25" fill="#fff" stroke="none"></circle></svg></span><span class="game-btn-text">عرض اللعبة</span></a>
+            <a class="game-btn" href="#"><span class="icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.2l2 10.2h9.9l2-7.2H7.1"></path><path d="M9.2 18.8h8.8"></path><circle cx="10" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle><circle cx="18" cy="20.5" r="1.45" fill="currentColor" stroke="none"></circle></svg></span><span class="game-btn-text">شراء اللعبة</span></a>
+          </div>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer" aria-label="ذيل الصفحة">
+      <div class="footer-inner">
+        <h2 class="footer-title">آراء العملاء</h2>
+
+        <div class="reviews-carousel">
+          <div class="reviews-viewport" id="reviewsViewport">
+                        <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">م عبدالله</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">لعبه جميله وابداعية ..محفزة جدا جدا للطالبات ..اكثر من رائعه..حبيييييتها كثيررررر</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">غيدا القرني</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">لعبببببة رووووووعة صراحة الكل اتحمس لها كبير و صغير ، يعطيهم العافيه يارب و خدمة العملاء ٢٤ ساعه موجودين احلى و احلى</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">رسيل</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">والله أفضل متجر تعاملت معه وأنصحكم تجربوون لعبة سباق الحروف حماااسيه واذا مافهمتوا شي كلموهم واتس وبيردووون على طول ويشرحون لكم شكرًا مره صندوق المسابقات بإذن الله مب آخر لعبه اشتريها منكم️</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">حنان</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">اللعبة خيال ممتعه جدا والحلو فيها تقدرون تلعبون اكثر من مره لان الاسئلة تتغير كل مره احس تنفع للمدارس بعد</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">ام عبدالله</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">اللعبه جمييييييله جدااااا وممتعه ..استمتعوا اليوم الطالبات فيها ..استخدمتها كتقويم ختامي..بأسئلتي الخاصه بالدرس..راااااااااااااائعه..لكم كل الشكر والتقدير على هذا المجهود الاكثر من رائع</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">خالد المانع</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">لعبة جميلة نفس لعبة حروف زمان والجميل انك تتحكم بعدد الخلايا تبيها رباعية او خماسية او سداسية.</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">غلا العيسى</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">لعبة ممتعة جدددًا الصراحة وكل الأهل انبسطو عليها كل جَمعة لازم نلعبها</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">Saeed</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">مع اني ابلشتهم كل شوي اسألهم عن اللعبة بس ماقصرو معي دايما يردون بسرعة ومتجاوبين شكرا</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">khozama almotiri</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">اللعبه تجنن مره وونيسه ماندمت اني شريتها</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">تقوية شبكات</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">من امتع الالعاب اللي لعبناها مع الاصحاب والصدق انه متعوب عليها تستاهل كل خير</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">مانع اليامي</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">بكل صدق وامانه بعد التجربة الالعاب ممتازة جداً وشغلها احترافي لأبعد درجة والله ماتوقعت ان خدمة العملاء نفس كذا في سرعة التجاوب واخلاقهم الرائعة ويساعدوني شكرا لكم الله يوفقكم</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">فهيده</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">لعبة سباق الحروف أكثر من رائعه ممتعه . نتطلع للمزيد من روائع المتجر</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">abdulrahman</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">لعبة رائعة جدا</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">عبدالعزيز المنصور</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">شريت من عندكم ٣ العاب والله ان كل لعبة احلى من الثانية افكاركم في الالعاب ماقد شفت نفسها شكراً لكم وياليت تنزلون العاب اكثر</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">رشا</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">اللعبة ممتازة، والمتجر رائع</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">Deema Ibrahim</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">ممتاز الصراحه وواضح والخدمة سريعة ما قصروا</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">باسمه</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">رائع جدا لعبة حماسيه وجميلة جداً</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">ليان العنزي</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">المسابقه جميله وحماسيه والتواصل معكم سريع في الرد على استفساركم وشكراً</p>
+              </div>
+            </article>
+            <article class="review-slide">
+              <div class="review-card">
+                <div class="review-head">
+                  <span class="review-name">احمد الشهري</span>
+                  <span class="review-stars" aria-hidden="true">★★★★★</span>
+                </div>
+                <p class="review-text">بعد التجربة ماشاء الله ممتازة جربتها مع الشباب ولعبنا كلنا كل واحد من جوالة وسوينا عرض على الشاشة الصدق ماشاء الله فكرتكم مرة مميزة اهنيكم والله</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="footer-branding">
+          <h3>صندوق المسابقات</h3>
+          <p style="font-size:clamp(12px, 3.2vw, 16px); line-height:1.9; white-space:nowrap;">صندوق المسابقات متجر العاب رقمية تفاعلية<br>يجمع مسابقات جماعية والعاباً تعليمية جاهزة<br>للجمعات والفعاليات ومناسبات الأعياد بطريقة سهلة وممتعة</p>
+          <div class="footer-icons">
+            <a class="footer-icon" href="https://wa.me/966550960290" target="_blank" rel="noopener" aria-label="واتساب">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20 11.7a8 8 0 0 1-11.8 7L4 20l1.3-4.1A8 8 0 1 1 20 11.7Z"></path>
+                <path d="M8.7 8.6c.3 3.5 3.2 6.4 6.7 6.7"></path>
+                <path d="M8.7 8.6l1.6-.9 1.2 2.4-1.1.8"></path>
+                <path d="M15.4 15.3l.8-1.1 2.4 1.2-.9 1.6"></path>
+              </svg>
+            </a>
+            <a class="footer-icon" href="https://www.tiktok.com/@sandooq_m?_r=1&_t=ZS-964GO3FL4TM" target="_blank" rel="noopener" aria-label="تيك توك">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 4v10.2a4.2 4.2 0 1 1-3.5-4.1"></path>
+                <path d="M14 4c.7 3.1 2.6 4.9 5.5 5.3"></path>
+              </svg>
+            </a>
+            <a class="footer-icon" href="https://www.instagram.com/sandooq_m?igsh=aW0zZ2dqczBveTdr&utm_source=qr" target="_blank" rel="noopener" aria-label="انستقرام">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4" y="4" width="16" height="16" rx="5"></rect>
+                <circle cx="12" cy="12" r="3.4"></circle>
+                <circle class="fill-mark" cx="17.2" cy="6.8" r="1"></circle>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="quick-links-title">روابط سريعة</div>
+        <div class="quick-links">
+          <a class="quick-link" href="#games">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 15h10a4 4 0 0 0 4-4v0a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v0a4 4 0 0 0 4 4Z"></path><path d="M8 11h.01"></path><path d="M11 11h.01"></path><path d="M16 10v2"></path><path d="M15 11h2"></path></svg>
+            ألعابنا
+          </a>
+          <a class="quick-link" href="#bundles">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12v8H4v-8"></path><path d="M2 7h20v5H2Z"></path><path d="M12 7v13"></path><path d="M12 7H7.5A2.5 2.5 0 1 1 10 4.5C10 6 12 7 12 7Z"></path><path d="M12 7h4.5A2.5 2.5 0 1 0 14 4.5C14 6 12 7 12 7Z"></path></svg>
+            الباقات والعروض
+          </a>
+          <a class="quick-link" href="blog.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Z"></path><path d="M8 8h8"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg>
+            المدونة
+          </a>
+          <a class="quick-link" href="https://sandooq-m.com" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16l-1 10H5L4 9Z"></path><path d="M7 9V7a5 5 0 0 1 10 0v2"></path></svg>
+            المتجر
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-legal">
+        <div class="footer-legal-inner">
+          <div class="legal-line">جميع الحقوق محفوظة © 2025 صندوق المسابقات | <a class="legal-link" href="about.html">من نحن</a> | <a class="legal-link" href="privacy.html">الخصوصية</a></div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <nav class="bottom-nav" aria-label="التنقل السفلي">
+    <div class="bottom-nav-inner">
+      <span class="nav-indicator" aria-hidden="true"></span>
+
+      <a class="nav-item active" href="index.html" aria-current="page">
+        <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 15h10a4 4 0 0 0 4-4v0a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v0a4 4 0 0 0 4 4Z"></path><path d="M8 11h.01"></path><path d="M11 11h.01"></path><path d="M16 10v2"></path><path d="M15 11h2"></path><path d="M9 15l-2 3"></path><path d="M15 15l2 3"></path></svg></span>
+        <span>الألعاب</span>
+      </a>
+
+      <a class="nav-item nav-featured" href="purchase-activation.html">
+        <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l8-8"></path><path d="M17 4l3 3"></path><path d="M15 6l3 3"></path></svg></span>
+        <span>تفعيل الألعاب</span>
+      </a>
+
+      <a class="nav-item" href="account.html">
+        <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M6 21v-2a6 6 0 0 1 12 0v2"></path></svg></span>
+        <span>الحساب</span>
+      </a>
+
+      <a class="nav-item" href="support.html">
+        <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0v5a2 2 0 0 1-2 2h-2"></path><path d="M8 12v5H6a2 2 0 0 1-2-2v-3"></path><path d="M16 12v5h2a2 2 0 0 0 2-2v-3"></path><path d="M10 20h4"></path></svg></span>
+        <span>الدعم</span>
+      </a>
+    </div>
+  </nav>
+
+  <script>
+    const API_BASE = 'https://sandooq-games-api.sandooq-m.workers.dev';
+    const ACCOUNT_PHONE_KEY = 'sandooq_account_phone_v1';
+    const ACCOUNT_NAME_KEY = 'sandooq_player_name_v1';
+    const ACCOUNT_NAME_CONFIRMED_KEY = 'sandooq_player_name_confirmed_v1';
+    const TOKEN_KEY = 'sandooq_auth_token_v1';
+    const DEVICE_KEY = 'sandooq_device_token_v1';
+    const TEMP_GAME_SESSION_KEY = 'sandooq_temp_game_access_session_v1';
+    const DEVICE_TOKEN_AT_PAGE_LOAD = readLocalValue(DEVICE_KEY).trim();
+    const LINKED_GAMES_KEY = 'sandooq_linked_games_v1';
+    const LINKED_GAMES_DETAILS_KEY = 'sandooq_linked_games_details_v1';
+    const LAST_SYNC_KEY = 'sandooq_last_sync_v1';
+
+    const GAME_PLAY_URLS = {
+      'horof': 'https://horof.sandooq-games.com',
+      'horof-edu': 'https://horof.sandooq-games.com',
+      'bdon-kalam': 'https://bdon-kalam.sandooq-games.com',
+      'bra-alsalfah': 'https://bara.sandooq-games.com/single.html',
+      'family-feud': 'https://family-feud.sandooq-games.com',
+      'sandooq': 'sandooq.html'
+    };
+
+    const GAME_DETAILS_URLS = {
+      'horof': 'horof.html',
+      'horof-edu': 'horof-edu.html',
+      'bdon-kalam': 'bdon-kalam.html',
+      'bra-alsalfah': 'bra-alsalfah.html',
+      'family-feud': 'family-feud.html',
+      'sandooq': 'sandooq.html'
+    };
+
+    const horofActivationKeys = [
+      'horof_access_ok_v1',
+      'horof_activation_ok_v1',
+      'horof_auth_passed_v1',
+      'sandooq_horof_active_v1'
+    ];
+
+    function readLocalValue(key) {
+      try { return localStorage.getItem(key) || ''; } catch (e) { return ''; }
+    }
+
+    function writeLocalValue(key, value) {
+      try { localStorage.setItem(key, String(value || '')); } catch (e) {}
+    }
+
+    function formatAccountName(name) {
+      const clean = String(name || '').replace(/\s+/g, ' ').trim();
+      if (!clean) return '';
+      return clean.length > 14 ? clean.slice(0, 14).trim() + '…' : clean;
+    }
+
+    function isAccountNameConfirmed() {
+      return readLocalValue(ACCOUNT_NAME_CONFIRMED_KEY).trim() === '1';
+    }
+
+    function getConfirmedAccountName() {
+      return isAccountNameConfirmed() ? readLocalValue(ACCOUNT_NAME_KEY) : '';
+    }
+
+    function refreshLoginChip() {
+      const loginChip = document.getElementById('loginStatusButton') || document.querySelector('.login-chip');
+      if (!loginChip) return;
+      const phone = readLocalValue(ACCOUNT_PHONE_KEY).trim();
+      const playerName = formatAccountName(getConfirmedAccountName());
+
+      if (phone && playerName) loginChip.textContent = `مرحبًا ${playerName}`;
+      else if (phone) loginChip.textContent = 'تم الدخول';
+      else loginChip.textContent = 'تسجيل الدخول';
+    }
+
+    function hasHorofActivation() {
+      return horofActivationKeys.some(key => {
+        try {
+          const value = localStorage.getItem(key) || sessionStorage.getItem(key);
+          return value && value !== '0' && value !== 'false' && value !== 'no';
+        } catch (e) {
+          return false;
+        }
+      });
+    }
+
+    function getOrCreateDeviceToken() {
+      let token = readLocalValue(DEVICE_KEY).trim();
+      if (token) return token;
+
+      try {
+        if (crypto.randomUUID) token = 'site_' + crypto.randomUUID();
+      } catch (e) {}
+
+      if (!token) {
+        try {
+          const bytes = new Uint8Array(16);
+          crypto.getRandomValues(bytes);
+          token = 'site_' + Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('');
+        } catch (e) {
+          token = 'site_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+        }
+      }
+
+      writeLocalValue(DEVICE_KEY, token);
+      return token;
+    }
+
+    function hasSavedDeviceToken() {
+      return !!readLocalValue(DEVICE_KEY).trim();
+    }
+
+    function readSessionValue(key) {
+      try { return sessionStorage.getItem(key) || ''; } catch (e) { return ''; }
+    }
+
+    function writeSessionValue(key, value) {
+      try { sessionStorage.setItem(key, String(value || '')); } catch (e) {}
+    }
+
+    function markTemporaryGameSession() {
+      writeSessionValue(TEMP_GAME_SESSION_KEY, '1');
+    }
+
+    function hasTemporaryGameSession() {
+      return readSessionValue(TEMP_GAME_SESSION_KEY).trim() === '1';
+    }
+
+    function isTrustedSavedDeviceToken(token) {
+      return /^site_[a-z0-9_-]+/i.test(String(token || '').trim());
+    }
+
+    function shouldUseTemporaryGameAccess(isPrivate) {
+      if (isPrivate || hasTemporaryGameSession()) {
+        markTemporaryGameSession();
+        return true;
+      }
+
+      const currentDevice = readLocalValue(DEVICE_KEY).trim();
+
+      // إذا وجدنا جهازًا قديمًا/غير موثوق بدون بادئة site_ فهذا غالبًا قادم من جلسة خفية أو نسخة سابقة؛
+      // نعامله كجلسة مؤقتة حتى لا يتحول إلى جهاز ثالث بالخطأ.
+      if (currentDevice && !isTrustedSavedDeviceToken(currentDevice)) {
+        markTemporaryGameSession();
+        return true;
+      }
+
+      // على Safari خصوصًا، اكتشاف الخاص قد يفشل. إذا لم يكن هناك جهاز محفوظ قبل فتح الصفحة،
+      // نسمح بأول دخول كجلسة مؤقتة وننشئ جهازًا محفوظًا للاستخدامات العادية اللاحقة.
+      if (!DEVICE_TOKEN_AT_PAGE_LOAD && !currentDevice && isSafariBrowser()) {
+        getOrCreateDeviceToken();
+        markTemporaryGameSession();
+        return true;
+      }
+
+      return false;
+    }
+
+    let privateModePromise = null;
+    let privateModeDetected = false;
+    let privateModeReady = false;
+
+    function isSafariBrowser() {
+      const ua = String(navigator.userAgent || '');
+      return /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|Chrome|Chromium|Android/i.test(ua);
+    }
+
+    function storageProbeWorks() {
+      try {
+        const key = '__sandooq_storage_probe__';
+        localStorage.setItem(key, '1');
+        const ok = localStorage.getItem(key) === '1';
+        localStorage.removeItem(key);
+        return ok;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function indexedDbProbe() {
+      return new Promise(resolve => {
+        try {
+          if (!window.indexedDB) {
+            resolve(true);
+            return;
+          }
+
+          const dbName = '__sandooq_private_probe__' + Date.now();
+          const request = indexedDB.open(dbName, 1);
+          let done = false;
+          const finish = value => {
+            if (done) return;
+            done = true;
+            try { indexedDB.deleteDatabase(dbName); } catch (e) {}
+            resolve(value);
+          };
+
+          request.onerror = () => finish(true);
+          request.onblocked = () => finish(true);
+          request.onsuccess = () => {
+            try { request.result.close(); } catch (e) {}
+            finish(false);
+          };
+
+          window.setTimeout(() => finish(false), 900);
+        } catch (e) {
+          resolve(true);
+        }
+      });
+    }
+
+    async function detectPrivateMode() {
+      if (privateModePromise) return privateModePromise;
+
+      privateModePromise = (async () => {
+        let detected = false;
+
+        if (!storageProbeWorks()) detected = true;
+
+        try {
+          if (!detected && navigator.storage && navigator.storage.estimate) {
+            const estimate = await navigator.storage.estimate();
+            const quota = Number(estimate && estimate.quota ? estimate.quota : 0);
+            if (isSafariBrowser() && quota > 0 && quota < 150 * 1024 * 1024) {
+              detected = true;
+            }
+          }
+        } catch (e) {}
+
+        try {
+          if (!detected) detected = await indexedDbProbe();
+        } catch (e) {}
+
+        privateModeDetected = !!detected;
+        privateModeReady = true;
+        return privateModeDetected;
+      })();
+
+      return privateModePromise;
+    }
+
+
+    function readLinkedGameIds() {
+      const ids = new Set();
+
+      try {
+        const raw = readLocalValue(LINKED_GAMES_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(parsed)) parsed.forEach(id => id && ids.add(String(id)));
+        else if (parsed && typeof parsed === 'object') Object.keys(parsed).forEach(id => parsed[id] && ids.add(String(id)));
+      } catch (e) {}
+
+      try {
+        const raw = readLocalValue('sandooq_owned_games_v1');
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(parsed)) parsed.forEach(id => id && ids.add(String(id)));
+      } catch (e) {}
+
+      if (hasHorofActivation()) ids.add('horof');
+      return ids;
+    }
+
+    function readLinkedGameDetails() {
+      try {
+        const parsed = JSON.parse(readLocalValue(LINKED_GAMES_DETAILS_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveLinkedGames(games) {
+      const safeGames = Array.isArray(games) ? games : [];
+      const ids = safeGames.map(game => String(game.id || game.slug || '')).filter(Boolean);
+      try { localStorage.setItem(LINKED_GAMES_KEY, JSON.stringify(ids)); } catch (e) {}
+      try { localStorage.setItem(LINKED_GAMES_DETAILS_KEY, JSON.stringify(safeGames)); } catch (e) {}
+      try { localStorage.setItem('sandooq_owned_games_v1', JSON.stringify(ids)); } catch (e) {}
+      try { localStorage.setItem(LAST_SYNC_KEY, new Date().toLocaleString('ar-SA', { hour12:true })); } catch (e) {}
+    }
+
+    function getGameDetailsMap() {
+      const map = new Map();
+      readLinkedGameDetails().forEach(game => {
+        const id = String(game.id || game.slug || '');
+        if (id) map.set(id, game);
+      });
+      return map;
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(API_BASE + path, {
+        method: options.method || 'GET',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          ...(options.headers || {})
+        },
+        body: options.body ? JSON.stringify(options.body) : undefined,
+        cache: 'no-store'
+      });
+
+      let data = {};
+      try { data = await response.json(); } catch (e) {}
+      if (!response.ok || data.ok === false) {
+        const error = new Error(data.message || 'تعذر الاتصال بالخدمة.');
+        error.data = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    }
+
+    async function refreshAccountFromApi() {
+      const token = readLocalValue(TOKEN_KEY).trim();
+      if (!token) return null;
+
+      try {
+        const data = await api('/api/account/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (data.customer && data.customer.phone) writeLocalValue(ACCOUNT_PHONE_KEY, data.customer.phone);
+        saveLinkedGames(data.games || []);
+        return data;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    const PLAY_BUTTON_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7.5v9l7-4.5-7-4.5Z" fill="currentColor" stroke="none"></path></svg>';
+
+    function setButtonLabel(link, text) {
+      if (!link) return;
+      const textNode = link.querySelector('.game-btn-text');
+      if (textNode) textNode.textContent = text;
+      else link.textContent = text;
+    }
+
+    function setButtonIcon(link, html) {
+      const badge = link ? link.querySelector('.icon-badge') : null;
+      if (badge) badge.innerHTML = html;
+    }
+
+    function restoreButtonIcon(link) {
+      const badge = link ? link.querySelector('.icon-badge') : null;
+      if (badge && badge.dataset.originalIcon) badge.innerHTML = badge.dataset.originalIcon;
+    }
+
+    function prepareAccessButton(link) {
+      if (!link || link.dataset.accessPrepared === '1') return;
+      const label = link.querySelector('.game-btn-text');
+      const badge = link.querySelector('.icon-badge');
+      link.dataset.accessPrepared = '1';
+      link.dataset.originalHref = link.getAttribute('href') || '#';
+      link.dataset.originalLabel = label ? label.textContent.trim() : (link.textContent || '').trim();
+      if (badge) badge.dataset.originalIcon = badge.innerHTML;
+    }
+
+    function findAccessButton(card) {
+      let accessButton = card.querySelector('.game-btn[data-access-button="1"]');
+      if (accessButton) return accessButton;
+
+      accessButton = Array.from(card.querySelectorAll('.game-btn')).find(link => {
+        const text = (link.textContent || '').trim();
+        const href = link.getAttribute('href') || '';
+        return text.includes('شراء') || /sandooq-m\.com/.test(href) || link.dataset.action === 'buy';
+      });
+
+      if (accessButton) accessButton.dataset.accessButton = '1';
+      return accessButton;
+    }
+
+    function getPlayUrl(card, gameId, detailsMap) {
+      const cardPlay = String(card.dataset.playUrl || '').trim();
+      if ((gameId === 'bra-alsalfah' || gameId === 'sandooq') && cardPlay) return cardPlay;
+
+      const apiGame = detailsMap.get(gameId);
+      const apiPlay = apiGame && String(apiGame.play_url || '').trim();
+      if (apiPlay) return apiPlay;
+
+      if (cardPlay) return cardPlay;
+
+      return GAME_PLAY_URLS[gameId] || GAME_DETAILS_URLS[gameId] || '#';
+    }
+
+    function buildPlayUrlWithAccess(playUrl, gameId) {
+      if (!playUrl || playUrl === '#') return playUrl;
+
+      if (gameId === 'family-feud' || gameId === 'sandooq') return playUrl;
+
+      const token = readLocalValue(TOKEN_KEY).trim();
+      if (!token) return playUrl;
+
+      try {
+        const url = new URL(playUrl, window.location.href);
+        url.searchParams.set('sg_token', token);
+        url.searchParams.set('sg_temp', '1');
+        url.searchParams.delete('sg_device');
+
+        if (gameId) url.searchParams.set('sg_game', gameId);
+        else url.searchParams.delete('sg_game');
+
+        return url.toString();
+      } catch (e) {
+        return playUrl;
+      }
+    }
+
+    async function buildPlayUrlWithAccessAsync(playUrl, gameId) {
+      if (!playUrl || playUrl === '#') return playUrl;
+      if (gameId !== 'family-feud') return buildPlayUrlWithAccess(playUrl, gameId);
+
+      const token = readLocalValue(TOKEN_KEY).trim();
+      if (!token) return playUrl;
+
+      const isPrivate = await detectPrivateMode();
+      const useTemporary = shouldUseTemporaryGameAccess(isPrivate);
+
+      try {
+        const url = new URL(playUrl, window.location.href);
+        url.searchParams.set('sg_token', token);
+        if (gameId) url.searchParams.set('sg_game', gameId);
+        else url.searchParams.delete('sg_game');
+
+        if (useTemporary) {
+          url.searchParams.set('sg_temp', '1');
+          url.searchParams.delete('sg_device');
+        } else {
+          url.searchParams.set('sg_device', getOrCreateDeviceToken());
+          url.searchParams.delete('sg_temp');
+        }
+
+        return url.toString();
+      } catch (e) {
+        return playUrl;
+      }
+    }
+
+
+
+    function resetAccessButton(link) {
+      if (!link) return;
+      prepareAccessButton(link);
+      link.classList.remove('play-action');
+      link.setAttribute('href', link.dataset.originalHref || '#');
+      setButtonLabel(link, link.dataset.originalLabel || 'شراء اللعبة');
+      restoreButtonIcon(link);
+    }
+
+    function activateAccessButton(link, card, gameId, detailsMap) {
+      if (!link) return;
+      prepareAccessButton(link);
+
+      const basePlayUrl = getPlayUrl(card, gameId, detailsMap) || link.dataset.originalHref || '#';
+
+      link.dataset.basePlayUrl = basePlayUrl;
+      link.dataset.gameId = gameId;
+      link.dataset.directIndexPlay = '1';
+      link.classList.add('play-action');
+      link.setAttribute('href', buildPlayUrlWithAccess(basePlayUrl, gameId));
+      setButtonLabel(link, 'العب');
+      setButtonIcon(link, PLAY_BUTTON_ICON);
+    }
+
+    function prepareGameCardsForAccessStates() {
+      const ownedIds = readLinkedGameIds();
+      const detailsMap = getGameDetailsMap();
+
+      document.querySelectorAll('.game-card[data-game-id]').forEach(card => {
+        const gameId = String(card.dataset.gameId || '');
+        const status = card.querySelector('.game-status');
+        const accessButton = findAccessButton(card);
+
+        if (accessButton) prepareAccessButton(accessButton);
+
+        if (ownedIds.has(gameId)) {
+          card.classList.add('game-unlocked');
+          if (status) status.textContent = 'مفعّلة';
+          activateAccessButton(accessButton, card, gameId, detailsMap);
+        } else {
+          card.classList.remove('game-unlocked');
+          if (status) status.textContent = 'مقفلة';
+          resetAccessButton(accessButton);
+        }
+      });
+    }
+
+    function refreshAccountUi() {
+      refreshLoginChip();
+      prepareGameCardsForAccessStates();
+    }
+
+    refreshAccountUi();
+    window.addEventListener('pageshow', () => {
+      refreshAccountUi();
+      refreshAccountFromApi().then(refreshAccountUi);
+      detectPrivateMode().then(() => refreshAccountUi()).catch(() => {});
+    });
+
+    document.addEventListener('click', async event => {
+      const playButton = event.target && event.target.closest
+        ? event.target.closest('.game-card .game-btn.play-action[data-direct-index-play="1"]')
+        : null;
+
+      if (!playButton) return;
+
+      const gameId = String(playButton.dataset.gameId || '').trim();
+      const basePlayUrl = playButton.dataset.basePlayUrl || playButton.getAttribute('href') || '#';
+      if (!gameId || !basePlayUrl || basePlayUrl === '#') return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const finalUrl = await buildPlayUrlWithAccessAsync(basePlayUrl, gameId);
+      playButton.setAttribute('href', finalUrl);
+      window.location.assign(finalUrl);
+    }, { passive:false, capture:true });
+
+    window.addEventListener('storage', refreshAccountUi);
+    refreshAccountFromApi().then(refreshAccountUi);
+    detectPrivateMode().then(() => refreshAccountUi()).catch(() => {});
+
+    const bottomNav = document.querySelector('.bottom-nav-inner');
+    const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+
+    function moveBottomNavIndicator(item) {
+      if (!bottomNav || !item) return;
+      const navRect = bottomNav.getBoundingClientRect();
+      const itemRect = item.getBoundingClientRect();
+      bottomNav.style.setProperty('--indicator-x', `${itemRect.left - navRect.left}px`);
+      bottomNav.style.setProperty('--indicator-y', `${itemRect.top - navRect.top}px`);
+      bottomNav.style.setProperty('--indicator-w', `${itemRect.width}px`);
+      bottomNav.style.setProperty('--indicator-h', `${itemRect.height}px`);
+    }
+
+    function setActiveNavItem(item) {
+      navItems.forEach(navItem => navItem.classList.remove('active'));
+      item.classList.add('active');
+      moveBottomNavIndicator(item);
+    }
+
+    navItems.forEach(item => item.addEventListener('click', () => setActiveNavItem(item)));
+
+    document.querySelectorAll('.review-card').forEach(card => {
+      const name = card.querySelector('.review-name');
+      const text = card.querySelector('.review-text');
+
+      if (name && name.textContent.trim().length > 18) card.classList.add('name-long');
+
+      if (text) {
+        const length = text.textContent.trim().length;
+        if (length > 92) card.classList.add('text-long');
+        if (length > 135) card.classList.add('text-very-long');
+        if (length > 175) card.classList.add('text-ultra-long');
+      }
+    });
+
+    const reviewViewport = document.getElementById('reviewsViewport');
+    const reviewSlides = Array.from(document.querySelectorAll('.review-slide'));
+    let currentReview = 0;
+    let reviewTimer = null;
+    let reviewScrollDebounce = null;
+    let touchStartX = 0;
+
+    function scrollToReview(index, behavior = 'smooth') {
+      if (!reviewViewport || !reviewSlides.length) return;
+      currentReview = (index + reviewSlides.length) % reviewSlides.length;
+      const slide = reviewSlides[currentReview];
+      const left = slide.offsetLeft - ((reviewViewport.clientWidth - slide.clientWidth) / 2);
+      reviewViewport.scrollTo({ left, behavior });
+    }
+
+    function restartReviewTimer() {
+      if (reviewTimer) window.clearInterval(reviewTimer);
+      reviewTimer = window.setInterval(() => scrollToReview(currentReview + 1), 4000);
+    }
+
+    function updateReviewFromScroll() {
+      if (!reviewViewport || !reviewSlides.length) return;
+      const viewportCenter = reviewViewport.scrollLeft + (reviewViewport.clientWidth / 2);
+      let nearestIndex = 0;
+      let nearestDistance = Infinity;
+
+      reviewSlides.forEach((slide, index) => {
+        const slideCenter = slide.offsetLeft + (slide.clientWidth / 2);
+        const distance = Math.abs(slideCenter - viewportCenter);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = index;
+        }
+      });
+
+      currentReview = nearestIndex;
+    }
+
+    if (reviewViewport && reviewSlides.length) {
+      reviewViewport.addEventListener('touchstart', event => {
+        touchStartX = event.touches[0].clientX;
+        if (reviewTimer) window.clearInterval(reviewTimer);
+      }, { passive:true });
+
+      reviewViewport.addEventListener('touchend', event => {
+        const touchEndX = event.changedTouches[0].clientX;
+        const diff = touchEndX - touchStartX;
+
+        if (Math.abs(diff) > 40) {
+          scrollToReview(diff < 0 ? currentReview + 1 : currentReview - 1);
+        } else {
+          updateReviewFromScroll();
+          scrollToReview(currentReview);
+        }
+
+        restartReviewTimer();
+      }, { passive:true });
+
+      reviewViewport.addEventListener('scroll', () => {
+        if (reviewScrollDebounce) window.clearTimeout(reviewScrollDebounce);
+        reviewScrollDebounce = window.setTimeout(updateReviewFromScroll, 120);
+      }, { passive:true });
+
+      restartReviewTimer();
+    }
+
+    
+    // ✅ تثبيت الشريط السفلي فعلياً على أسفل الجزء المرئي (خصوصاً على iOS Safari)
+    // iOS Safari يغيّر مساحة الجزء المرئي أثناء التمرير (إظهار/إخفاء شريط المتصفح)،
+    // وهذا يجعل position:fixed يبدو وكأنه "يرتفع". الحل: نحسب الإزاحة ونطبّق TranslateY.
+    function stabilizeBottomNav() {
+      const nav = document.querySelector('.bottom-nav');
+      const navInner = document.querySelector('.bottom-nav-inner');
+      if (!nav) return;
+
+      // اجبر الشريط أن يكون Fixed على مستوى الـ viewport
+      nav.style.setProperty('position', 'fixed', 'important');
+      nav.style.setProperty('left', '0px', 'important');
+      nav.style.setProperty('right', '0px', 'important');
+      nav.style.setProperty('top', 'auto', 'important');
+      nav.style.setProperty('bottom', '0px', 'important');
+      nav.style.setProperty('width', '100%', 'important');
+      nav.style.setProperty('z-index', '2147483000', 'important');
+      nav.style.setProperty('will-change', 'transform', 'important');
+
+      // صفّر التحويل ثم قِس مكان الشريط بالنسبة للـ Visual Viewport
+      nav.style.setProperty('transform', 'translate3d(0, 0, 0)', 'important');
+      nav.style.setProperty('-webkit-transform', 'translate3d(0, 0, 0)', 'important');
+
+      const vv = window.visualViewport;
+      const viewportH = vv ? vv.height : window.innerHeight;
+      const rect = nav.getBoundingClientRect();
+
+      // إذا كان الشريط أعلى من الأسفل نُنزلُه، وإذا كان أسفل/مخفي نرفعُه
+      const shiftY = Math.round(viewportH - rect.bottom);
+
+      document.documentElement.style.setProperty('--bottom-nav-vv-shift', `${shiftY}px`);
+      nav.style.setProperty('transform', `translate3d(0, ${shiftY}px, 0)`, 'important');
+      nav.style.setProperty('-webkit-transform', `translate3d(0, ${shiftY}px, 0)`, 'important');
+
+      // حافظ على مساحة أسفل المحتوى حتى لا ينغطس تحت الشريط
+      const fixedNavHeight = Math.ceil(nav.getBoundingClientRect().height || nav.offsetHeight || 0);
+      if (fixedNavHeight > 0) {
+        document.documentElement.style.setProperty('--bottom-nav-space', `${fixedNavHeight}px`);
+        const app = document.querySelector('.app');
+        if (app) app.style.paddingBottom = `${fixedNavHeight + 26}px`;
+      }
+
+      const activeItem = document.querySelector('.bottom-nav .nav-item.active');
+      if (navInner && activeItem) moveBottomNavIndicator(activeItem);
+    }
+
+function scheduleBottomNavStabilize(delay = 0) {
+      window.setTimeout(stabilizeBottomNav, delay);
+      window.requestAnimationFrame(stabilizeBottomNav);
+    }
+
+    window.addEventListener('load', () => {
+      const activeItem = document.querySelector('.bottom-nav .nav-item.active');
+      moveBottomNavIndicator(activeItem);
+      window.setTimeout(() => moveBottomNavIndicator(activeItem), 120);
+      scrollToReview(0, 'auto');
+      scheduleBottomNavStabilize();
+      scheduleBottomNavStabilize(250);
+    });
+
+    window.addEventListener('resize', () => {
+      moveBottomNavIndicator(document.querySelector('.bottom-nav .nav-item.active'));
+      scrollToReview(currentReview, 'auto');
+      scheduleBottomNavStabilize();
+    });
+
+    window.addEventListener('scroll', () => {
+      scheduleBottomNavStabilize();
+    }, { passive:true });
+
+    window.addEventListener('orientationchange', () => {
+      scheduleBottomNavStabilize(80);
+      scheduleBottomNavStabilize(240);
+      scheduleBottomNavStabilize(520);
+    }, { passive:true });
+
+    window.addEventListener('focusin', () => scheduleBottomNavStabilize(60), { passive:true });
+    window.addEventListener('focusout', () => {
+      scheduleBottomNavStabilize(60);
+      scheduleBottomNavStabilize(260);
+    }, { passive:true });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => scheduleBottomNavStabilize(), { passive:true });
+      window.visualViewport.addEventListener('scroll', () => scheduleBottomNavStabilize(), { passive:true });
+    }
+
+    stabilizeBottomNav();
+
+  </script>
+</body>
 </html>
