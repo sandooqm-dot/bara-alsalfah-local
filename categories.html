@@ -531,6 +531,22 @@
       return players;
     }
 
+    function normalizePlayerNameForCompare(name){
+      return String(name || "").trim().replace(/\s+/g, " ").toLowerCase();
+    }
+
+    function findDuplicatePlayerName(list){
+      const seen = new Set();
+      for(const name of list){
+        const cleanName = String(name || "").trim();
+        const key = normalizePlayerNameForCompare(cleanName);
+        if(!key) continue;
+        if(seen.has(key)) return cleanName;
+        seen.add(key);
+      }
+      return "";
+    }
+
     function setCategoryEverywhere(key, label){
       selectedKey = key;
       selectedLabel = String(label || "");
@@ -641,6 +657,12 @@
         return;
       }
 
+      if(findDuplicatePlayerName(players)){
+        alert("لا يمكن تكرار أسماء اللاعبين. اكتب اسم مختلف لكل لاعب.");
+        window.location.href = buildNextUrl("single.html");
+        return;
+      }
+
       let saved = (sessionStorage.getItem(KEY_CATEGORY) || "").trim();
       if(!saved){
         for (const k of ALT_CAT_KEYS){
@@ -675,6 +697,12 @@
       const players = normalizePlayersToExpectedKeys();
       if(players.length < 3){
         alert("الأسماء غير موجودة. ارجع وأدخل الأسماء.");
+        window.location.href = buildNextUrl("single.html");
+        return;
+      }
+
+      if(findDuplicatePlayerName(players)){
+        alert("لا يمكن تكرار أسماء اللاعبين. اكتب اسم مختلف لكل لاعب.");
         window.location.href = buildNextUrl("single.html");
         return;
       }
