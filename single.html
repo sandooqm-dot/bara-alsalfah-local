@@ -143,19 +143,27 @@
     }
 
     .helpWrap,
-    .startWrap{
+    .startWrap,
+    .homeWrap{
       display:flex;
       justify-content:center;
       margin: 14px 0 0;
     }
 
     .startWrap{
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .homeWrap{
+      margin-top: 18px;
       margin-bottom: 18px;
       padding-bottom: calc(14px + env(safe-area-inset-bottom));
     }
 
     .helpBtn,
-    .startBtn{
+    .startBtn,
+    .homeBtn{
       border: 4px solid #000;
       color:#111;
       font-weight: 900;
@@ -174,6 +182,7 @@
       justify-content:center;
       text-align:center;
       white-space:nowrap;
+      text-decoration:none;
     }
 
     .helpBtn{
@@ -186,6 +195,13 @@
       background: var(--yellow);
       color:#111;
       min-width: 255px;
+    }
+
+    .homeBtn{
+      background: linear-gradient(180deg, #ff6f66 0%, #e6463d 100%);
+      color:#fff;
+      min-width: 255px;
+      text-shadow:0 2px 0 rgba(0,0,0,.14);
     }
 
     .overlay{
@@ -267,9 +283,11 @@
       .nameInput{ font-size: 18px; }
       .helpBtn,
       .startBtn,
+      .homeBtn,
       .backBtn{ font-size: 22px; }
       .helpBtn,
-      .startBtn{ min-width: 235px; padding: 11px 18px; min-height: 58px; }
+      .startBtn,
+      .homeBtn{ min-width: 235px; padding: 11px 18px; min-height: 58px; }
       .plusBtn{ width: 54px; height: 54px; }
       .plusBtn span{ font-size: 34px; }
     }
@@ -304,6 +322,10 @@
 
       <div class="startWrap">
         <button class="startBtn" id="startBtn">ابدأ اللعب</button>
+      </div>
+
+      <div class="homeWrap">
+        <a class="homeBtn" href="https://sandooq-games.com/index.html?focus=bra-alsalfah#games" aria-label="العودة إلى الصفحة الرئيسية">الرئيسية</a>
       </div>
     </div>
   </div>
@@ -714,5 +736,6 @@
     });
   </script>
 
+  <!-- VERSION: bra-alsalfah-single — red-bottom-home-button-v1 -->
 </body>
 </html>
